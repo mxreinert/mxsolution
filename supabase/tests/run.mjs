@@ -3,8 +3,9 @@ import { PGlite } from '@electric-sql/pglite';
 import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = process.env.REPO_ROOT || path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^/([A-Z]:)/, '$1')), '../..');
+const ROOT = process.env.REPO_ROOT || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const db = new PGlite({ extensions: { pgcrypto } });
 
 const STUB = `

@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin — Max Reinert</title>
+<style>
+  :root{
+    --bg:#0a0e14;
+    --bg-soft:#121a24;
+    --line:#1f2733;
+    --text:#f5f6f7;
+    --muted:#93a1b0;
+    --accent:#ff7a45;
+    --accent2:#2dd4bf;
+    --danger:#ef4444;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    min-height:100vh;
+  }
+  [hidden]{display:none !important;}
+
+  /* Login */
+  .login-screen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  .login-box{
+    width:100%;
+    max-width:360px;
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:32px;
+  }
+  .login-box h1{
+    font-size:1.4rem;
+    margin:0 0 24px;
+  }
+
+  input, textarea{
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--text);
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:15px;
+    font-family:inherit;
+  }
+  input:focus, textarea:focus, [contenteditable]:focus{
+    outline:2px solid var(--accent2);
+    outline-offset:1px;
+  }
+  label{
+    display:block;
+    font-size:13px;
+    color:var(--muted);
+    margin:0 0 6px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+  }
+  .field{margin-bottom:18px;}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:11px 20px;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:600;
+    text-decoration:none;
+    border:1px solid var(--line);
+    cursor:pointer;
+    background:transparent;
+    color:var(--text);
+    font-family:inherit;
+    transition:transform .15s ease, opacity .15s ease, border-color .15s ease;
+  }
+  .btn:hover{border-color:var(--accent2);}
+  .btn:active{transform:scale(.97);}
+  .btn-primary{
+    background:var(--accent);
+    color:#0a0e14;
+    border-color:transparent;
+  }
+  .btn-primary:hover{opacity:.9; border-color:transparent;}
+  .btn-danger{color:var(--danger); border-color:var(--danger);}
+  .btn-danger:hover{background:rgba(239,68,68,.1);}
+  .btn-block{width:100%; justify-content:center;}
+
+  .error{
+    color:var(--danger);
+    font-size:13px;
+    margin:12px 0 0;
+    min-height:1em;
+  }
+
+  /* Dashboard */
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:22px clamp(20px,5vw,48px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar h1{font-size:1.2rem; margin:0;}
+  main{
+    max-width:900px;
+    margin:0 auto;
+    padding:32px clamp(20px,5vw,48px) 80px;
+  }
+  .list-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+  }
+  .post-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:16px 20px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:var(--bg-soft);
+    margin-bottom:12px;
+  }
+  .post-row .info{min-width:0;}
+  .post-row h3{
+    margin:0 0 4px;
+    font-size:1rem;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .post-row .sub{
+    font-size:12px;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .badge{
+    font-size:11px;
+    padding:2px 8px;
+    border-radius:999px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .badge-live{background:rgba(45,212,191,.15); color:var(--accent2);}
+  .badge-draft{background:rgba(147,161,176,.15); color:var(--muted);}
+  .row-actions{display:flex; gap:8px; flex-shrink:0;}
+  .empty{
+    color:var(--muted);
+    border:1px dashed var(--line);
+    border-radius:16px;
+    padding:40px;
+    text-align:center;
+  }
+
+  /* Editor */
+  .editor-backdrop{
+    position:fixed; inset:0;
+    background:rgba(0,0,0,.6);
+    display:flex; align-items:flex-start; justify-content:center;
+    padding:40px 20px;
+    overflow-y:auto;
+    z-index:100;
+  }
+  .editor{
+    width:100%;
+    max-width:720px;
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:32px;
+  }
+  .editor h2{margin:0 0 24px; font-size:1.3rem;}
+  .toolbar{
+    display:flex;
+    gap:6px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .toolbar button{
+    padding:8px 12px;
+    font-size:13px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    color:var(--text);
+    border-radius:8px;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .toolbar button:hover{border-color:var(--accent2);}
+  #content{
+    min-height:220px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px;
+    background:var(--bg);
+    line-height:1.6;
+  }
+  #content img{max-width:100%; border-radius:8px;}
+  .cover-preview{
+    width:100%;
+    max-height:180px;
+    object-fit:cover;
+    border-radius:10px;
+    margin-bottom:10px;
+    display:none;
+  }
+  .checkbox-field{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .checkbox-field input{width:auto;}
+  .checkbox-field label{margin:0; text-transform:none; letter-spacing:0; font-size:14px; color:var(--text);}
+  .editor-actions{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:24px;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .editor-actions .right{display:flex; gap:10px;}
+</style>
+</head>
+<body>
+
+  <div class="login-screen" id="loginScreen">
+    <div class="login-box">
+      <h1>Admin-Login</h1>
+      <div class="field">
+        <label for="passphrase">Passphrase</label>
+        <input type="password" id="passphrase" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary btn-block" id="loginBtn">Anmelden</button>
+      <p class="error" id="loginError"></p>
+    </div>
+  </div>
+
+  <div id="dashboard" hidden>
+    <div class="topbar">
+      <h1>Blog verwalten</h1>
+      <button class="btn" id="logoutBtn">Abmelden</button>
+    </div>
+    <main>
+      <div class="list-header">
+        <span></span>
+        <button class="btn btn-primary" id="newPostBtn">+ Neuer Artikel</button>
+      </div>
+      <div id="postList"></div>
+    </main>
+  </div>
+
+  <div class="editor-backdrop" id="editorBackdrop" hidden>
+    <div class="editor">
+      <h2 id="editorTitle">Neuer Artikel</h2>
+
+      <div class="field">
+        <label for="titleInput">Titel</label>
+        <input type="text" id="titleInput">
+      </div>
+
+      <div class="field">
+        <label for="excerptInput">Kurzbeschreibung</label>
+        <textarea id="excerptInput" rows="2"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="dateInput">Datum</label>
+        <input type="date" id="dateInput">
+      </div>
+
+      <div class="field">
+        <label>Titelbild</label>
+        <img class="cover-preview" id="coverPreview">
+        <input type="file" id="coverInput" accept="image/*">
+      </div>
+
+      <div class="field">
+        <label>Inhalt</label>
+        <div class="toolbar">
+          <button type="button" data-cmd="bold"><b>B</b></button>
+          <button type="button" data-cmd="italic"><i>I</i></button>
+          <button type="button" data-cmd="h2">H2</button>
+          <button type="button" data-cmd="ul">&bull; Liste</button>
+          <button type="button" data-cmd="link">Link</button>
+          <button type="button" id="insertImageBtn">Bild einfügen</button>
+        </div>
+        <div id="content" contenteditable="true"></div>
+        <input type="file" id="contentImageInput" accept="image/*" hidden>
+      </div>
+
+      <div class="checkbox-field">
+        <input type="checkbox" id="publishedInput">
+        <label for="publishedInput">Veröffentlicht (öffentlich sichtbar)</label>
+      </div>
+
+      <p class="error" id="editorError"></p>
+
+      <div class="editor-actions">
+        <button class="btn btn-danger" id="deletePostBtn" hidden>Löschen</button>
+        <div class="right">
+          <button class="btn" id="cancelEditBtn">Abbrechen</button>
+          <button class="btn btn-primary" id="saveBtn">Speichern</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = '/api';
+    let token = localStorage.getItem('blog_token') || '';
+    let posts = [];
+    let editingId = null;
+
+    const el = id => document.getElementById(id);
+
+    function authHeaders(extra){
+      return Object.assign({ 'Authorization': 'Bearer ' + token }, extra || {});
+    }
+
+    async function login(){
+      el('loginError').textContent = '';
+      const passphrase = el('passphrase').value;
+      try {
+        const res = await fetch(API + '/login', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ passphrase })
+        });
+        const data = await res.json();
+        if (!res.ok) { el('loginError').textContent = data.error || 'Fehler'; return; }
+        token = data.token;
+        localStorage.setItem('blog_token', token);
+        showDashboard();
+      } catch (e) {
+        el('loginError').textContent = 'Netzwerkfehler';
+      }
+    }
+
+    function logout(){
+      token = '';
+      localStorage.removeItem('blog_token');
+      el('dashboard').hidden = true;
+      el('loginScreen').hidden = false;
+      el('passphrase').value = '';
+    }
+
+    function showDashboard(){
+      el('loginScreen').hidden = true;
+      el('dashboard').hidden = false;
+      loadPosts();
+    }
+
+    function fmtDate(ts){
+      if (!ts) return '';
+      return new Date(ts).toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function escapeHtml(s){
+      const d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML;
+    }
+
+    async function loadPosts(){
+      const res = await fetch(API + '/posts', { headers: authHeaders() });
+      if (res.status === 401) return logout();
+      const data = await res.json();
+      posts = data.posts || [];
+      renderList();
+    }
+
+    function renderList(){
+      const container = el('postList');
+      if (posts.length === 0) {
+        container.innerHTML = '<div class="empty">Noch keine Artikel. Leg los mit "+ Neuer Artikel".</div>';
+        return;
+      }
+      container.innerHTML = posts.map(p => `
+        <div class="post-row">
+          <div class="info">
+            <h3>${escapeHtml(p.title)}</h3>
+            <div class="sub">
+              <span class="badge ${p.published ? 'badge-live' : 'badge-draft'}">${p.published ? 'Live' : 'Entwurf'}</span>
+              <span>${fmtDate(p.updatedAt)}</span>
+            </div>
+          </div>
+          <div class="row-actions">
+            <button class="btn" data-edit="${p.id}">Bearbeiten</button>
+          </div>
+        </div>
+      `).join('');
+      container.querySelectorAll('[data-edit]').forEach(btn => {
+        btn.addEventListener('click', () => openEditor(btn.dataset.edit));
+      });
+    }
+
+    function toDateInputValue(ts){
+      const d = ts ? new Date(ts) : new Date();
+      const pad = n => String(n).padStart(2, '0');
+      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    }
+
+    function openEditor(id){
+      editingId = id || null;
+      const post = id ? posts.find(p => p.id === id) : null;
+      el('editorTitle').textContent = post ? 'Artikel bearbeiten' : 'Neuer Artikel';
+      el('titleInput').value = post ? post.title : '';
+      el('excerptInput').value = post ? (post.excerpt || '') : '';
+      el('dateInput').value = toDateInputValue(post ? (post.publishedAt || post.createdAt) : null);
+      el('content').innerHTML = post ? (post.contentHtml || '') : '';
+      el('publishedInput').checked = post ? !!post.published : false;
+      el('deletePostBtn').hidden = !post;
+      el('editorError').textContent = '';
+
+      const cover = el('coverPreview');
+      if (post && post.cover) {
+        cover.src = post.cover;
+        cover.style.display = 'block';
+        cover.dataset.value = post.cover;
+      } else {
+        cover.style.display = 'none';
+        cover.dataset.value = '';
+      }
+      el('coverInput').value = '';
+
+      el('editorBackdrop').hidden = false;
+    }
+
+    function closeEditor(){
+      el('editorBackdrop').hidden = true;
+      editingId = null;
+    }
+
+    function resizeImage(file, maxWidth, quality){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = () => {
+          const img = new Image();
+          img.onerror = reject;
+          img.onload = () => {
+            const scale = Math.min(1, maxWidth / img.width);
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    el('loginBtn').addEventListener('click', login);
+    el('passphrase').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+    el('logoutBtn').addEventListener('click', logout);
+    el('newPostBtn').addEventListener('click', () => openEditor(null));
+    el('cancelEditBtn').addEventListener('click', closeEditor);
+
+    el('coverInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const dataUrl = await resizeImage(file, 1200, 0.82);
+      const cover = el('coverPreview');
+      cover.src = dataUrl;
+      cover.style.display = 'block';
+      cover.dataset.value = dataUrl;
+    });
+
+    el('insertImageBtn').addEventListener('click', () => el('contentImageInput').click());
+    el('contentImageInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const dataUrl = await resizeImage(file, 1000, 0.8);
+      el('content').focus();
+      document.execCommand('insertHTML', false, '<img src="' + dataUrl + '">');
+      e.target.value = '';
+    });
+
+    document.querySelectorAll('.toolbar [data-cmd]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        el('content').focus();
+        const cmd = btn.dataset.cmd;
+        if (cmd === 'h2') document.execCommand('formatBlock', false, 'h2');
+        else if (cmd === 'ul') document.execCommand('insertUnorderedList');
+        else if (cmd === 'link') {
+          const url = prompt('Link-URL:');
+          if (url) document.execCommand('createLink', false, url);
+        } else {
+          document.execCommand(cmd);
+        }
+      });
+    });
+
+    el('saveBtn').addEventListener('click', async () => {
+      el('editorError').textContent = '';
+      const title = el('titleInput').value.trim();
+      if (!title) { el('editorError').textContent = 'Titel fehlt'; return; }
+
+      const dateVal = el('dateInput').value;
+      const publishedAt = dateVal ? new Date(dateVal + 'T12:00:00').getTime() : Date.now();
+
+      const body = {
+        title,
+        excerpt: el('excerptInput').value,
+        contentHtml: el('content').innerHTML,
+        cover: el('coverPreview').dataset.value || null,
+        publishedAt,
+        published: el('publishedInput').checked
+      };
+
+      try {
+        let res;
+        if (editingId) {
+          res = await fetch(API + '/posts', {
+            method: 'PUT',
+            headers: authHeaders({ 'content-type': 'application/json' }),
+            body: JSON.stringify(Object.assign({ id: editingId }, body))
+          });
+        } else {
+          res = await fetch(API + '/posts', {
+            method: 'POST',
+            headers: authHeaders({ 'content-type': 'application/json' }),
+            body: JSON.stringify(body)
+          });
+        }
+        const data = await res.json();
+        if (!res.ok) { el('editorError').textContent = data.error || 'Fehler beim Speichern'; return; }
+        closeEditor();
+        loadPosts();
+      } catch (e) {
+        el('editorError').textContent = 'Netzwerkfehler';
+      }
+    });
+
+    el('deletePostBtn').addEventListener('click', async () => {
+      if (!editingId) return;
+      if (!confirm('Diesen Artikel wirklich löschen?')) return;
+      try {
+        const res = await fetch(API + '/posts?id=' + encodeURIComponent(editingId), {
+          method: 'DELETE',
+          headers: authHeaders()
+        });
+        if (!res.ok) { const data = await res.json(); el('editorError').textContent = data.error || 'Fehler'; return; }
+        closeEditor();
+        loadPosts();
+      } catch (e) {
+        el('editorError').textContent = 'Netzwerkfehler';
+      }
+    });
+
+    if (token) showDashboard();
+  </script>
+</body>
+</html>

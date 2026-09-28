@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Max Reinert</title>
+<meta name="description" content="Max Reinert, 16, aus Luxembourg — angehender Personal Trainer. Ich suche aktuell ein paar Testkunden für Training &amp; Ernährung gegen eine faire Aufwandsentschädigung.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mxreinert.de/">
+<meta property="og:title" content="Max Reinert — Future Personal Trainer">
+<meta property="og:description" content="Ich suche aktuell ein paar Testkunden für Training &amp; Ernährung — gegen eine faire Aufwandsentschädigung statt vollem Honorar.">
+<meta property="og:image" content="https://mxreinert.de/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Max Reinert — Future Personal Trainer">
+<meta name="twitter:description" content="Ich suche aktuell ein paar Testkunden für Training &amp; Ernährung.">
+<meta name="twitter:image" content="https://mxreinert.de/og-image.png">
+<style>
+  :root{
+    --bg:#0a0e14;
+    --bg-soft:#121a24;
+    --line:#1f2733;
+    --text:#f5f6f7;
+    --muted:#93a1b0;
+    --accent:#ff7a45;
+    --accent2:#2dd4bf;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    overflow-x:hidden;
+  }
+  .noise{
+    position:fixed;inset:0;pointer-events:none;opacity:.04;
+    background-image:radial-gradient(circle at 1px 1px, #fff 1px, transparent 0);
+    background-size:22px 22px;
+    z-index:1;
+  }
+
+  .blob{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(90px);
+    opacity:.35;
+    pointer-events:none;
+    z-index:0;
+  }
+  .blob-1{
+    width:480px;height:480px;
+    background:var(--accent);
+    top:-120px;left:-120px;
+    animation:float1 16s ease-in-out infinite;
+  }
+  .blob-2{
+    width:420px;height:420px;
+    background:var(--accent2);
+    bottom:-140px;right:-100px;
+    animation:float2 20s ease-in-out infinite;
+  }
+  @keyframes float1{
+    0%,100%{transform:translate(0,0) scale(1);}
+    50%{transform:translate(60px,80px) scale(1.15);}
+  }
+  @keyframes float2{
+    0%,100%{transform:translate(0,0) scale(1);}
+    50%{transform:translate(-70px,-50px) scale(1.1);}
+  }
+
+  section{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px clamp(20px,6vw,64px);
+    position:relative;
+    z-index:2;
+  }
+  .hero-identity{min-height:auto; padding-top:70px; padding-bottom:70px;}
+
+  .hero-welcome h1{
+    font-size:clamp(3.5rem,14vw,9rem);
+    font-weight:800;
+    letter-spacing:-0.03em;
+    margin:0;
+    background:linear-gradient(120deg, var(--text) 0%, var(--accent) 45%, var(--accent2) 75%, var(--text) 100%);
+    background-size:300% 100%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    animation:welcomeIn 1.2s cubic-bezier(.2,.8,.2,1) both, gradientShift 8s ease-in-out infinite 1.2s;
+  }
+  @keyframes welcomeIn{
+    from{opacity:0; transform:translateY(30px) scale(.96);}
+    to{opacity:1; transform:translateY(0) scale(1);}
+  }
+  @keyframes gradientShift{
+    0%,100%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+  }
+  .scroll-cue{
+    position:absolute;
+    bottom:36px;left:50%;transform:translateX(-50%);
+    color:var(--muted);
+    font-size:13px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+  }
+  .scroll-cue span{
+    width:1px;height:34px;
+    background:linear-gradient(var(--accent2),transparent);
+    animation:cue 1.8s ease-in-out infinite;
+  }
+  @keyframes cue{
+    0%,100%{transform:scaleY(1);opacity:.6;}
+    50%{transform:scaleY(.6);opacity:1;}
+  }
+
+  .hero-identity .inner{max-width:820px;}
+  .stagger-item{
+    opacity:0;
+    transform:translateY(24px);
+    transition:opacity .7s ease, transform .7s ease;
+  }
+  .hero-identity.in-view .stagger-item:nth-child(1){transition-delay:.05s;}
+  .hero-identity.in-view .stagger-item:nth-child(2){transition-delay:.15s;}
+  .hero-identity.in-view .stagger-item:nth-child(3){transition-delay:.25s;}
+  .hero-identity.in-view .stagger-item:nth-child(4){transition-delay:.35s;}
+  .hero-identity.in-view .stagger-item:nth-child(5){transition-delay:.45s;}
+  .hero-identity.in-view .stagger-item:nth-child(6){transition-delay:.55s;}
+  .hero-identity.in-view .stagger-item:nth-child(7){transition-delay:.65s;}
+  .avatar{
+    width:112px;height:112px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid var(--accent2);
+    margin:0 0 20px;
+    display:block;
+  }
+  .hero-identity.in-view .stagger-item{
+    opacity:1;
+    transform:translateY(0);
+  }
+  .hero-identity h2{
+    font-size:clamp(2.6rem,8vw,5rem);
+    font-weight:800;
+    letter-spacing:-0.02em;
+    margin:0 0 14px;
+  }
+  .subline{
+    font-size:clamp(1rem,2.2vw,1.15rem);
+    color:var(--accent2);
+    letter-spacing:.02em;
+    margin:0 0 14px;
+    font-weight:600;
+  }
+  p.lead{
+    font-size:clamp(1.05rem,2.4vw,1.3rem);
+    color:var(--muted);
+    max-width:52ch;
+    line-height:1.6;
+    margin:0 0 18px;
+  }
+
+  .offer-box{
+    border-left:3px solid var(--accent);
+    background:var(--bg-soft);
+    border-radius:0 12px 12px 0;
+    padding:16px 20px;
+    max-width:56ch;
+    margin:0 0 18px;
+  }
+  .offer-box .offer-title{
+    margin:0 0 6px;
+    font-weight:700;
+    font-size:1.05rem;
+  }
+  .offer-box p{
+    margin:0;
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.55;
+  }
+  .benefits{
+    display:flex;flex-wrap:wrap;gap:8px;
+    margin:0 0 22px;
+  }
+  .benefits span{
+    border:1px solid var(--line);
+    background:var(--bg-soft);
+    color:var(--text);
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:13px;
+  }
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:14px 26px;
+    border-radius:12px;
+    font-size:15px;
+    font-weight:600;
+    text-decoration:none;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+    font-family:inherit;
+  }
+  .btn-primary{
+    background:var(--accent);
+    color:#0a0e14;
+    box-shadow:0 0 0 0 rgba(255,122,69,.5);
+  }
+  .btn-primary:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 24px rgba(255,122,69,.35);
+  }
+  .btn-primary:active{transform:translateY(0) scale(.97);}
+
+  .steps-section{min-height:auto; padding-top:0; padding-bottom:56px;}
+  .steps-section .inner{max-width:820px; width:100%;}
+  .steps{display:flex; gap:16px; flex-wrap:wrap;}
+  .step{
+    flex:1 1 200px;
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:18px 20px;
+  }
+  .step-num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:30px;height:30px;
+    border-radius:50%;
+    background:var(--accent);
+    color:#0a0e14;
+    font-weight:800;
+    font-size:14px;
+    margin-bottom:10px;
+  }
+  .step h3{margin:0 0 6px; font-size:1.02rem;}
+  .step p{margin:0; color:var(--muted); font-size:13.5px; line-height:1.5;}
+
+  .blog-section{min-height:auto; padding-top:0; padding-bottom:56px;}
+  .blog-section .inner{max-width:820px; width:100%;}
+  .blog-eyebrow{
+    font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 12px;
+  }
+  .blog-card{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    padding:20px 22px;
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:var(--bg-soft);
+    text-decoration:none;
+    color:var(--text);
+    transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  }
+  .blog-card:hover{
+    transform:translateY(-4px);
+    border-color:var(--accent2);
+    box-shadow:0 12px 30px rgba(45,212,191,.15);
+  }
+  .blog-card h3{
+    margin:0 0 6px;
+    font-size:1.2rem;
+  }
+  .blog-card p{
+    margin:0;
+    color:var(--muted);
+    font-size:14px;
+  }
+  .blog-card .arrow{
+    font-size:22px;
+    color:var(--accent2);
+    flex-shrink:0;
+    transition:transform .25s ease;
+  }
+  .blog-card:hover .arrow{transform:translateX(6px);}
+
+  footer{
+    padding:18px clamp(20px,6vw,64px) 24px;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+    color:var(--muted);
+    font-size:13px;
+    border-top:1px solid var(--line);
+    position:relative;
+    z-index:2;
+  }
+  footer a{color:var(--muted); text-decoration:none;}
+  footer a:hover{color:var(--accent2);}
+  .footer-links{display:flex; gap:18px; flex-wrap:wrap;}
+
+  .modal-backdrop{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.6);
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+    z-index:100;
+    animation:fadeIn .2s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+  .modal-backdrop[hidden]{display:none;}
+  .modal{
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:24px;
+    max-width:400px;
+    width:100%;
+    position:relative;
+    animation:modalIn .25s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes modalIn{
+    from{opacity:0; transform:translateY(12px) scale(.97);}
+    to{opacity:1; transform:translateY(0) scale(1);}
+  }
+  .modal h3{
+    margin:0 0 8px;
+    font-size:1.4rem;
+  }
+  .modal p.modal-sub{
+    color:var(--muted);
+    margin:0 0 16px;
+    font-size:14px;
+  }
+  .modal-close{
+    position:absolute;top:16px;right:16px;
+    background:none;border:none;
+    color:var(--muted);
+    font-size:22px;
+    line-height:1;
+    cursor:pointer;
+    padding:4px;
+  }
+  .modal-close:hover{color:var(--text);}
+  .contact-option{
+    display:flex;align-items:center;gap:14px;
+    padding:11px 14px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    text-decoration:none;
+    color:var(--text);
+    margin-bottom:8px;
+    transition:border-color .2s ease, transform .2s ease;
+  }
+  .contact-option:hover{transform:translateX(4px);}
+  .contact-option:last-child{margin-bottom:0;}
+  .contact-option:nth-of-type(1):hover{border-color:var(--accent2);}
+  .contact-option:nth-of-type(2):hover{border-color:var(--accent);}
+  .contact-option:nth-of-type(3):hover{border-color:var(--accent2);}
+  .contact-option .icon{
+    width:36px;height:36px;
+    border-radius:50%;
+    background:var(--bg);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    font-size:16px;
+  }
+  .contact-option .label{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    margin-bottom:2px;
+  }
+  .contact-option .value{
+    font-weight:600;
+    font-size:14px;
+    word-break:break-all;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important;}
+  }
+</style>
+</head>
+<body>
+  <div class="noise"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <section class="hero-welcome">
+    <h1>Willkommen.</h1>
+    <div class="scroll-cue"><span></span>Scroll</div>
+  </section>
+
+  <section class="hero-identity" id="identity">
+    <div class="inner">
+      <img class="avatar stagger-item" src="photo.png" alt="Max Reinert" width="112" height="112">
+      <h2 class="stagger-item">Max Reinert</h2>
+      <p class="subline stagger-item">16 &mdash; Luxembourg &mdash; Future Personal Trainer</p>
+      <p class="lead stagger-item">Ich beschäftige mich mit Training, Ernährung und helfe dir gerne weiter.</p>
+
+      <div class="offer-box stagger-item">
+        <p class="offer-title">Ich suche aktuell ein paar Testkunden</p>
+        <p>Ich stehe noch ganz am Anfang &mdash; ohne Lizenz, ohne jahrelange Erfahrung, dafür mit viel Motivation und Disziplin. Deshalb suche ich ein paar Leute, die mit mir gemeinsam an Training und Ernährung arbeiten wollen: gegen eine faire Aufwandsentschädigung statt eines vollen Honorars.</p>
+      </div>
+
+      <div class="benefits stagger-item">
+        <span>Individuelle Betreuung</span>
+        <span>Faire Aufwandsentschädigung</span>
+        <span>Aktuell wenige Plätze frei</span>
+      </div>
+
+      <button class="btn btn-primary stagger-item" id="openContact">Testkunde werden</button>
+    </div>
+  </section>
+
+  <section class="steps-section">
+    <div class="inner">
+      <p class="blog-eyebrow">So läuft's ab</p>
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">1</span>
+          <h3>Kontakt aufnehmen</h3>
+          <p>Du schreibst mir kurz per Mail oder Social Media, worum es dir geht.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">2</span>
+          <h3>Kurz kennenlernen</h3>
+          <p>Wir klären unverbindlich deine Ziele und ob's für uns beide passt.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">3</span>
+          <h3>Gemeinsam starten</h3>
+          <p>Du bekommst einen Plan für Training &amp; Ernährung, den wir laufend anpassen.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="blog-section">
+    <div class="inner">
+      <p class="blog-eyebrow">Blog</p>
+      <a class="blog-card" href="blog.html">
+        <span>
+          <h3>Meine Geschichte</h3>
+          <p>Wie alles angefangen hat &mdash; mein Weg zu Training, Ernährung und dem, was ich heute mache.</p>
+        </span>
+        <span class="arrow">&rarr;</span>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <span>&copy; <span id="year"></span> Max Reinert</span>
+    <span class="footer-links">
+      <a href="mailto:mxsports.business@gmail.com">mxsports.business@gmail.com</a>
+      <a href="https://www.instagram.com/mx.sports10" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.tiktok.com/@mx.sports10" target="_blank" rel="noopener">TikTok</a>
+    </span>
+  </footer>
+
+  <div class="modal-backdrop" id="contactModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="closeContact" aria-label="Schließen">&times;</button>
+      <h3 id="modalTitle">Testkunde werden</h3>
+      <p class="modal-sub">Schreib mir kurz per Mail oder Social Media &mdash; ich melde mich schnellstmöglich zurück.</p>
+      <a class="contact-option" href="mailto:mxsports.business@gmail.com">
+        <span class="icon">✉️</span>
+        <span>
+          <span class="label" style="display:block;">E-Mail</span>
+          <span class="value">mxsports.business@gmail.com</span>
+        </span>
+      </a>
+      <a class="contact-option" href="https://www.instagram.com/mx.sports10" target="_blank" rel="noopener">
+        <span class="icon">📷</span>
+        <span>
+          <span class="label" style="display:block;">Instagram</span>
+          <span class="value">@mx.sports10</span>
+        </span>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const identity = document.getElementById('identity');
+    new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) identity.classList.add('in-view');
+      });
+    }, { threshold: 0.3 }).observe(identity);
+
+    const modal = document.getElementById('contactModal');
+    const openBtn = document.getElementById('openContact');
+    const closeBtn = document.getElementById('closeContact');
+
+    function openModal(){ modal.hidden = false; }
+    function closeModal(){ modal.hidden = true; }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  </script>
+</body>
+</html>

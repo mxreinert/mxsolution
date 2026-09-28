@@ -1,0 +1,17 @@
+# Dependencies / build
+node_modules/
+.netlify/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Old standalone repos (local backup only, not part of this repo)
+/mxreinert-web/
+/bulk-cockpit/
+/kmpacer/

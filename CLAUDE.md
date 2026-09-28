@@ -90,7 +90,7 @@ TODO: eintragen, sobald das Setup steht.
 ## Status
 
 - [x] Ordnerstruktur und Git-Repo angelegt
-- [ ] Landingpage nach `apps/landing` umgezogen, Netlify umgestellt
+- [x] Landingpage nach `apps/landing` umgezogen, Netlify umgestellt
 - [ ] App-Grundgerüst mit Supabase-Login und Rollen (Sign-ups aus)
 - [ ] Coach-Dashboard: Kunden anlegen und einladen
 - [ ] Modul Bulk Cockpit eingehängt

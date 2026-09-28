@@ -429,6 +429,43 @@ Das Dashboard nutzt dieselben Grafiken, nur mit mehr Details.
 
 ---
 
+## 7b. Preise & Buchhaltung (nur für Max, M16)
+
+Eigener Bereich im Dashboard, Kunden sehen davon nichts. **Keine Zahlungsabwicklung, keine Rechnungen.** Die App rechnet und dokumentiert nur, bezahlt wird offline.
+
+**Preisliste:**
+- Pakete und Einzelpreise anlegen: z. B. Online-Coaching pro Monat, PT-Einzelstunde, 10er-Block PT, Freischaltungen (KI, Hevy, Fotos)
+- Pro Paket: Preis, Laufzeit/Einheiten, welche Module/Freischaltungen enthalten sind
+- Preisänderungen gelten nur für neue Buchungen, alte Beträge bleiben erhalten (Preise versioniert)
+- Rabatte pro Kunde (Prozent oder Betrag, mit Grund, z. B. „Testkunde“)
+
+**Pro Kunde:**
+- Paket zuweisen → Module/Freischaltungen werden automatisch gesetzt, PT-Block bucht +10 auf den Kontostand (M12)
+- Forderungen werden automatisch berechnet (z. B. monatlich fällig, oder beim Buchen eines Blocks)
+- Zahlung eintragen: Betrag, Datum, Art (bar, Überweisung, …), Notiz
+- Offene Beträge und „läuft bald aus“ mit Hinweis an Max
+
+**Buchhaltung:**
+- Einnahmen automatisch aus den eingetragenen Zahlungen
+- Ausgaben selbst eintragen (z. B. Domain, Ausrüstung, Studio, API-Kosten), mit Kategorie und optional Beleg-Foto
+- Übersicht Monat/Jahr: Einnahmen, Ausgaben, Gewinn, offene Beträge, Umsatz pro Kunde und pro Paket
+- Export als CSV pro Jahr (für Steuer/Steuerberater)
+- Hinweis: ersetzt keine offizielle Buchhaltung, liefert aber alle Zahlen dafür
+
+## 7c. Design und Einstellungen
+
+**Design:** feste Vorgaben in `docs/DESIGN.md` (Farben, Schriften, Abstände, Rundungen, Diagramm-Farben). Eine zentrale Design-Datei, gilt für App und Landingpage. Abstimmung über eine lokale Vorschau-Seite, ohne Deploy.
+
+**Farbmodus für Kunden** (im Profil wählbar, Standard: wie Handy-Einstellung):
+- Hell
+- Dunkel
+- Weiß-Blau
+- Schwarz-Blau
+
+Alle Modi nutzen dieselben Vorgaben, nur die Farben wechseln. Diagramme und Ampelfarben bleiben in jedem Modus gut lesbar.
+
+**Einstellungen für Max im Dashboard** (ändern ohne Code und ohne Deploy): Warngrenzen (Plausibilität, Ampel), Standard-Erinnerungszeiten, Check-in-Tag, Absagefrist, Texte (FAQ, Datenschutzhinweis), WhatsApp-Nummer.
+
 ## 8. Premium
 
 - Premium wird im **Vertrag** geregelt, Bezahlung offline, Max schaltet manuell frei. Nichts in der App läuft automatisch.
@@ -462,6 +499,8 @@ Ziel: beweisen, dass Kunden täglich eintragen.
 - Wochenbericht, Zielbänder, Zeitraum-Umschaltung
 - Kunden-Ampel, Plan-Vorlagen, Mesozyklen
 - Freischaltungs-System
+- M16 Preise & Buchhaltung (zusammen mit Freischaltungen, da Pakete Module freischalten)
+- Farbmodi für Kunden, Einstellungsseite für Max
 
 ### Phase 3
 - M8 Uhr-Werte, M9 Hevy, M10 KI, M11 Fotos/Umfänge
@@ -483,5 +522,6 @@ Alle Sonderfälle und Detailfragen stehen in `docs/SONDERFAELLE.md`.
 4. Aufbewahrungsfrist nach Coaching-Ende (Vorschlag: 3 Monate, dann löschen, vorher Export anbieten)
 5. Vertragsformulierung und Preise für Freischaltungen
 6. Welche 2–3 Kunden sind im Pilot, mit welchen Zielen
-7. Design: einheitliche Marke für App, Landingpage, Social Media (Schriften lokal eingebunden)
+7. Design: einheitliche Marke für App, Landingpage, Social Media (Schriften lokal eingebunden). Feste Vorgaben in `docs/DESIGN.md`, Farbmodi siehe 7c
+9. Buchhaltung: Ausgaben-Kategorien und ob MwSt. getrennt ausgewiesen werden muss (hängt vom Gewerbe ab)
 8. Datenschutzerklärung + Einwilligungstexte (inkl. Eltern, KI-Übertragung USA) vor dem Pilot prüfen lassen

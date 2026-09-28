@@ -158,7 +158,7 @@ create policy "read workouts" on public.workouts
 create policy "client logs workouts" on public.workouts
   for insert to authenticated
   with check (client_id = (select public.my_client_id()) and public.client_day_ok(day) and source = 'app'
-    and (kind = 'plan' or 'free_training' = any((select c.unlocks from public.clients c where c.id = client_id))));
+    and (kind = 'plan' or array['free_training'] <@ (select c.unlocks from public.clients c where c.id = client_id)));
 create policy "client edits recent workouts" on public.workouts
   for update to authenticated
   using (client_id = (select public.my_client_id()) and public.client_day_ok(day) and source = 'app')

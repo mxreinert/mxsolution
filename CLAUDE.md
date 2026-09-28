@@ -13,18 +13,25 @@ mxreinert.de/
 ├── apps/
 │   ├── landing/     → mxreinert.de (öffentliche Landingpage)
 │   └── app/         → app.mxreinert.de (Coaching-App mit Login)
-│       └── src/modules/
-│           ├── bulk/     → Bulk Cockpit (Tracker für Bulk/Cut)
-│           └── pacer/    → KM Pacer (Pace-Vorgabe während des Laufs)
-├── packages/
-│   └── shared/      → nur anlegen, wenn Code wirklich doppelt vorkommt
-├── supabase/        → Schema, Migrationen, Row Level Security
+│       ├── src/                (Web-Root, wird so ausgeliefert)
+│       │   ├── index.html, password.html, mfa.html   → Login, Passwortpflicht, 2FA
+│       │   ├── home.html       → App-Hülle (Hash-Router)
+│       │   ├── core/           → App-Kern: auth, db, router, ui, chart, metrics, goals, settings, modules (Registry), app (Kontext), shell
+│       │   ├── client/         → Kunden-Bildschirme (Heute, Abend-Check, Training, Auswertung, Check-in, Profil …)
+│       │   ├── coach/          → Coach-Dashboard (Übersicht, Kunden, Detail, Check-ins, Backup, Einstellungen …)
+│       │   ├── modules/        → M1–M17, je ein Ordner mit index.js (Vertrag siehe core/modules.js)
+│       │   └── vendor/         → supabase-js als Datei
+│       └── netlify/functions/  → account, hevy, ai, gcal, reminders (alle 30 min), maintenance (täglich)
+├── supabase/        → migrations/ (der Reihe nach), seed/ (Übungen), setup/ (einmalig)
+├── docs/            → PLAN, SONDERFAELLE, LAUNCH, SETUP, DESIGN, RAHMENBEDINGUNGEN
 └── CLAUDE.md
 ```
 
-- Bulk Cockpit und KM Pacer sind **Module** der App, keine eigenständigen Programme.
-- Jedes Modul ist in sich abgeschlossen. Kein Modul importiert direkt aus einem anderen Modul. Gemeinsames kommt nach `shared` oder in den App-Kern.
-- Das Dashboard zeigt pro Kunde nur die Module, die zu seinem Ziel passen.
+- Module sind Datenbereiche (Plan: M1–M17), Ziele sind nur Voreinstellungen, welche Module aktiv sind.
+- Jedes Modul ist in sich abgeschlossen. Kein Modul importiert direkt aus einem anderen Modul, nur aus `core/`. Verbunden werden sie über die Registry in `core/modules.js`.
+- KM Pacer liegt als eigenständige Offline-Seite unter `modules/cardio/pacer/` und übergibt Läufe über `localStorage` (`mx_pacer_outbox`) an das Cardio-Modul.
+- `src/modules/bulk/` und `src/modules/pacer/` sind die alten Kopien, werden nicht mehr genutzt und per Redirect gesperrt (Löschung mit Max abstimmen).
+- Einrichtung: `docs/SETUP.md`. Vor echten Kunden: `docs/LAUNCH.md`.
 
 ## Stack
 
@@ -92,11 +99,12 @@ Kein Build-Schritt, keine Tests bisher.
 
 - [x] Ordnerstruktur und Git-Repo angelegt
 - [x] Landingpage nach `apps/landing` umgezogen, Netlify umgestellt
-- [ ] App-Grundgerüst mit Supabase-Login und Rollen (Sign-ups aus)
-- [ ] Coach-Dashboard: Kunden anlegen und einladen
-- [ ] Modul Bulk Cockpit eingehängt
-- [ ] Modul KM Pacer eingehängt
-- [ ] Kundenprofil mit Ziel und zielabhängiges Dashboard
+- [~] Gesamte App (Phase 1–3 aus PLAN.md) programmiert, lokal committet – **noch nicht gegen echte Datenbank getestet**
+- [ ] SQL-Migrationen 001–007 + Seed in Supabase eingespielt (Max, nach Durchsicht der RLS)
+- [ ] Lokal getestet mit Testzugängen (Kunde + Coach), Fehler behoben
+- [ ] Netlify-Site für app.mxreinert.de + Umgebungsvariablen + DNS (docs/SETUP.md)
+- [ ] Design nach docs/DESIGN.md umgesetzt
+- [ ] LAUNCH.md abgehakt, Testzugänge gelöscht
 - [ ] Pilot mit 2-3 Kunden
 
 Beim Abschluss eines Schritts hier abhaken.

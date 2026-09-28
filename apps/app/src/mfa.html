@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>Zwei-Faktor – mxreinert</title>
+  <script src="/core/theme.js"></script>
+  <link rel="stylesheet" href="/core/theme.css">
+  <style>
+    .qr { display: block; width: 200px; height: 200px; margin: 12px auto; background: #fff; border-radius: var(--radius-sm); padding: 8px; }
+    .secret { font-family: ui-monospace, monospace; word-break: break-all; font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <main class="page" hidden id="main">
+    <h1>Zwei-Faktor-Login</h1>
+
+    <section id="enroll" hidden>
+      <p class="muted">Einmalig einrichten: Scanne den Code mit einer Authenticator-App (z. B. Google Authenticator, Microsoft Authenticator, 1Password) und gib danach den 6-stelligen Code ein.</p>
+      <div class="card">
+        <img id="qr" class="qr" alt="QR-Code für die Authenticator-App">
+        <p class="muted center">Kein Scan möglich? Diesen Schlüssel manuell eingeben:</p>
+        <p class="secret center" id="secret"></p>
+      </div>
+    </section>
+
+    <p class="muted" id="verify-hint" hidden>Gib den 6-stelligen Code aus deiner Authenticator-App ein.</p>
+
+    <form id="code-form" class="card" novalidate hidden>
+      <label for="code">Code</label>
+      <input id="code" name="code" inputmode="numeric" autocomplete="one-time-code"
+             pattern="[0-9]{6}" maxlength="6" required>
+      <button type="submit" id="submit">Bestätigen</button>
+      <p class="error" id="error" role="alert"></p>
+    </form>
+
+    <button type="button" class="secondary" id="logout">Abmelden</button>
+  </main>
+
+  <script src="/vendor/supabase-2.117.2.js"></script>
+  <script type="module" src="/core/pages/mfa.js"></script>
+</body>
+</html>

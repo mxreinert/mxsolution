@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>mxreinert</title>
+  <script src="/core/theme.js"></script>
+  <link rel="stylesheet" href="/core/theme.css">
+</head>
+<body>
+  <main class="page" hidden id="main">
+    <h1 id="greeting">Hallo</h1>
+
+    <!-- Placeholder until the real screens exist (Heute-Screen / Coach-Dashboard) -->
+    <section class="card" id="client-view" hidden>
+      <p>Du bist als <strong>Kunde</strong> angemeldet.</p>
+      <p class="muted">Hier entsteht dein Heute-Screen.</p>
+    </section>
+
+    <section class="card" id="coach-view" hidden>
+      <p>Du bist als <strong>Coach</strong> angemeldet (mit Zwei-Faktor).</p>
+      <p class="muted">Hier entsteht dein Dashboard.</p>
+    </section>
+
+    <section class="card" style="margin-top:16px">
+      <label for="theme">Farbmodus</label>
+      <select id="theme" class="select">
+        <option value="">Wie Handy-Einstellung</option>
+        <option value="light">Hell</option>
+        <option value="dark">Dunkel</option>
+        <option value="white-blue">Weiß-Blau</option>
+        <option value="black-blue">Schwarz-Blau</option>
+      </select>
+    </section>
+
+    <button type="button" class="secondary" id="logout">Abmelden</button>
+  </main>
+
+  <script src="/vendor/supabase-2.117.2.js"></script>
+  <script type="module" src="/core/pages/home.js"></script>
+</body>
+</html>

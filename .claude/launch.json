@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "app",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5500", "--bind", "127.0.0.1", "--directory", "apps/app/src"],
+      "port": 5500
+    },
+    {
+      "name": "landing",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5501", "--bind", "127.0.0.1", "--directory", "apps/landing/public"],
+      "port": 5501
+    }
+  ]
+}

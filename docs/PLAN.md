@@ -447,8 +447,8 @@ Eigener Bereich im Dashboard, Kunden sehen davon nichts. **Keine Zahlungsabwickl
 
 **Buchhaltung:**
 - Einnahmen automatisch aus den eingetragenen Zahlungen
-- Ausgaben selbst eintragen (z. B. Domain, Ausrüstung, Studio, API-Kosten), mit Kategorie und optional Beleg-Foto
-- Übersicht Monat/Jahr: Einnahmen, Ausgaben, Gewinn, offene Beträge, Umsatz pro Kunde und pro Paket
+- Keine Ausgaben-Erfassung (vorerst nicht nötig)
+- Übersicht Monat/Jahr: Einnahmen, offene Beträge, Umsatz pro Kunde und pro Paket
 - Export als CSV pro Jahr (für Steuer/Steuerberater)
 - Hinweis: ersetzt keine offizielle Buchhaltung, liefert aber alle Zahlen dafür
 
@@ -523,5 +523,5 @@ Alle Sonderfälle und Detailfragen stehen in `docs/SONDERFAELLE.md`.
 5. Vertragsformulierung und Preise für Freischaltungen
 6. Welche 2–3 Kunden sind im Pilot, mit welchen Zielen
 7. Design: einheitliche Marke für App, Landingpage, Social Media (Schriften lokal eingebunden). Feste Vorgaben in `docs/DESIGN.md`, Farbmodi siehe 7c
-9. Buchhaltung: Ausgaben-Kategorien und ob MwSt. getrennt ausgewiesen werden muss (hängt vom Gewerbe ab)
+9. Buchhaltung: ob MwSt. getrennt ausgewiesen werden muss (hängt vom Gewerbe ab)
 8. Datenschutzerklärung + Einwilligungstexte (inkl. Eltern, KI-Übertragung USA) vor dem Pilot prüfen lassen

@@ -81,11 +81,12 @@ Die App verarbeitet Gesundheitsdaten, auch von Minderjährigen. Darum:
 
 ## Befehle
 
-TODO: eintragen, sobald das Setup steht.
+Kein Build-Schritt, keine Tests bisher.
 
-- Dev-Server: `npm run dev` (in `apps/app` bzw. `apps/landing`)
-- Build: `npm run build`
-- Tests: `npm test`
+- Lokaler Server App: `python -m http.server 5500 --directory apps/app/src` → http://localhost:5500 (Konfiguration `app` in `.claude/launch.json`)
+- Lokaler Server Landing: `python -m http.server 5501 --directory apps/landing/public` (Konfiguration `landing`). Netlify Functions laufen lokal nicht.
+- Datenbank: SQL-Dateien in `supabase/migrations/` der Reihe nach im Supabase SQL-Editor ausführen, erst nach OK von Max. Einmalige Setups in `supabase/setup/`.
+- Supabase-JS liegt als Datei in `apps/app/src/vendor/` (Version im Dateinamen), kein CDN.
 
 ## Status
 

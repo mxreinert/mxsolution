@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>Anmelden – mxreinert</title>
+  <script src="/core/theme.js"></script>
+  <link rel="stylesheet" href="/core/theme.css">
+</head>
+<body>
+  <main class="page">
+    <h1>Anmelden</h1>
+    <p class="muted">Deine Zugangsdaten bekommst du von Max.</p>
+
+    <form id="login-form" class="card" novalidate>
+      <label for="identifier">Benutzername</label>
+      <input id="identifier" name="identifier" autocomplete="username"
+             autocapitalize="none" autocorrect="off" spellcheck="false" required>
+
+      <label for="password">Passwort</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+      <button type="submit" id="submit">Anmelden</button>
+      <p class="error" id="error" role="alert"></p>
+    </form>
+
+    <p class="center muted" id="forgot" hidden>
+      Passwort vergessen? <a class="link" id="whatsapp" href="#" rel="noopener">Schreib Max auf WhatsApp</a>
+    </p>
+  </main>
+
+  <script src="/vendor/supabase-2.117.2.js"></script>
+  <script type="module" src="/core/pages/login.js"></script>
+</body>
+</html>

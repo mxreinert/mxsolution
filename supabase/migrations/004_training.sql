@@ -55,6 +55,7 @@ create table public.training_plans (
   is_active    boolean not null default true,
   weeks        smallint check (weeks between 1 and 52),
   deload_week  smallint check (deload_week between 1 and 52),
+  per_week     smallint check (per_week between 1 and 14),  -- planned sessions per week
   start_date   date,
   sessions     jsonb not null default '[]',
   notes        text check (length(notes) <= 4000),

@@ -11,6 +11,7 @@ import { renderAnamnesis, missingRequired } from './anamnesis.js';
 import { renderConcept } from './concept.js';
 import { renderAccount, takeOver } from './account.js';
 import { renderCheckinItem } from './checkins.js';
+import { refresh } from '../core/router.js';
 
 export async function renderClient(el, app, params, query) {
   let client = await app.loadClient(params.id);
@@ -29,7 +30,8 @@ export async function renderClient(el, app, params, query) {
 
   const body = h('div');
   const tabBar = h('div', { class: 'tab-scroll' });
-  const reload = async () => { client = await app.loadClient(params.id); await draw(); };
+  // full re-render (header, tabs and status may change, e.g. after "Als Kunde übernehmen")
+  const reload = () => refresh();
 
   const header = h('header', { class: 'page-head profile-head' }, await avatarEl(client.id, 56),
     h('div', null,

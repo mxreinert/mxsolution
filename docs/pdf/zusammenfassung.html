@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Coaching-App – Stand & Anleitung</title>
+<style>
+  @page { size: A4; margin: 16mm 16mm 18mm; }
+  :root { --blue: #1d4ed8; --blue-soft: #e8efff; --green: #15803d; --green-soft: #e7f6ec; --amber: #b45309; --amber-soft: #fdf3e2; --red: #b91c1c; --red-soft: #fdecec; --ink: #111827; --muted: #5b6470; --line: #dde1e6; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; color: var(--ink); font-size: 10.6pt; line-height: 1.5; margin: 0; }
+  h1 { font-size: 24pt; margin: 0 0 4px; color: var(--blue); letter-spacing: -.01em; }
+  h2 { font-size: 15pt; margin: 0 0 10px; padding-bottom: 5px; border-bottom: 2px solid var(--blue); color: var(--ink); }
+  h3 { font-size: 11.5pt; margin: 14px 0 6px; }
+  p { margin: 5px 0; }
+  ul, ol { margin: 5px 0 5px 20px; padding: 0; }
+  li { margin: 3px 0; }
+  code { font-family: Consolas, monospace; font-size: 9.5pt; background: #f3f4f6; padding: 1px 5px; border-radius: 4px; }
+  section { page-break-before: always; }
+  section.first { page-break-before: avoid; }
+  .cover { height: 250mm; display: flex; flex-direction: column; justify-content: center; }
+  .cover .sub { font-size: 14pt; color: var(--muted); margin-bottom: 26px; }
+  .cover .meta { color: var(--muted); font-size: 10pt; margin-top: 30px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .box { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; break-inside: avoid; }
+  .box h3 { margin-top: 0; }
+  .ok { background: var(--green-soft); border-color: #b7e2c4; }
+  .warn { background: var(--amber-soft); border-color: #f1d3a4; }
+  .bad { background: var(--red-soft); border-color: #f3c2c2; }
+  .info { background: var(--blue-soft); border-color: #c9d8f5; }
+  .big { font-size: 22pt; font-weight: 700; line-height: 1.1; }
+  .label { font-size: 8.5pt; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; font-size: 9.8pt; break-inside: auto; }
+  th, td { text-align: left; vertical-align: top; padding: 5px 7px; border-bottom: 1px solid var(--line); }
+  th { background: #f6f7f9; font-weight: 600; }
+  tr { break-inside: avoid; }
+  .step { display: grid; grid-template-columns: 30px 1fr; gap: 10px; margin: 10px 0; break-inside: avoid; }
+  .num { width: 26px; height: 26px; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 11pt; }
+  .check::before { content: "☐ "; font-size: 12pt; }
+  .tag { display: inline-block; font-size: 8pt; font-weight: 700; padding: 1px 7px; border-radius: 99px; background: var(--line); vertical-align: middle; }
+  .tag.g { background: var(--green-soft); color: var(--green); } .tag.a { background: var(--amber-soft); color: var(--amber); } .tag.r { background: var(--red-soft); color: var(--red); } .tag.b { background: var(--blue-soft); color: var(--blue); }
+  .muted { color: var(--muted); }
+  .small { font-size: 9pt; }
+  .toc li { margin: 6px 0; font-size: 11.5pt; }
+  footer { position: fixed; bottom: -10mm; left: 0; right: 0; text-align: center; font-size: 8pt; color: var(--muted); }
+</style>
+</head>
+<body>
+<footer>mxreinert Coaching-App · Stand 29.09.2026 · vertraulich</footer>
+
+<section class="first cover">
+  <div class="label">Projekt mxreinert.de</div>
+  <h1>Deine Coaching-App</h1>
+  <div class="sub">Was fertig ist, was du jetzt tun musst – und Ideen für später</div>
+  <div class="grid3">
+    <div class="box ok"><div class="label">Programmiert</div><div class="big">17</div>Module (M1–M17) + Kunden- und Coach-App</div>
+    <div class="box ok"><div class="label">Sicherheits-Tests</div><div class="big">48/48</div>Datenbank-Regeln bestanden</div>
+    <div class="box warn"><div class="label">Online</div><div class="big">noch nicht</div>wartet auf deine 3 Schritte</div>
+  </div>
+  <h3 style="margin-top:28px">Inhalt</h3>
+  <ol class="toc">
+    <li>Auf einen Blick</li>
+    <li>Warum du dich nicht einloggen konntest</li>
+    <li>Deine Schritte – Anleitung zum Abhaken</li>
+    <li>Was die App kann</li>
+    <li>Was getestet ist – und was nicht</li>
+    <li>Bekannte Grenzen & offene Punkte</li>
+    <li>Entscheidungen, die nur du treffen kannst</li>
+    <li>Ideen für später</li>
+    <li>Regeln & kleines Wörterbuch</li>
+  </ol>
+  <p class="meta">Erstellt von Claude Code über Nacht. Alles ist lokal gespeichert (Git-Commits), nichts ist online gegangen, nichts wurde deployt.</p>
+</section>
+
+<section>
+  <h2>1. Auf einen Blick</h2>
+  <div class="grid">
+    <div class="box ok"><h3>✅ Fertig</h3>
+      <ul>
+        <li>Komplette App: Login, Kunden-App, Coach-Dashboard</li>
+        <li>Alle Module aus deinem Plan inkl. Supplemente (M17)</li>
+        <li>Datenbank mit Sicherheitsregeln (RLS) für jede Tabelle</li>
+        <li>Deine 105 Übungen aus der Excel-Datei</li>
+        <li>Server-Funktionen: Konten, Hevy, KI, Push, Google Kalender, tägliche Wartung</li>
+        <li>Testzugänge mx67 (Kunde) und mx68 (Coach)</li>
+        <li>Anleitungen: SETUP, LAUNCH, DESIGN, IDEEN</li>
+      </ul></div>
+    <div class="box warn"><h3>⏳ Wartet auf dich</h3>
+      <ul>
+        <li><b>Datenbank einspielen</b> (1× einfügen, 1× Run)</li>
+        <li>Lokal testen und Fehler melden</li>
+        <li>Netlify-Seite + Domain app.mxreinert.de</li>
+        <li>Design-Vorgaben (Screenshots, Farben)</li>
+        <li>Ein paar Entscheidungen (Kapitel 7)</li>
+      </ul></div>
+  </div>
+  <div class="box info" style="margin-top:12px"><h3>So geht es weiter</h3>
+    <p><b>Heute:</b> Datenbank einspielen → lokal einloggen → mir sagen, was nicht passt.<br>
+    <b>Danach:</b> Netlify + Domain (ca. 30 Minuten, Schritt für Schritt in Kapitel 3).<br>
+    <b>Vor echten Kunden:</b> Design, LAUNCH-Checkliste, Testzugänge löschen, Pilot mit 2–3 Kunden.</p></div>
+
+  <h3>Wo liegt was?</h3>
+  <table>
+    <tr><th>Ordner / Datei</th><th>Inhalt</th></tr>
+    <tr><td><code>apps/landing</code></td><td>Deine Webseite mxreinert.de (läuft bereits aus dem neuen Repo)</td></tr>
+    <tr><td><code>apps/app</code></td><td>Die Coaching-App (app.mxreinert.de)</td></tr>
+    <tr><td><code>supabase/</code></td><td>Datenbank: Migrationen, Übungen, Setup, Tests</td></tr>
+    <tr><td><code>supabase/setup/ALLES-IN-EINEM.local.sql</code></td><td><b>Die eine Datei zum Einfügen in Supabase</b> (nur auf deinem PC, nicht auf GitHub)</td></tr>
+    <tr><td><code>docs/</code></td><td>PLAN, SONDERFAELLE, LAUNCH, SETUP, DESIGN, IDEEN, RAHMENBEDINGUNGEN</td></tr>
+    <tr><td><code>CLAUDE.md</code></td><td>Regeln für Claude (gilt auch vom iPad aus)</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>2. Warum du dich nicht einloggen konntest</h2>
+  <div class="box bad"><p><b>Die Datenbank in Supabase war noch leer.</b> Die Anmeldung selbst hat geklappt, aber danach sucht die App dein Profil (Rolle Coach/Kunde). Die Tabelle dafür gab es noch nicht → die App meldet dich zur Sicherheit sofort wieder ab.</p></div>
+  <div class="box ok" style="margin-top:10px"><p><b>Lösung:</b> Die Datei <code>ALLES-IN-EINEM.local.sql</code> einmal in Supabase ausführen (Kapitel 3, Schritt 1). Danach funktioniert der Login mit deinem Coach-Konto <b>reinert.max.10@gmail.com</b> und mit den Testzugängen.</p></div>
+  <p class="muted small">Ich habe die Datei vorher komplett in einer nachgebauten Supabase-Datenbank getestet: sie läuft ohne Fehler durch, legt 3 Profile an (max, testcoach, testkunde) und 105 Übungen.</p>
+
+  <h3>Beim ersten Login mit deinem echten Coach-Konto</h3>
+  <ol>
+    <li>Mail + Passwort eingeben</li>
+    <li>Die App zeigt einen QR-Code → mit einer Authenticator-App scannen (Google Authenticator, Microsoft Authenticator, 1Password …)</li>
+    <li>6-stelligen Code eingeben → fertig. Ab jetzt fragt die App bei jeder Anmeldung nach dem Code.</li>
+  </ol>
+  <p class="muted small">Der Test-Coach mx68 braucht keinen Code – das ist eine Ausnahme nur für Tests und muss vor dem Start gelöscht werden.</p>
+</section>
+
+<section>
+  <h2>3. Deine Schritte – zum Abhaken</h2>
+  <p class="muted">Geheime Werte (Secret Key, Passwörter, Verschlüsselungsschlüssel) nie in den Chat, nie in Screenshots. Nur direkt bei Supabase/Netlify eintragen.</p>
+
+  <h3>Teil A – Datenbank (ca. 5 Minuten)</h3>
+  <div class="step"><div class="num">1</div><div><span class="check"></span>Supabase öffnen → dein Projekt → links <b>SQL Editor</b> → <b>New query</b>.</div></div>
+  <div class="step"><div class="num">2</div><div><span class="check"></span>Auf dem PC die Datei <code>supabase/setup/ALLES-IN-EINEM.local.sql</code> öffnen (z. B. mit Editor/VS Code), <b>alles markieren (Strg+A), kopieren</b>, in Supabase einfügen.</div></div>
+  <div class="step"><div class="num">3</div><div><span class="check"></span><b>Run</b> klicken. Unten erscheint eine Tabelle mit 3 Zeilen: <i>max</i>, <i>testcoach</i>, <i>testkunde</i>. Wenn stattdessen eine rote Fehlermeldung kommt: Screenshot an Claude – es wurde dann nichts gespeichert, du kannst es danach einfach nochmal machen.</div></div>
+  <div class="step"><div class="num">4</div><div><span class="check"></span><b>Authentication → Sign In / Providers → Email</b>: „Minimum password length“ auf <b>10</b>.<br><span class="check"></span><b>Authentication → Multi-Factor</b>: <b>TOTP</b> eingeschaltet lassen.</div></div>
+
+  <h3>Teil B – Lokal testen (so lange du willst)</h3>
+  <div class="step"><div class="num">5</div><div><span class="check"></span>Claude sagen: <i>„Starte die App“</i>. Dann im Browser <b>http://localhost:5500</b> öffnen.</div></div>
+  <div class="step"><div class="num">6</div><div><span class="check"></span>Als <b>Kunde</b> testen: <code>mx67@mail.com</code> · als <b>Coach</b>: <code>mx68@mail.com</code> · mit deinem echten Konto: deine Mail + 2FA.</div></div>
+  <div class="step"><div class="num">7</div><div><span class="check"></span>Alles durchklicken. Fehler oder Wünsche an Claude: <b>Screenshot + „was hast du gemacht, was ist passiert“</b>.</div></div>
+  <div class="box info small"><b>Lokal geht nicht:</b> Kunden anlegen, Passwort zurücksetzen, Löschen, Hevy, KI, Push, Google Kalender. Das sind Server-Funktionen – die laufen erst auf Netlify.</div>
+</section>
+
+<section>
+  <h3 style="margin-top:0">Teil C – Online bringen (ca. 30 Minuten, erst nach dem Test)</h3>
+  <div class="step"><div class="num">8</div><div><span class="check"></span>Claude gibt den Push frei (fragt dich <b>2×</b>) → Code liegt auf GitHub.</div></div>
+  <div class="step"><div class="num">9</div><div><span class="check"></span>Netlify → <b>Add new project → Import from GitHub → mxreinert/mxsolution</b>.<br>
+    Base directory <code>apps/app</code> · Build command leer · Publish <code>apps/app/src</code> · Functions <code>apps/app/netlify/functions</code>.</div></div>
+  <div class="step"><div class="num">10</div><div><span class="check"></span><b>Environment variables</b> eintragen (Project configuration → Environment variables):</div></div>
+  <table class="small">
+    <tr><th>Name</th><th>Wert / woher</th><th></th></tr>
+    <tr><td><code>SUPABASE_URL</code></td><td>https://btatxcipmsvcriddxlhv.supabase.co</td><td><span class="tag g">öffentlich</span></td></tr>
+    <tr><td><code>SUPABASE_ANON_KEY</code></td><td>der <code>sb_publishable_…</code> Key</td><td><span class="tag g">öffentlich</span></td></tr>
+    <tr><td><code>SUPABASE_SERVICE_ROLE_KEY</code></td><td>der <code>sb_secret_…</code> Key (Supabase → Project Settings → API Keys)</td><td><span class="tag r">geheim</span></td></tr>
+    <tr><td><code>USERNAME_DOMAIN</code></td><td>kunden.mxreinert.de</td><td></td></tr>
+    <tr><td><code>SECRETS_ENCRYPTION_KEY</code></td><td>am PC erzeugen (Befehl in docs/SETUP.md), direkt einfügen</td><td><span class="tag r">geheim</span></td></tr>
+    <tr><td><code>VAPID_PUBLIC_KEY</code></td><td>steht in <code>apps/app/src/core/config.js</code></td><td><span class="tag g">öffentlich</span></td></tr>
+    <tr><td><code>VAPID_PRIVATE_KEY</code></td><td>aus der alten Bulk-Cockpit-Site kopieren</td><td><span class="tag r">geheim</span></td></tr>
+    <tr><td><code>VAPID_SUBJECT</code></td><td>mailto:deine-mail</td><td></td></tr>
+    <tr><td><code>ANTHROPIC_API_KEY</code></td><td>aus der alten Bulk-Cockpit-Site kopieren · Ausgabenlimit setzen!</td><td><span class="tag r">geheim</span></td></tr>
+    <tr><td><code>GOOGLE_…</code></td><td>optional, nur für Google Kalender (docs/SETUP.md, Abschnitt 5)</td><td><span class="tag b">optional</span></td></tr>
+  </table>
+  <div class="step"><div class="num">11</div><div><span class="check"></span><b>Branches and deploy contexts</b>: nur Production, Deploy Previews aus. Dann deployen und die <code>…netlify.app</code>-Adresse testen.</div></div>
+  <div class="step"><div class="num">12</div><div><span class="check"></span><b>Domain:</b> Netlify → Domain management → <code>app.mxreinert.de</code> hinzufügen. IONOS → DNS → neuer Eintrag <b>CNAME</b>, Host <code>app</code>, Ziel = deine Netlify-Adresse. Warten (bis 1 h), HTTPS kommt automatisch.</div></div>
+  <div class="step"><div class="num">13</div><div><span class="check"></span>Später: <code>bulk.mxreinert.de</code> auf die neue App umleiten, alte Netlify-Sites und GitHub-Repos archivieren.</div></div>
+</section>
+
+<section>
+  <h2>4. Was die App kann</h2>
+  <div class="grid">
+    <div class="box"><h3>📱 Für Kunden</h3>
+      <ul>
+        <li><b>Heute:</b> Feedback von dir, fehlende Tage, Check-in fällig, nächstes Training, PT-Termin</li>
+        <li><b>Abend-Check:</b> unter 2 Minuten, nur aktive Module, bis 3 Tage rückwirkend, Warnung bei Tippfehlern, „nicht getrackt“</li>
+        <li><b>Training:</b> Plan, Logger (auch offline), „Letztes Mal“, Pausentimer, PR-Erkennung, Übung tauschen, Schmerzen melden</li>
+        <li><b>Auswertung:</b> Diagramme, 7-Tage-Schnitt, Zielbänder, Pausen grau, Kreatin/Zyklus markiert</li>
+        <li><b>Check-in</b> wöchentlich, <b>Pause melden</b>, Profil mit <b>4 Farbmodi</b>, Push, Hilfe/FAQ</li>
+      </ul></div>
+    <div class="box"><h3>🧑‍🏫 Für dich</h3>
+      <ul>
+        <li><b>Übersicht</b> mit Ampel: wer braucht Aufmerksamkeit?</li>
+        <li><b>Interessenten</b> mit Anamnese (Pflichtfelder) → „Als Kunde übernehmen“ mit Startpasswort</li>
+        <li><b>Konzept</b> pro Kunde: Ziel, Module, Zielwerte, Freischaltungen, Einwilligungen</li>
+        <li><b>Check-ins</b> mit Wochenzusammenfassung und Feedback</li>
+        <li><b>Plan-Editor</b> mit Versionen, <b>PT-Kalender</b>, <b>Abrechnung</b></li>
+        <li><b>Backup</b>, Export/Import, Einstellungen ohne Code, Übungsverwaltung</li>
+      </ul></div>
+  </div>
+  <h3>Die Module</h3>
+  <table class="small">
+    <tr><th>Nr.</th><th>Modul</th><th>Kurz</th></tr>
+    <tr><td>M1</td><td>Krafttraining</td><td>Pläne, Logger, Progression, 1RM, Volumen pro Muskel</td></tr>
+    <tr><td>M2</td><td>Cardio + KM Pacer</td><td>Einheiten, Wochenvorgabe, Pace-Verlauf; Pacer-Läufe mit 1 Tipp übernehmen</td></tr>
+    <tr><td>M3–M8</td><td>Ernährung, Gewicht, Aktivität, Schlaf, Motivation, Uhr-Werte</td><td>Zahlen im Abend-Check + Diagramme</td></tr>
+    <tr><td>M9</td><td>Hevy <span class="tag b">Premium</span></td><td>Key verschlüsselt gespeichert, täglicher Import</td></tr>
+    <tr><td>M10</td><td>KI-Analyse <span class="tag b">Premium</span></td><td>nur für dich, nur Zahlen, Tageslimit, Einwilligung nötig</td></tr>
+    <tr><td>M11</td><td>Fotos & Umfänge <span class="tag b">Premium</span></td><td>stark verkleinert, nur Kunde + du, Vergleich</td></tr>
+    <tr><td>M12</td><td>Personal Training <span class="tag b">Premium</span></td><td>Termine, Orte, Karten-Link, .ics, Absagefrist, PT-Guthaben, Live-Logging</td></tr>
+    <tr><td>M13/M17</td><td>Supplemente inkl. Kreatin</td><td>abhaken, Einnahmetreue, Kreatin-Hinweis beim Gewicht</td></tr>
+    <tr><td>M14</td><td>Zyklus</td><td>nur Periodenbeginn, Kundin kann alles löschen</td></tr>
+    <tr><td>M15</td><td>Eltern-Bericht</td><td>du wählst Inhalte → Drucken/PDF</td></tr>
+    <tr><td>M16</td><td>Preise & Buchhaltung</td><td>Pakete, Forderungen, Zahlungen, Einnahmen, CSV-Export</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>5. Was getestet ist – und was nicht</h2>
+  <div class="grid">
+    <div class="box ok"><h3>✅ Getestet</h3>
+      <ul>
+        <li><b>Datenbank:</b> alle 7 Migrationen + Übungen + Setup laufen fehlerfrei (in einer nachgebauten Supabase)</li>
+        <li><b>48 Sicherheitstests bestanden</b>, u. a.:
+          <ul class="small">
+            <li>Kunde sieht nur eigene Daten, kann seine Rolle nicht ändern</li>
+            <li>Kunde kann max. 3 Tage rückwirkend eintragen</li>
+            <li>Kunde sieht keine Notizen, keine Abrechnung, keine Schlüssel</li>
+            <li>Coach ohne 2FA sieht keine Kunden</li>
+            <li>Coach sieht nur seine eigenen Kunden</li>
+            <li>PT-Termin „war da“ bucht automatisch −1</li>
+            <li>Verworfene Interessenten werden nach 45 Tagen gelöscht</li>
+          </ul></li>
+        <li><b>Oberfläche</b> mit Testdaten im Handy-Format: Heute, Abend-Check (inkl. Speichern), Auswertung, alle Seiten laden ohne Fehler</li>
+      </ul></div>
+    <div class="box warn"><h3>⚠️ Noch nicht getestet</h3>
+      <ul>
+        <li>Mit <b>echtem Supabase</b> (erst nach deinem Schritt 1)</li>
+        <li><b>Server-Funktionen</b> (Konten anlegen, Hevy, KI, Push, Kalender) – laufen erst auf Netlify</li>
+        <li>Echtes iPhone/Android, Push auf dem Homescreen</li>
+        <li>Design – ist noch ein Platzhalter</li>
+      </ul></div>
+  </div>
+  <h3>Unterwegs gefundene und behobene Fehler</h3>
+  <ul>
+    <li>Datenbank-Regel „Freies Training“ hatte einen Fehler → behoben (hätte die ganze Einrichtung abgebrochen)</li>
+    <li>Auf mehreren Seiten stand das Wort „null“ oder „[object …]“ → zentral behoben</li>
+    <li>Freischaltungen zeigten „photos“ statt „Fotos & Umfänge“ → deutsche Namen</li>
+    <li>„1 Übungen“ → „1 Übung“; Kundenseite aktualisiert sich jetzt nach „Als Kunde übernehmen“ komplett</li>
+  </ul>
+</section>
+
+<section>
+  <h2>6. Bekannte Grenzen & offene Punkte</h2>
+  <table>
+    <tr><th>Punkt</th><th>Was heißt das?</th><th>Lösung</th></tr>
+    <tr><td>Offline-Trainings älter als 3 Tage</td><td>Wer 4+ Tage ohne Netz war, kann das Training nicht mehr hochladen (Regel „3 Tage rückwirkend“)</td><td>Selten. Du kannst es für den Kunden nachtragen.</td></tr>
+    <tr><td>Module nur in der Oberfläche gesperrt</td><td>Die Datenbank prüft nicht, ob ein Modul aktiv ist – ein Kunde könnte technisch Felder abgeschalteter Module füllen</td><td>Kein Datenschutzproblem (nur eigene Daten). Später ergänzbar.</td></tr>
+    <tr><td>Hevy-Übungen</td><td>Werden über den Namen zugeordnet; Unbekanntes steht als Hinweis im Training</td><td>Übungsnamen in der Excel an Hevy angleichen</td></tr>
+    <tr><td>Trainingstag-Erinnerung</td><td>Nur für Cardio-Tage, weil Kraftpläne keine festen Wochentage haben</td><td>Idee „Feste Trainingstage“ (Kapitel 8)</td></tr>
+    <tr><td>Neue Planversion</td><td>Beim Speichern wird zuerst die alte deaktiviert – bei einem Fehler genau dazwischen hat der Kunde kurz keinen aktiven Plan</td><td>Einfach nochmal speichern</td></tr>
+    <tr><td>KI-Modell</td><td>Voreingestellt <code>claude-sonnet-5</code> wie in deinem alten Code</td><td>Über <code>AI_MODEL</code> änderbar</td></tr>
+    <tr><td>Hilfenummer</td><td>„SOS Détresse 454545“ bei psychischer Belastung</td><td>Bitte vor Start prüfen</td></tr>
+    <tr><td>Design</td><td>Platzhalter (Blau, 4 Modi)</td><td>Deine Vorgaben in <code>docs/design/</code></td></tr>
+    <tr><td>Abhängigkeit <code>web-push</code></td><td>Für Push-Nachrichten, hatte dein Bulk Cockpit schon</td><td>–</td></tr>
+  </table>
+  <h3>Aufgeräumt</h3>
+  <p>Die alten Ordner <code>bulk-cockpit</code>, <code>kmpacer</code>, <code>mxreinert-web</code> liegen im <b>Papierkorb</b> (vorher geprüft: alles war auf GitHub). Die alten Kopien in der App sind entfernt – sie bleiben in der Git-Historie und auf GitHub.</p>
+</section>
+
+<section>
+  <h2>7. Entscheidungen, die nur du treffen kannst</h2>
+  <table>
+    <tr><th>Frage</th><th>Vorschlag</th></tr>
+    <tr><td>WhatsApp-Nummer für „Passwort vergessen?“ und Kontakt</td><td>In der App unter <b>Mehr → Einstellungen</b> eintragen; für die Login-Seite Claude schicken</td></tr>
+    <tr><td>Absagefrist Personal Training</td><td>24 Stunden (voreingestellt, in Einstellungen änderbar)</td></tr>
+    <tr><td>Wie lange nach Coaching-Ende gelöscht wird</td><td>3 Monate, vorher Export anbieten</td></tr>
+    <tr><td>Anamnese-Fragen final</td><td>Vorschlag ist eingebaut – durchgehen, was fehlt/zu viel ist</td></tr>
+    <tr><td>Check-in-Tag</td><td>Pro Kunde einstellbar (voreingestellt Sonntag)</td></tr>
+    <tr><td>Preise und Pakete</td><td>In der App unter <b>Abrechnung → Pakete</b></td></tr>
+    <tr><td>Design</td><td>Screenshots in <code>docs/design/</code>, Wünsche in <code>docs/DESIGN.md</code></td></tr>
+    <tr><td>Datenschutz-/Einwilligungstexte, Gewerbe</td><td>Vor dem Pilot prüfen lassen (LAUNCH.md)</td></tr>
+  </table>
+  <div class="box info"><p><b>Ohne Code änderbar</b> (Coach → Mehr → Einstellungen): WhatsApp, Absagefrist, Warngrenzen, Ampel-Regeln, Erinnerungszeiten, Datenschutztext, FAQ. Kein Deploy nötig.</p></div>
+</section>
+
+<section>
+  <h2>8. Ideen für später</h2>
+  <p class="muted">Nichts davon ist eingebaut. Alles kostet 0 € laufend. Vollständige Liste in <code>docs/IDEEN.md</code>.</p>
+  <h3>Schnell und wirkungsvoll</h3>
+  <table class="small">
+    <tr><th>Idee</th><th>Warum</th><th>Aufwand</th></tr>
+    <tr><td>Feste Trainingstage im Plan</td><td>Erinnerung genau am Trainingstag, Ampel erkennt ausgelassene Einheiten</td><td><span class="tag g">klein</span></td></tr>
+    <tr><td>Textbausteine fürs Feedback</td><td>Spart dir pro Kunde und Woche Zeit</td><td><span class="tag g">klein</span></td></tr>
+    <tr><td>Serien & Meilensteine</td><td>„7 Tage am Stück eingetragen“, „erster PR“ – motiviert</td><td><span class="tag g">klein</span></td></tr>
+    <tr><td>Sonntags-Push mit Wochenrückblick</td><td>Fortschritt sehen, ohne die App zu öffnen</td><td><span class="tag g">klein</span></td></tr>
+    <tr><td>Plate- und 1RM-Rechner</td><td>„Welche Scheiben auflegen?“ – wirkt professionell</td><td><span class="tag g">klein</span></td></tr>
+    <tr><td>Offline-Abend-Check</td><td>Eintragen im Funkloch</td><td><span class="tag a">mittel</span></td></tr>
+  </table>
+  <h3>Für dein Business</h3>
+  <table class="small">
+    <tr><td>Kontaktformular auf mxreinert.de → Interessent im Dashboard</td><td><span class="tag a">mittel</span></td></tr>
+    <tr><td>Abschlussbericht als PDF am Coaching-Ende (Vorher/Nachher nur mit Einwilligung)</td><td><span class="tag a">mittel</span></td></tr>
+    <tr><td>Feedback-Umfrage nach 4 Wochen → Zitate für die Landingpage</td><td><span class="tag g">klein</span></td></tr>
+    <tr><td>Empfehlungsprogramm („Freund werben = 1 PT gratis“) – PT-Guthaben gibt es schon</td><td><span class="tag g">klein</span></td></tr>
+    <tr><td>Coach-Kennzahlen: Eintragsquote, Umsatz pro Kunde, Kundenbindung</td><td><span class="tag a">mittel</span></td></tr>
+    <tr><td>Freie PT-Slots zum Selbstbuchen</td><td><span class="tag r">groß</span></td></tr>
+  </table>
+  <h3>Training & Ernährung</h3>
+  <table class="small">
+    <tr><td>Intervall-Timer (EMOM, AMRAP, Tabata)</td><td><span class="tag g">klein</span></td></tr>
+    <tr><td>Pulszonen aus dem Ruhepuls für Cardio</td><td><span class="tag g">klein</span></td></tr>
+    <tr><td>Makro-Vorlagen pro Mahlzeit</td><td><span class="tag a">mittel</span></td></tr>
+    <tr><td>Periodisierungs-Assistent (Volumen automatisch steigern, Deload vorschlagen)</td><td><span class="tag r">groß</span></td></tr>
+    <tr><td>Import aus Apple Health / Google Fit per Datei</td><td><span class="tag r">groß</span></td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>9. Regeln & kleines Wörterbuch</h2>
+  <div class="grid">
+    <div class="box"><h3>Unsere Regeln</h3>
+      <ul>
+        <li><b>Deploys:</b> selten, gebündelt. Claude fragt vor jedem Push <b>2×</b>.</li>
+        <li><b>Geheimnisse</b> nie in Chat/Repo/Screenshot.</li>
+        <li><b>Neue Tabelle</b> = Sicherheitsregel im selben Schritt, du siehst sie vorher.</li>
+        <li><b>Minderjährige:</b> ohne Eltern-Einwilligung kein Konto – ist fest eingebaut.</li>
+        <li><b>Kein Tracking</b>, keine Google Fonts, keine externen Einbindungen.</li>
+        <li><b>Kosten:</b> nur Free-Tarife; KI nur pro Kunde freischaltbar mit Tageslimit.</li>
+      </ul></div>
+    <div class="box"><h3>Wörterbuch</h3>
+      <table class="small">
+        <tr><td><b>Supabase</b></td><td>Datenbank + Login (Server in Frankfurt)</td></tr>
+        <tr><td><b>Netlify</b></td><td>stellt Webseite und App ins Internet</td></tr>
+        <tr><td><b>GitHub</b></td><td>Speicher für den Code mit Verlauf</td></tr>
+        <tr><td><b>Push (Git)</b></td><td>Code zu GitHub schicken → Netlify veröffentlicht</td></tr>
+        <tr><td><b>Deploy</b></td><td>eine neue Version geht online</td></tr>
+        <tr><td><b>RLS</b></td><td>Sicherheitsregeln: wer darf welche Zeile sehen</td></tr>
+        <tr><td><b>Migration</b></td><td>SQL-Datei, die die Datenbank einrichtet</td></tr>
+        <tr><td><b>2FA / TOTP</b></td><td>zweiter Faktor: Code aus der Authenticator-App</td></tr>
+        <tr><td><b>PWA</b></td><td>Web-App, die man zum Homescreen hinzufügt</td></tr>
+        <tr><td><b>Push (Nachricht)</b></td><td>Benachrichtigung aufs Handy</td></tr>
+      </table></div>
+  </div>
+  <div class="box ok" style="margin-top:14px"><p><b>Nächster Satz an Claude, wenn du so weit bist:</b><br>„Datenbank ist eingespielt, starte die App.“</p></div>
+</section>
+</body>
+</html>

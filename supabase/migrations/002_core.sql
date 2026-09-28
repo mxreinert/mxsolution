@@ -446,7 +446,10 @@ as $$
 declare
   added text[];
 begin
-  select array_agg(u) into added
+  select array_agg(case u
+      when 'pt' then 'Personal Training' when 'photos' then 'Fotos & Umfänge'
+      when 'hevy' then 'Hevy-Anbindung' when 'ai' then 'KI-Analyse'
+      when 'free_training' then 'Freies Training' else u end) into added
   from unnest(new.unlocks) u where not (u = any(old.unlocks));
   if added is not null and new.user_id is not null then
     perform public.notify_client(new.id, 'unlock', 'Neu für dich freigeschaltet',

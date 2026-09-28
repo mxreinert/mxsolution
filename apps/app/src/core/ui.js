@@ -1,5 +1,19 @@
 // Small DOM helpers. All text goes through textContent (no innerHTML with data).
 
+// Screens pass arrays and conditional nulls to el.append(...) the same way as to h().
+// Make the native methods behave like h(): flatten arrays, skip null/undefined/false.
+for (const proto of [Element.prototype, DocumentFragment.prototype]) {
+  for (const name of ['append', 'prepend', 'replaceChildren']) {
+    const native = proto[name];
+    if (native.__mx) continue;
+    const patched = function (...args) {
+      return native.apply(this, args.flat(Infinity).filter((a) => a !== null && a !== undefined && a !== false));
+    };
+    patched.__mx = true;
+    proto[name] = patched;
+  }
+}
+
 /**
  * h('div', { class: 'card', onclick: fn, dataset: {id: 1} }, 'text', child, [more])
  * Props starting with "on" become event listeners. `html` is NOT supported on purpose.

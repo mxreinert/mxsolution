@@ -6,7 +6,7 @@ import { e1rm } from '../../core/metrics.js';
 import { exerciseMap, setsForExercises, lastTimeAndBest, saveDraft, loadDraft, dropDraft, queue, syncOutbox, pushWorkout } from './data.js';
 import { pickExercise } from './picker.js';
 
-const SET_TYPES = [['normal', 'Satz'], ['warmup', 'Aufwärmen'], ['drop', 'Drop'], ['superset', 'Supersatz']];
+const SET_TYPES = [['normal', 'Satz'], ['warmup', 'Aufw.'], ['drop', 'Drop'], ['superset', 'Super']];
 
 function fmtRest(sec) { const m = Math.floor(sec / 60); return `${m}:${String(sec % 60).padStart(2, '0')}`; }
 

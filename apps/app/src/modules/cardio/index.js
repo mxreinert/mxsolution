@@ -209,6 +209,6 @@ export default {
 
   async summary(ctx, fromDay, toDay) {
     const s = await loadSessions(ctx.client.id, fromDay, toDay);
-    return [{ label: 'Cardio', value: `${s.length} Einheiten, ${fmtNum(s.reduce((a, x) => a + Number(x.duration_min || 0), 0))} min, ${fmtNum(s.reduce((a, x) => a + Number(x.distance_km || 0), 0), 1)} km` }];
+    return [{ label: 'Cardio', value: `${s.length} Einheit${s.length === 1 ? '' : 'en'}, ${fmtNum(s.reduce((a, x) => a + Number(x.duration_min || 0), 0))} min, ${fmtNum(s.reduce((a, x) => a + Number(x.distance_km || 0), 0), 1)} km` }];
   }
 };

@@ -86,7 +86,7 @@ export default {
     if (!next) return null;
     return h('div', { class: 'card' },
       h('strong', null, '🏋️ Nächstes Training: ', next.name),
-      h('p', { class: 'muted small' }, `${next.exercises.length} Übungen`),
+      h('p', { class: 'muted small' }, `${next.exercises.length} Übung${next.exercises.length === 1 ? '' : 'en'}`),
       h('button', { type: 'button', onclick: () => startWorkout(ctx, plan, next) }, 'Training starten'));
   },
 
@@ -126,7 +126,7 @@ export default {
         plan.notes ? h('p', { class: 'hint' }, plan.notes) : null,
         plan.sessions.map((s) => h('div', { class: 'list-row' + (next?.key === s.key ? ' highlight' : '') },
           h('div', null, h('strong', null, s.key, ' · ', s.name), next?.key === s.key ? badge('als Nächstes', 'accent') : null,
-            h('div', { class: 'muted small' }, `${s.exercises.length} Übungen`)),
+            h('div', { class: 'muted small' }, `${s.exercises.length} Übung${s.exercises.length === 1 ? '' : 'en'}`)),
           h('button', { type: 'button', class: next?.key === s.key ? '' : 'secondary', onclick: () => startWorkout(ctx, plan, s) },
             next?.key === s.key ? 'Starten' : 'Diese starten'))),
         h('p', { class: 'muted small' }, '„Diese starten“ = Training verschieben/tauschen.')));

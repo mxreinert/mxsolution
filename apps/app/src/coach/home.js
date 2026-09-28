@@ -2,7 +2,7 @@
 import { h, card, empty, dot, badge, pageHead, showError } from '../core/ui.js';
 import { q, from } from '../core/db.js';
 import { today, addDays, fmtDateTime, relDay } from '../core/dates.js';
-import { ampel, AMPEL_LABEL } from '../core/ampel.js';
+import { ampel } from '../core/ampel.js';
 import { STATUS } from '../core/goals.js';
 
 export async function loadOverview(app) {
@@ -66,5 +66,5 @@ export async function renderCoachHome(el, app) {
     })));
   }
 
-  el.append(card('Alle aktiven Kunden', sorted.length ? sorted.map((x) => h('div', { class: 'ampel-line' }, ampelRow(x.c, x.a), h('small', { class: 'muted' }, AMPEL_LABEL[x.a.level]))) : empty('Noch keine Kunden.')));
+  el.append(card('Alle aktiven Kunden', sorted.length ? sorted.map((x) => ampelRow(x.c, x.a)) : empty('Noch keine Kunden.')));
 }

@@ -217,9 +217,9 @@ fieldset.evening-section legend { font-weight: 700; padding: 0 6px; }
 .set-row { display: flex; align-items: center; gap: 6px; margin: 6px 0; flex-wrap: wrap; }
 .set-row.warmup { opacity: .75; }
 .set-no { width: 22px; text-align: center; font-weight: 700; color: var(--muted); flex: none; }
-.set-type { width: 96px; min-height: 42px; padding: 0 6px; font-size: 14px; flex: none; }
-.set-side { width: 64px; min-height: 42px; padding: 0 4px; flex: none; }
-.set-in { width: 70px; min-height: 42px; padding: 0 8px; text-align: center; flex: 1; }
+.set-type { width: 76px; min-height: 42px; padding: 0 6px; font-size: 14px; flex: none; }
+.set-side { width: 56px; min-height: 42px; padding: 0 4px; flex: none; }
+.set-in { width: 56px; min-height: 42px; padding: 0 8px; text-align: center; flex: 1; }
 .set-in.rir { max-width: 60px; flex: .7; }
 .set-done { width: 46px; min-height: 42px; margin: 0; padding: 0; flex: none; background: var(--bg); color: var(--muted); border: 1px solid var(--border); font-size: 1.1rem; }
 .set-done.on { background: var(--ok); color: #fff; border-color: var(--ok); }

@@ -15,7 +15,7 @@ export async function renderPlanList(el) {
       h('a', { class: 'button', href: '#/c/plan/neu' }, '+ Neue Vorlage')),
     plans.length ? h('div', { class: 'list' }, plans.map((p) => h('a', { class: 'list-row card-link', href: '#/c/plan/' + p.id },
       h('div', null, h('strong', null, p.name),
-        h('div', { class: 'muted small' }, `${p.sessions.length} Einheiten${p.per_week ? ` · ${p.per_week}× pro Woche` : ''}`)),
+        h('div', { class: 'muted small' }, `${p.sessions.length} Einheit${p.sessions.length === 1 ? '' : 'en'}${p.per_week ? ` · ${p.per_week}× pro Woche` : ''}`)),
       h('span', { class: 'chev' }, '›')))) : empty('Noch keine Vorlagen. Lege z. B. „Ganzkörper 3×“, „PPL“ oder „OK/UK“ an.'));
 }
 
@@ -37,7 +37,7 @@ export async function chooseTemplate() {
   if (!plans.length) { toast('Lege zuerst eine Vorlage unter „Pläne“ an.', 'warn'); return null; }
   return modal('Vorlage zuweisen', (close) => h('div', { class: 'picker-list' },
     plans.map((p) => h('button', { type: 'button', class: 'picker-row', onclick: () => close(p.id) },
-      h('strong', null, p.name), h('small', { class: 'muted' }, `${p.sessions.length} Einheiten`)))));
+      h('strong', null, p.name), h('small', { class: 'muted' }, `${p.sessions.length} Einheit${p.sessions.length === 1 ? '' : 'en'}`)))));
 }
 
 export async function renderPlanEditor(el, params, query) {

@@ -8,7 +8,12 @@ Schritt für Schritt, was Max selbst machen muss. Reihenfolge einhalten. Nichts 
 
 ## 1. Datenbank in Supabase einrichten
 
-Supabase → Projekt → **SQL Editor** → **New query**. Jede Datei einzeln: Inhalt komplett einfügen → **Run**. Nach jeder Datei muss unten „Success“ stehen. Wenn nicht: Fehlermeldung kopieren und Claude zeigen, **nicht** mit der nächsten Datei weitermachen.
+**Einfachster Weg (empfohlen):** Die Datei `supabase/setup/ALLES-IN-EINEM.local.sql` enthält alles unten in einer einzigen Transaktion (liegt nur auf deinem PC, nicht auf GitHub). Supabase → **SQL Editor** → **New query** → Dateiinhalt komplett einfügen → **Run**. Am Ende erscheint eine Tabelle mit `max`, `testcoach`, `testkunde`. Bei einem Fehler wird nichts gespeichert – Meldung an Claude, danach einfach erneut ausführen.
+Neu erzeugen (z. B. nach neuen Migrationen): `python supabase/setup/build_all_in_one.py deine-coach-mail@…`
+
+**Einzeln (alternativ):** Supabase → Projekt → **SQL Editor** → **New query**. Jede Datei einzeln: Inhalt komplett einfügen → **Run**. Nach jeder Datei muss unten „Success“ stehen. Wenn nicht: Fehlermeldung kopieren und Claude zeigen, **nicht** mit der nächsten Datei weitermachen.
+
+Vor neuen Migrationen immer die lokalen Tests laufen lassen: `supabase/tests/README.md`.
 
 | # | Datei | Was sie macht |
 |---|---|---|

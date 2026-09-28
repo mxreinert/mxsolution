@@ -447,7 +447,7 @@ Ziel: beweisen, dass Kunden täglich eintragen.
 1. Login, Passwort beim ersten Login, Rollen Kunde/Coach, Datenzugriff nur auf eigene Daten
 2. Dashboard: Interessent anlegen mit Anamnese, Konzept, als Kunde übernehmen
 3. Heute-Screen + Abend-Check
-4. M1 Krafttraining (IRONLOG überführen) mit Plan-Zuweisung
+4. M1 Krafttraining (neu gebaut, auf Basis der Übungsdatenbank) mit Plan-Zuweisung
 5. M3 Ernährung, M4 Körpergewicht, M5 Aktivität, M6 Schlaf, M7 Motivation (alle sehr einfach, fast nur Zahlenfelder im Abend-Check)
 6. Wöchentlicher Check-in mit Feedback
 7. Grundgrafiken: Kennzahl-Karte + Verlauf pro Modul

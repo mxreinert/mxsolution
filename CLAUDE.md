@@ -30,7 +30,7 @@ mxreinert.de/
 - Module sind Datenbereiche (Plan: M1–M17), Ziele sind nur Voreinstellungen, welche Module aktiv sind.
 - Jedes Modul ist in sich abgeschlossen. Kein Modul importiert direkt aus einem anderen Modul, nur aus `core/`. Verbunden werden sie über die Registry in `core/modules.js`.
 - KM Pacer liegt als eigenständige Offline-Seite unter `modules/cardio/pacer/` und übergibt Läufe über `localStorage` (`mx_pacer_outbox`) an das Cardio-Modul.
-- `src/modules/bulk/` und `src/modules/pacer/` sind die alten Kopien, werden nicht mehr genutzt und per Redirect gesperrt (Löschung mit Max abstimmen).
+- Die alten Einzel-Repos (bulk-cockpit, kmpacer, mxreinert-web) liegen nur noch auf GitHub (dort archivieren, sobald die neue App live ist).
 - Einrichtung: `docs/SETUP.md`. Vor echten Kunden: `docs/LAUNCH.md`.
 
 ## Stack

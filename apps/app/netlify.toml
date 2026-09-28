@@ -12,19 +12,6 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Old standalone copies (kept only for reference until deleted) must never be served
-[[redirects]]
-  from = "/modules/bulk/*"
-  to = "/404.html"
-  status = 404
-  force = true
-
-[[redirects]]
-  from = "/modules/pacer/*"
-  to = "/404.html"
-  status = 404
-  force = true
-
 [[redirects]]
   from = "/"
   to = "/index.html"

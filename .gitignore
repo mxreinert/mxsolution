@@ -11,10 +11,5 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Old standalone repos (local backup only, not part of this repo)
-/mxreinert-web/
-/bulk-cockpit/
-/kmpacer/
-
 # Local-only SQL (test accounts with passwords)
 *.local.sql

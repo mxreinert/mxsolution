@@ -67,6 +67,9 @@ export default {
   name: 'Krafttraining',
   order: 1,
 
+  /** app start: push workouts that were logged offline */
+  start() { syncOutbox().catch(() => {}); },
+
   async today(ctx) {
     if (hevyActive(ctx)) return null;
     const plan = await activePlan(ctx.client.id);
@@ -251,10 +254,17 @@ export default {
       versions.length > 1 ? h('details', null, h('summary', null, `Versionen (${versions.length})`),
         versions.map((v) => h('p', { class: 'muted small' }, `${v.name} · V${v.version} · ${fmt(v.created_at)}${v.is_active ? ' · aktiv' : ''}`))) : null);
 
-    if (plan) {
-      const sessionPick = h('div', { class: 'row-actions wrap' }, plan.sessions.map((s) =>
-        h('button', { type: 'button', class: 'link-btn', onclick: () => startWorkout(ctx, plan, s, 'plan', { withCoach: true }) }, `PT: ${s.key} starten`)));
-      wrap.append(sessionPick);
+    // coming from a PT appointment: log the session live, linked to the appointment
+    const appointmentId = ctx.query?.pt || null;
+    if (appointmentId) {
+      wrap.prepend(h('div', { class: 'card accent-border' },
+        h('strong', null, '👥 PT-Termin: Training live loggen'),
+        h('div', { class: 'row-actions wrap' },
+          (plan?.sessions || []).map((s) => h('button', { type: 'button', onclick: () => startWorkout(ctx, plan, s, 'plan', { withCoach: true, appointmentId }) }, `${s.key}: ${s.name}`)),
+          h('button', { type: 'button', class: 'secondary', onclick: () => startWorkout(ctx, plan, null, 'free', { withCoach: true, appointmentId }) }, 'Frei loggen'))));
+    } else if (plan) {
+      wrap.append(h('div', { class: 'row-actions wrap' }, plan.sessions.map((s) =>
+        h('button', { type: 'button', class: 'link-btn', onclick: () => startWorkout(ctx, plan, s, 'plan', { withCoach: true }) }, `PT: ${s.key} starten`))));
     }
 
     const hist = card('Letzte Trainings');

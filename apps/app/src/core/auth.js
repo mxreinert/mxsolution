@@ -47,7 +47,7 @@ export async function getProfile() {
   if (!user) return null;
   const { data, error } = await sb
     .from('profiles')
-    .select('id, role, username, must_change_password')
+    .select('id, role, username, must_change_password, mfa_exempt')
     .eq('id', user.id)
     .single();
   if (error) return null;
@@ -68,7 +68,8 @@ export async function resolveRoute() {
 
   if (profile.must_change_password) return '/password.html';
 
-  if (profile.role === 'coach') {
+  // mfa_exempt: test accounts only (see LAUNCH.md)
+  if (profile.role === 'coach' && !profile.mfa_exempt) {
     const { data: aal } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
     if (aal?.currentLevel !== 'aal2') return '/mfa.html';
   }

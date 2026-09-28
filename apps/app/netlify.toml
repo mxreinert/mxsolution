@@ -12,13 +12,36 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Security headers. connect-src allows only our own Supabase project.
+# Old standalone copies (kept only for reference until deleted) must never be served
+[[redirects]]
+  from = "/modules/bulk/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/modules/pacer/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# Security headers. connect-src/img-src allow only our own Supabase project.
 [[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "no-referrer"
-    Permissions-Policy = "geolocation=(self), microphone=(), camera=()"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=(self)"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
-    Content-Security-Policy = "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https://btatxcipmsvcriddxlhv.supabase.co wss://btatxcipmsvcriddxlhv.supabase.co; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
+    Content-Security-Policy = "default-src 'self'; img-src 'self' data: blob: https://btatxcipmsvcriddxlhv.supabase.co; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self' https://btatxcipmsvcriddxlhv.supabase.co wss://btatxcipmsvcriddxlhv.supabase.co; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"

@@ -88,11 +88,13 @@ export function chart(opts) {
       if (seg.length > 1) svg.append(s('polyline', { points: seg.map((p) => `${x(p.d)},${y(p.v)}`).join(' '), class: 'line ' + cls + (se.dashed ? ' dashed' : '') }));
       seg = [];
     };
-    pts.forEach((p, i) => {
-      if (i && diffDays(pts[i - 1].d, p.d) > maxGap) flush();
-      seg.push(p);
-    });
-    flush();
+    if (se.type !== 'dots') {
+      pts.forEach((p, i) => {
+        if (i && diffDays(pts[i - 1].d, p.d) > maxGap) flush();
+        seg.push(p);
+      });
+      flush();
+    }
     if (se.type === 'dots' || se.dots !== false) {
       for (const p of pts) svg.append(s('circle', { cx: x(p.d), cy: y(p.v), r: se.type === 'dots' ? 2.6 : 1.8, class: 'pt ' + cls }));
     }

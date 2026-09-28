@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b0d12">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>KM Pacer</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- SETUP SCREEN -->
+  <section class="screen active" id="screen-setup">
+    <header class="topbar">
+      <a class="link-btn" href="/home.html#/training" id="btn-back-app">← App</a>
+      <h1 class="logo">KM PACER</h1>
+      <button class="link-btn" id="btn-goto-history" type="button">Verlauf</button>
+    </header>
+
+    <form id="setup-form">
+      <div class="field">
+        <label class="field-label">Distanz</label>
+        <div class="chip-row" id="distance-chips">
+          <button type="button" class="chip" data-distance="5">5 km</button>
+          <button type="button" class="chip" data-distance="10">10 km</button>
+          <button type="button" class="chip" data-distance="21.1">21,1 km</button>
+          <button type="button" class="chip" data-distance="custom">Custom</button>
+        </div>
+        <input type="number" id="distance-custom" class="text-input hidden" placeholder="z. B. 8.5" step="0.1" min="0.1" inputmode="decimal">
+      </div>
+
+      <div class="field">
+        <label class="field-label">Ziel</label>
+        <div class="chip-row" id="goal-mode-chips">
+          <button type="button" class="chip" data-goal="time">🎯 Zielzeit</button>
+          <button type="button" class="chip" data-goal="pace">⚡ Zielpace</button>
+          <button type="button" class="chip" data-goal="none">🏁 Keine Zielzeit</button>
+        </div>
+
+        <div class="field sub-field hidden" id="goal-time-field">
+          <label class="field-label">Zielzeit (hh:mm:ss oder mm:ss)</label>
+          <input type="text" id="goal-time-input" class="text-input" placeholder="50:00" inputmode="numeric">
+        </div>
+
+        <div class="field sub-field hidden" id="goal-pace-field">
+          <label class="field-label">Zielpace (min:ss / km)</label>
+          <input type="text" id="goal-pace-input" class="text-input" placeholder="4:53" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="field" id="strategy-field">
+        <label class="field-label">Strategie</label>
+        <div class="chip-row" id="strategy-chips">
+          <button type="button" class="chip selected" data-strategy="even">Gleichmäßig</button>
+          <button type="button" class="chip" data-strategy="negative">Negative Split</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Start</label>
+        <div class="chip-row">
+          <button type="button" class="chip selected" id="start-now-chip">Jetzt</button>
+          <button type="button" class="chip" id="start-custom-chip">Uhrzeit wählen</button>
+        </div>
+        <input type="time" id="start-time-input" class="text-input hidden" step="1">
+      </div>
+
+      <div id="target-splits-preview" class="target-preview hidden"></div>
+
+      <button type="submit" class="btn-primary" id="btn-start-run">Lauf starten</button>
+      <button type="button" class="btn-secondary" id="btn-goto-manual">Manuelle Eingabe</button>
+    </form>
+  </section>
+
+  <!-- RUN SCREEN -->
+  <section class="screen" id="screen-run">
+    <div class="run-topbar">
+      <button class="icon-btn" id="btn-cancel-run" type="button" aria-label="Abbrechen">✕</button>
+      <div class="run-km-label" id="run-km-label">KM 0 / 10</div>
+      <button class="icon-btn" id="btn-undo-km" type="button" aria-label="Rückgängig">↺</button>
+    </div>
+
+    <div class="run-main">
+      <div class="run-timer" id="run-timer">00:00</div>
+      <div class="run-sublabel">aktuelle Laufzeit</div>
+
+      <div class="run-pace" id="run-pace">–:–– / KM</div>
+      <div class="run-sublabel">Durchschnitt</div>
+
+      <div class="run-divider"></div>
+
+      <div class="run-goal-row" id="run-goal-row">
+        <div class="run-goal-label" id="run-goal-label">🎯 KEINE ZIELZEIT</div>
+        <div class="run-forecast" id="run-forecast"></div>
+        <div class="run-buffer" id="run-buffer"></div>
+      </div>
+
+      <div class="run-required" id="run-required-block">
+        <div class="run-required-label">DU BRAUCHST AB JETZT</div>
+        <div class="run-required-pace" id="run-required-pace">–:––/km</div>
+      </div>
+    </div>
+
+    <button class="btn-km" id="btn-add-km" type="button">+1 KM</button>
+
+    <div class="run-footer">
+      <span id="run-last-km">Letzter KM: –</span>
+      <span id="run-strategy-hint"></span>
+    </div>
+  </section>
+
+  <!-- MANUAL ENTRY SCREEN -->
+  <section class="screen" id="screen-manual">
+    <header class="topbar">
+      <button class="icon-btn" id="btn-manual-back" type="button" aria-label="Zurück">←</button>
+      <h1 class="logo">Manuelle Eingabe</h1>
+      <span></span>
+    </header>
+
+    <div class="field">
+      <label class="field-label">Zielzeit (optional)</label>
+      <input type="text" id="manual-goal-time" class="text-input" placeholder="z. B. 50:00" inputmode="numeric">
+    </div>
+
+    <div id="manual-rows" class="manual-rows"></div>
+    <button type="button" class="btn-secondary" id="btn-manual-add-row">+ KM hinzufügen</button>
+
+    <div class="manual-summary" id="manual-summary"></div>
+
+    <button type="button" class="btn-primary" id="btn-manual-calc">Berechnen &amp; Speichern</button>
+  </section>
+
+  <!-- SUMMARY SCREEN -->
+  <section class="screen" id="screen-summary">
+    <header class="topbar">
+      <span></span>
+      <h1 class="logo">Ergebnis</h1>
+      <span></span>
+    </header>
+    <div class="summary-card" id="summary-card"></div>
+    <div class="summary-actions">
+      <button type="button" class="btn-primary" id="btn-save-run">Lauf speichern</button>
+      <button type="button" class="btn-secondary" id="btn-new-run">Neuer Lauf</button>
+    </div>
+  </section>
+
+  <!-- HISTORY SCREEN -->
+  <section class="screen" id="screen-history">
+    <header class="topbar">
+      <button class="icon-btn" id="btn-history-back" type="button" aria-label="Zurück">←</button>
+      <h1 class="logo">Laufhistorie</h1>
+      <span></span>
+    </header>
+    <div class="history-list" id="history-list"></div>
+  </section>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

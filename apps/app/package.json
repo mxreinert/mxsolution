@@ -1,0 +1,10 @@
+{
+  "name": "mxreinert-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Coaching-App app.mxreinert.de (vanilla JS, Netlify Functions)",
+  "dependencies": {
+    "web-push": "^3.6.7"
+  }
+}

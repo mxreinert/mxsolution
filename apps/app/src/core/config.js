@@ -12,3 +12,10 @@ export const SESSION_MAX_DAYS = 7;
 // WhatsApp number for "Passwort vergessen?" etc., digits only incl. country code
 // (e.g. '352621123456'). Empty = link is hidden.
 export const WHATSAPP_NUMBER = '';
+
+// Public VAPID key for web push (same key pair as the old Bulk Cockpit).
+// The private key lives only in the Netlify env var VAPID_PRIVATE_KEY.
+export const VAPID_PUBLIC_KEY = 'BJpXlCmyKTT8v0wP01soKWi9EcOc1uMnJalBsbffhjClHa57layYBeXGwKryhj6etlEH_V0u5oCCHNUCxwgXS88';
+
+// Bump when shipping a new version so the service worker refreshes its cache.
+export const APP_VERSION = '0.1.0';

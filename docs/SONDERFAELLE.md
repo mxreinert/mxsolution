@@ -47,7 +47,7 @@ Ablage: `docs/SONDERFAELLE.md` · Stand: 28.09.2026
 | B4 Lücken | „aus 5 von 7 Tagen" + Hinweis, vollständiger einzutragen; nie als 0 |
 | B5 Einheiten | kg, km, kcal, Stunden |
 | B6 Tippfehler | Plausibilitätswarnungen (kcal, Gewicht, Schritte, Schlaf, Satzgewicht) |
-| B7 Schwankungen | neue Module **Kreatin (M13)** und **Zyklus (M14)** |
+| B7 Schwankungen | neue Module **Kreatin (M13)** und **Zyklus (M14)**; Kreatin ist Teil von **Supplemente (M17)** |
 | B8 Geräte | Kunde gibt Uhr/Apps am Anfang in den Einstellungen an |
 | B9 Zeitzone | immer Ortszeit des Geräts |
 | B10 | Button „Nicht getrackt" |

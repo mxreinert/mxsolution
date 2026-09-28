@@ -101,6 +101,8 @@ Pro Interessent/Kunde im Dashboard:
 | M13 | **Kreatin** | Einnahme täglich, erklärt Gewichtssprünge |
 | M14 | **Zyklus** | Periodenbeginn, erklärt Gewichtsschwankungen (nur mit Einwilligung) |
 | M15 | **Eltern-Bericht** | exportierbarer Bericht für Eltern Minderjähriger, kein Eltern-Login |
+| M16 | **Preise & Buchhaltung** | nur für Max, siehe 7b |
+| M17 | **Supplemente** | Einnahme täglich abhaken, Kreatin (M13) ist Teil davon |
 
 Querschnitt (kein Datenmodul, immer da): **Heute-Screen, Abend-Check, Wöchentlicher Check-in, Erinnerungen & Benachrichtigungen, Auswertung.**
 
@@ -312,6 +314,13 @@ Bei jedem Datenfeld gilt: *Brauche ich das wirklich?* Jedes Modul ist exportierb
 - Max erzeugt im Dashboard einen Bericht (z. B. monatlich) mit ausgewählten Bereichen: Training, Fortschritt, Termine
 - Max wählt pro Bericht, was drin ist, und gibt ihn selbst weiter
 
+### M17 Supplemente
+- Max legt pro Kunde die Supplemente fest: Name, Dosis + Einheit (g, mg, Kapseln, IE, ml), Zeitpunkt (morgens, mittags, abends, vor/nach Training), seit wann, Notiz. Kunde kann eigene Supplemente vorschlagen/eintragen, Max sieht sie
+- Täglich im Abend-Check als Abhak-Liste: genommen ja/nein, Menge änderbar (Standard = Dosis)
+- **Kreatin (M13) ist ein Supplement mit Sonderfunktion:** Beginn wird in der Gewichtsgrafik markiert, Wasser-Hinweis wie bei M13. Kein doppeltes Abhaken
+- Auswertung: Einnahmetreue pro Supplement in % (Woche/Monat), Beginn/Ende als Markierung in Grafiken
+- Keine Produktempfehlungen, keine Links zu Shops. Kein Ersatz für ärztliche Beratung (z. B. bei Minderjährigen oder Medikamenten Hinweis an Max)
+
 ---
 
 ## 4b. Kundenstatus: Aktiv, Erhaltung, Pause
@@ -494,6 +503,7 @@ Ziel: beweisen, dass Kunden täglich eintragen.
 ### Phase 2
 - Kundenstatus (Aktiv, Erhaltung, Pause …) – falls ein Pilotkunde krank wird, vorher als einfacher Schalter
 - M12 Personal Training mit Kalender, Orten, Erinnerungen, Offline-Logging (vorziehen, falls Pilotkunden PT haben)
+- M17 Supplemente inkl. Kreatin (M13), M14 Zyklus
 - Push-Erinnerungen + Benachrichtigungs-Einstellungen
 - M2 Cardio + KM Pacer eingebunden
 - Wochenbericht, Zielbänder, Zeitraum-Umschaltung

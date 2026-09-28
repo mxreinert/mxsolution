@@ -15,3 +15,6 @@ Thumbs.db
 /mxreinert-web/
 /bulk-cockpit/
 /kmpacer/
+
+# Local-only SQL (test accounts with passwords)
+*.local.sql

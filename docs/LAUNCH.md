@@ -42,6 +42,7 @@ Ablage: `docs/LAUNCH.md`
 - [ ] Supabase-Projekt in **EU-Region (Frankfurt)** – gilt schon für das allererste Anlegen
 - [ ] Auftragsverarbeitungsverträge (DPA) von Supabase, Netlify, Anthropic, Google akzeptiert und abgelegt
 - [ ] Zwei-Faktor-Login für Max' Dashboard aktiv
+- [ ] **Testzugänge gelöscht** (mx67/mx68 aus `supabase/setup/test-accounts.local.sql`) und keine Profile mehr mit `mfa_exempt = true`
 - [ ] Row Level Security in Supabase getestet: Kunde A sieht **nichts** von Kunde B (mit zwei Testkonten ausprobieren)
 - [ ] Export pro Kunde funktioniert und ist wieder importierbar
 - [ ] Löschung pro Kunde löscht wirklich alles (inkl. Profilbild, Fotos)

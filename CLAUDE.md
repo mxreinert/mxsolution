@@ -53,7 +53,9 @@ Die App verarbeitet Gesundheitsdaten, auch von Minderjährigen. Darum:
 - Kundenkonten entstehen nur über das Coach-Dashboard. Das Anlegen läuft serverseitig (Netlify Function oder Supabase Edge Function) mit dem service-role-Key, der nur dort als Umgebungsvariable liegt.
 - Diese Function prüft bei jedem Aufruf, dass der Aufrufer angemeldet ist und die Rolle Coach hat. Sonst wird abgelehnt.
 - Beim Anlegen eines Kunden erfasse ich im Dashboard: Ziel, Geburtsdatum und Einwilligung (bei Minderjährigen die der Eltern). Ohne Einwilligung wird kein Konto erstellt.
-- Der Kunde bekommt eine Einladung per Link, um sein Passwort selbst zu setzen. Ich sehe und kenne Kundenpasswörter nie.
+- Login per Benutzername und Passwort, kein Mailversand. Intern nutzt Supabase eine Scheinadresse (`<username>@kunden.mxreinert.de`), an die nie etwas geschickt wird.
+- Ich vergebe im Dashboard ein Startpasswort. Beim ersten Login muss der Kunde ein eigenes Passwort setzen, vorher geht nichts anderes. Die echten Passwörter kenne ich nie.
+- Passwort vergessen: Ich setze ein neues Startpasswort, danach gilt wieder die Pflicht zum Ändern.
 - Die Rolle (Coach/Kunde) wird nur serverseitig gesetzt. Ein Kunde kann seine Rolle nie selbst ändern, auch nicht über die API.
 - Mein Coach-Konto wird manuell in Supabase angelegt und ist mit Zwei-Faktor-Authentifizierung geschützt.
 - Kunden können ihr Konto nicht selbst löschen, aber Löschung und Export laufen über mich auf Anfrage.
@@ -61,7 +63,15 @@ Die App verarbeitet Gesundheitsdaten, auch von Minderjährigen. Darum:
 ## Arbeitsweise
 
 - Bei jeder größeren Aufgabe zuerst einen Plan zeigen und auf mein OK warten.
-- Immer nur eine Aufgabe pro Session, klein halten. Danach committen.
+- Immer nur eine Aufgabe pro Session, klein halten. Danach committen (nur lokal).
+
+### Deploys (SEHR wichtig, Netlify-Limits)
+
+- Jeder Push auf `main` löst einen Deploy aus. Darum: lokal committen, so oft nötig, aber **selten pushen**, lieber große gebündelte Updates.
+- **Vor jedem Push/Deploy zweimal nachfragen** und auf zwei getrennte OKs von mir warten. Beim ersten Mal auflisten, was rausgeht.
+- Nie selbst `netlify deploy` ausführen. Lokal testen statt Test-Deploys.
+- Jede Netlify-Site baut nur, wenn sich ihr eigener Ordner geändert hat (`ignore`-Befehl in `netlify.toml`).
+- Deploy Previews und Branch Deploys bleiben aus.
 - Nichts löschen oder verschieben, ohne vorher aufzulisten, was betroffen ist.
 - Bestehende Funktionen nicht ungefragt umschreiben. Nur ändern, was zur Aufgabe gehört.
 - Wenn etwas unklar ist, nachfragen statt raten.

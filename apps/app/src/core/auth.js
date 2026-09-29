@@ -42,16 +42,28 @@ function sessionExpired() {
   return !at || Date.now() - at > SESSION_MAX_DAYS * 864e5;
 }
 
-export async function getProfile() {
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return null;
-  const { data, error } = await sb
-    .from('profiles')
-    .select('id, role, username, must_change_password, mfa_exempt')
-    .eq('id', user.id)
-    .single();
-  if (error) return null;
-  return data;
+// Profile is loaded once per page load and shared (guard + app init use the same request).
+let profilePromise = null;
+
+/**
+ * Current user's profile. Uses the locally stored session (no extra network round trip);
+ * the database still checks every request via RLS, so this is only for routing.
+ */
+export function getProfile({ fresh = false } = {}) {
+  if (!profilePromise || fresh) {
+    profilePromise = (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      const uid = session?.user?.id;
+      if (!uid) return null;
+      const { data, error } = await sb
+        .from('profiles')
+        .select('id, role, username, must_change_password, mfa_exempt')
+        .eq('id', uid)
+        .single();
+      return error ? null : data;
+    })();
+  }
+  return profilePromise;
 }
 
 /**
@@ -64,7 +76,7 @@ export async function resolveRoute() {
   if (sessionExpired()) { await logout(); return '/'; }
 
   const profile = await getProfile();
-  if (!profile) { await logout(); return '/'; }
+  if (!profile) { profilePromise = null; await logout(); return '/'; }
 
   if (profile.must_change_password) return '/password.html';
 

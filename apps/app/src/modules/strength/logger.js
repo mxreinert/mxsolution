@@ -261,7 +261,7 @@ export async function renderLogger(el, { client, settings, workoutId, backHref, 
       await pushWorkout(w);
       dropDraft(w.id);
       await syncOutbox();
-      toast(pain ? 'Gespeichert – Max wurde über die Beschwerden informiert.' : 'Training gespeichert 💪');
+      toast(pain ? 'Gespeichert – Max wurde über die Beschwerden informiert.' : 'Training gespeichert ');
     } catch (e) {
       toast('Offline gespeichert – wird synchronisiert, sobald du Netz hast.', 'warn');
     }

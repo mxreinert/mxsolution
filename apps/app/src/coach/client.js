@@ -1,5 +1,5 @@
 // Coach: client detail with tabs.
-import { h, clear, card, empty, badge, dot, tabs, segmented, textarea, input, field, toast, showError, confirmDialog, backLink, fmtNum, modal } from '../core/ui.js';
+import { h, clear, card, empty, badge, dot, tabs, segmented, textarea, input, field, toast, showError, confirmDialog, backLink, fmtNum, modal, skeleton } from '../core/ui.js';
 import { q, from, rpc } from '../core/db.js';
 import { today, addDays, age, isMinor, fmt, fmtDateTime, RANGES, relDay } from '../core/dates.js';
 import { dayGrid, chart } from '../core/chart.js';
@@ -11,21 +11,22 @@ import { renderAnamnesis, missingRequired } from './anamnesis.js';
 import { renderConcept } from './concept.js';
 import { renderAccount, takeOver } from './account.js';
 import { renderCheckinItem } from './checkins.js';
+import { renderModulesTab } from './modules-tab.js';
 import { refresh } from '../core/router.js';
 
 export async function renderClient(el, app, params, query) {
   let client = await app.loadClient(params.id);
   const isLead = !client.user_id && ['lead', 'concept', 'discarded'].includes(client.status);
   let tab = query.tab || (isLead ? 'anamnese' : 'uebersicht');
+  // old links (training, abrechnung, …) open the matching module inside the "Module" tab
+  const LEGACY = { training: 'strength', supplemente: 'supplements', pt: 'pt', abrechnung: 'billing', hevy: 'hevy', ki: 'ai', bericht: 'parent_report' };
+  let openModule = query.open || null;
+  if (LEGACY[tab]) { openModule = LEGACY[tab]; tab = 'module'; }
 
-  const moduleTabs = app.modules.filter((m) => m.coach && app.isActive(m, client) && !['strength', 'cardio'].includes(m.id));
-  const TAB_IDS = { supplements: 'supplemente', pt: 'pt', billing: 'abrechnung', hevy: 'hevy', ai: 'ki', parent_report: 'bericht' };
-  const hasTraining = app.modules.some((m) => ['strength', 'cardio'].includes(m.id) && app.isActive(m, client));
   const allTabs = isLead
-    ? [['anamnese', 'Anamnese'], ['konzept', 'Konzept'], ['notizen', 'Notizen'], ['konto', 'Übernehmen']]
-    : [['uebersicht', 'Übersicht'], ['konzept', 'Konzept'], ['anamnese', 'Anamnese'], ['auswertung', 'Auswertung'],
-      ...(hasTraining ? [['training', 'Training']] : []), ['checkins', 'Check-ins'],
-      ...moduleTabs.map((m) => [TAB_IDS[m.id] || m.id, m.name]), ['notizen', 'Notizen'], ['konto', 'Konto & Daten']];
+    ? [['anamnese', 'Anamnese'], ['konzept', 'Konzept'], ['module', 'Module'], ['notizen', 'Notizen'], ['konto', 'Übernehmen']]
+    : [['uebersicht', 'Übersicht'], ['module', 'Module'], ['auswertung', 'Auswertung'], ['checkins', 'Check-ins'],
+      ['konzept', 'Konzept'], ['anamnese', 'Anamnese'], ['notizen', 'Notizen'], ['konto', 'Konto & Daten']];
   if (!allTabs.some(([k]) => k === tab)) tab = allTabs[0][0];
 
   const body = h('div');
@@ -39,7 +40,7 @@ export async function renderClient(el, app, params, query) {
       h('p', { class: 'muted' }, [STATUS[client.status]?.label, client.birthdate ? `${age(client.birthdate)} J.` : null, GOALS[client.goal]?.label].filter(Boolean).join(' · ')),
       isMinor(client.birthdate) ? badge(client.parent_consent_at ? `minderjährig · Elterneinwilligung vom ${fmt(client.parent_consent_at)}` : 'minderjährig · Elterneinwilligung fehlt', client.parent_consent_at ? '' : 'warn') : null,
       client.phone ? h('div', { class: 'row-actions' },
-        h('a', { class: 'link-btn', href: `tel:${client.phone}` }, '📞 Anrufen'),
+        h('a', { class: 'link-btn', href: `tel:${client.phone}` }, 'Anrufen'),
         h('a', { class: 'link-btn', href: `https://wa.me/${client.phone.replace(/[^0-9]/g, '')}`, target: '_blank', rel: 'noopener noreferrer' }, 'WhatsApp')) : null));
 
   const renderTabs = () => clear(tabBar).append(tabs(allTabs, tab, (t) => {
@@ -51,7 +52,7 @@ export async function renderClient(el, app, params, query) {
   const moduleCtx = async (extraQuery = {}) => app.buildCtx(client, addDays(today(), -60), today(), { query: { ...query, ...extraQuery }, refresh: reload });
 
   const draw = async () => {
-    clear(body).append(h('p', { class: 'muted' }, 'Lädt …'));
+    clear(body).append(skeleton(2));
     const frag = document.createDocumentFragment();
     try {
       if (tab === 'uebersicht') await overview(frag, app, client, reload);
@@ -64,11 +65,8 @@ export async function renderClient(el, app, params, query) {
         const out = h('div');
         frag.append(segmented(RANGES, range, (v) => { range = v; renderAnalyses(out, app, client, { range }); }), out);
         renderAnalyses(out, app, client, { range });
-      } else if (tab === 'training') {
-        const ctx = await moduleCtx();
-        for (const m of app.modules.filter((x) => ['strength', 'cardio'].includes(x.id) && app.isActive(x, client))) {
-          frag.append(h('h2', { class: 'section-title' }, m.name), await m.coach(ctx));
-        }
+      } else if (tab === 'module') {
+        await renderModulesTab(frag, app, client, { open: openModule, query, reload });
       } else if (tab === 'checkins') {
         const list = await q(from('checkins').select('*').eq('client_id', client.id).order('week_start', { ascending: false }).limit(20));
         if (!list.length) frag.append(empty('Noch keine Check-ins.'));
@@ -77,9 +75,6 @@ export async function renderClient(el, app, params, query) {
         await notes(frag, client);
       } else if (tab === 'konto') {
         await renderAccount(frag, client, reload);
-      } else {
-        const m = moduleTabs.find((x) => (TAB_IDS[x.id] || x.id) === tab);
-        if (m) frag.append(await m.coach(await moduleCtx()));
       }
     } catch (e) { showError(e); frag.append(h('p', { class: 'error' }, 'Konnte nicht geladen werden.')); }
     clear(body).append(frag);
@@ -104,8 +99,8 @@ async function overview(frag, app, client, reload) {
   // status + quick actions
   frag.append(card('Status',
     h('p', null, dot(a.level), ' ', h('strong', null, AMPEL_LABEL[a.level]), a.reasons.length ? h('span', { class: 'muted' }, ' – ' + a.reasons.join(', ')) : null),
-    isPaused(client.status) ? h('p', null, '⏸ ', PAUSE_REASONS.find(([k]) => k === client.status_reason)?.[1] || 'Pause', client.status_detail ? ` · ${client.status_detail}` : '', client.status_until ? ` · bis ${fmt(client.status_until)}` : '', ` · seit ${relDay(client.status_since.slice(0, 10))}`) : null,
-    client.return_requested_at ? h('p', { class: 'ok-text' }, '💪 Meldet sich zurück – Status im Konzept setzen.') : null,
+    isPaused(client.status) ? h('p', null, '', PAUSE_REASONS.find(([k]) => k === client.status_reason)?.[1] || 'Pause', client.status_detail ? ` · ${client.status_detail}` : '', client.status_until ? ` · bis ${fmt(client.status_until)}` : '', ` · seit ${relDay(client.status_since.slice(0, 10))}`) : null,
+    client.return_requested_at ? h('p', { class: 'ok-text' }, 'Meldet sich zurück – Status im Konzept setzen.') : null,
     client.plan_review_at && client.plan_review_at <= addDays(today(), 7) ? h('p', { class: 'warn-text' }, `Konzept überarbeiten fällig am ${fmt(client.plan_review_at)}`) : null,
     miss.length ? h('p', { class: 'warn-text small' }, `Anamnese: ${miss.length} Pflichtfeld(er) offen`) : null,
     h('div', { class: 'row-actions wrap' },
@@ -127,7 +122,7 @@ async function overview(frag, app, client, reload) {
   if (e.name || e.phone) {
     frag.append(card('Notfallkontakt',
       h('p', null, h('strong', null, e.name || '?'), e.relation ? ` (${e.relation})` : ''),
-      e.phone ? h('a', { class: 'button danger small', href: `tel:${e.phone}` }, '📞 ', e.phone) : null,
+      e.phone ? h('a', { class: 'button danger small', href: `tel:${e.phone}` }, '', e.phone) : null,
       e.notes ? h('p', { class: 'hint' }, e.notes) : null));
   }
 

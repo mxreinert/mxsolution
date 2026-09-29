@@ -21,6 +21,9 @@ export default {
   id: 'cycle',
   name: 'Zyklus',
   order: 80,
+  icon: 'drop',
+  color: 'pink',
+  description: 'Periodenbeginn – erklärt Gewichtsschwankungen (nur mit Einwilligung)',
   requires: { consent: 'cycle', clientSetting: 'cycle_enabled' },
 
   /** shade the first 5 days of each cycle and the expected pre-menstrual days in charts */

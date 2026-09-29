@@ -1,5 +1,5 @@
 // Coach: exercise database – add video links / technique hints, add own exercises.
-import { h, clear, input, select, textarea, field, modal, toast, showError, pageHead, empty } from '../core/ui.js';
+import { h, clear, input, select, textarea, field, modal, toast, showError, pageHead, empty, icon } from '../core/ui.js';
 import { q, from } from '../core/db.js';
 
 const TRACKING = [['weight_reps', 'Gewicht × Wdh'], ['bodyweight_reps', 'Körpergewicht × Wdh'], ['bodyweight_plus', 'Körpergewicht + Zusatz × Wdh'], ['assisted', 'Assistenz × Wdh'], ['time', 'Zeit'], ['distance', 'Distanz']];
@@ -60,8 +60,8 @@ export async function renderExercises(el) {
     const rows = all.filter((e) => !t || e.name.toLowerCase().includes(t) || e.primary_muscle.toLowerCase().includes(t));
     if (!rows.length) { list.append(empty('Keine Übungen. Seed-Datei supabase/seed/exercises.sql einspielen.')); return; }
     rows.forEach((e) => list.append(h('button', { type: 'button', class: 'list-row plain' + (e.active ? '' : ' faded'), onclick: () => edit(e, all, load) },
-      h('div', null, h('strong', null, e.name), h('div', { class: 'muted small' }, [e.primary_muscle, e.equipment, e.video_url ? '🎬' : null].filter(Boolean).join(' · '))),
-      h('span', { class: 'chev' }, '›'))));
+      h('div', null, h('strong', null, e.name), h('div', { class: 'muted small' }, [e.primary_muscle, e.equipment, e.video_url ? '' : null].filter(Boolean).join(' · '))),
+      h('span', { class: 'chev' }, icon('chevron', { size: 17 })))));
   };
   search.addEventListener('input', draw);
   el.append(pageHead('Übungen', 'Videolinks und Technik-Hinweise pflegen', h('button', { type: 'button', onclick: () => edit(null, all, load) }, '+ Übung')), search, list);

@@ -256,7 +256,7 @@ async function renderBilling(el) {
       card('Offene Beträge', openBy.filter((x) => x.open > 0).length
         ? openBy.filter((x) => x.open > 0).sort((a, b) => b.open - a.open).map((x) => h('a', { class: 'list-row card-link', href: `#/c/kunde/${x.c.id}?tab=abrechnung` },
           h('span', null, `${x.c.first_name} ${x.c.last_name || ''}`), h('strong', { class: 'warn-text' }, fmtEuro(x.open))))
-        : empty('Alles bezahlt 👍')),
+        : empty('Alles bezahlt ')),
       expiring.length ? card('Läuft bald aus', expiring.map((cp) => {
         const c = clients.find((x) => x.id === cp.client_id);
         const p = packages.find((x) => x.id === cp.package_id);
@@ -282,6 +282,9 @@ export default {
   id: 'billing',
   name: 'Abrechnung',
   order: 98,
+  icon: 'euro',
+  color: 'ok',
+  description: 'Pakete, Forderungen, Zahlungen und Einnahmen',
   coachOnly: true,
   always: true,
   coach: clientPanel,

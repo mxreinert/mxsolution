@@ -1,5 +1,5 @@
 // M12 Personal Training (unlock "pt"): appointments, locations, PT balance, reminders.
-import { h, card, fmtNum, empty, input, select, field, modal, toast, showError, confirmDialog, textarea, parseNum, badge, clear, pageHead, download, toggle, segmented } from '../../core/ui.js';
+import { h, card, fmtNum, empty, input, select, field, modal, toast, showError, confirmDialog, textarea, parseNum, badge, clear, pageHead, download, toggle, segmented, tile, icon } from '../../core/ui.js';
 import { q, from, rpc, api } from '../../core/db.js';
 import { today, addDays, fmtDateTime, fmt, fmtTime, weekStart, WD_SHORT, iso } from '../../core/dates.js';
 
@@ -18,7 +18,7 @@ export function mapLinks(address) {
   const primary = ios ? `https://maps.apple.com/?q=${qs}` : `https://www.google.com/maps/search/?api=1&query=${qs}`;
   const other = ios ? `https://www.google.com/maps/search/?api=1&query=${qs}` : `https://maps.apple.com/?q=${qs}`;
   return h('span', { class: 'row-actions' },
-    h('a', { class: 'button small', href: primary, target: '_blank', rel: 'noopener noreferrer' }, '📍 Karte öffnen'),
+    h('a', { class: 'button small', href: primary, target: '_blank', rel: 'noopener noreferrer' }, icon('location', { size: 16 }), 'Karte'),
     h('a', { class: 'link-btn small', href: other, target: '_blank', rel: 'noopener noreferrer' }, 'andere Karten-App'));
 }
 
@@ -61,15 +61,17 @@ function apptCard(ctx, a, locs) {
   const loc = locs.find((l) => l.id === a.location_id);
   const canRespond = ctx.role === 'client' && a.status === 'planned' && new Date(a.starts_at) > new Date() && ['open', 'confirmed'].includes(a.my_status);
   return h('div', { class: 'card' },
-    h('div', { class: 'ex-head' }, h('strong', null, '👥 PT ', fmtDateTime(a.starts_at)), badge(ATT[a.my_status] || a.status, a.my_status === 'confirmed' ? 'ok' : '')),
-    h('p', { class: 'muted' }, [kindLabel(a.kind), `${a.duration_min} min`, loc?.name].filter(Boolean).join(' · ')),
+    h('div', { class: 'row-main' }, tile('people', 'indigo', 40),
+      h('div', { style: { flex: '1' } }, h('div', { class: 'fc-title' }, 'Personal Training'), h('div', { class: 'muted' }, fmtDateTime(a.starts_at))),
+      badge(ATT[a.my_status] || a.status, a.my_status === 'confirmed' ? 'ok' : '')),
+    h('p', { class: 'muted', style: { marginTop: '10px' } }, [kindLabel(a.kind), `${a.duration_min} min`, loc?.name].filter(Boolean).join(' · ')),
     loc?.address ? h('p', { class: 'small' }, loc.address) : null,
     loc?.hint ? h('p', { class: 'hint' }, loc.hint) : null,
-    a.note ? h('p', { class: 'hint' }, '🎒 ', a.note) : null,
+    a.note ? h('p', { class: 'hint' }, a.note) : null,
     a.coach_note_visible && a.coach_note ? h('p', { class: 'hint' }, 'Notiz von Max: ', a.coach_note) : null,
     h('div', { class: 'row-actions wrap' },
       mapLinks(loc?.address),
-      h('button', { type: 'button', class: 'link-btn', onclick: () => downloadIcs(a, loc) }, '📅 Zum Kalender'),
+      h('button', { type: 'button', class: 'link-btn', onclick: () => downloadIcs(a, loc) }, icon('calendar', { size: 18 }), 'Kalender'),
       canRespond && a.my_status !== 'confirmed' ? h('button', {
         type: 'button', class: 'small', onclick: async () => {
           try { await rpc('client_respond_appointment', { aid: a.id, p_action: 'confirm' }); toast('Bestätigt'); ctx.refresh(); } catch (e) { showError(e); }
@@ -115,7 +117,7 @@ async function editAppointment(appt, { presetClient } = {}) {
     const others = await q(from('appointments').select('id, starts_at, duration_min').neq('status', 'cancelled')
       .gte('starts_at', new Date(s.getTime() - 12 * 3600e3).toISOString()).lte('starts_at', e.toISOString()));
     const clash = others.filter((o) => o.id !== appt?.id && new Date(o.starts_at) < e && new Date(new Date(o.starts_at).getTime() + o.duration_min * 60000) > s);
-    if (clash.length) warn.textContent = `⚠️ Überschneidung mit ${clash.length} anderem Termin (${clash.map((c) => fmtTime(c.starts_at)).join(', ')})`;
+    if (clash.length) warn.textContent = `Überschneidung mit ${clash.length} anderem Termin (${clash.map((c) => fmtTime(c.starts_at)).join(', ')})`;
   };
   [date, time, dur].forEach((x) => x.addEventListener('change', checkConflict));
 
@@ -251,7 +253,7 @@ async function renderCalendar(el) {
         h('p', { class: 'muted small' }, [kindLabel(a.kind), `${a.duration_min} min`, loc?.name, a.series_id ? 'Serie' : null].filter(Boolean).join(' · ')),
         a.note ? h('p', { class: 'hint' }, a.note) : null,
         h('div', { class: 'row-actions wrap' },
-          a.status === 'planned' ? a.appointment_clients.map((x) => h('a', { class: 'link-btn', href: `#/c/kunde/${x.client_id}?tab=training&pt=${a.id}` }, `▶ Loggen: ${byId.get(x.client_id)?.first_name}`)) : null,
+          a.status === 'planned' ? a.appointment_clients.map((x) => h('a', { class: 'link-btn', href: `#/c/kunde/${x.client_id}?tab=training&pt=${a.id}` }, `Loggen: ${byId.get(x.client_id)?.first_name}`)) : null,
           a.status === 'planned' ? h('button', { type: 'button', class: 'link-btn', onclick: () => closeAppointment(a, a.appointment_clients, byId, load) }, 'Abschließen') : null,
           h('button', { type: 'button', class: 'link-btn', onclick: async () => { if (await editAppointment(a)) load(); } }, 'Bearbeiten'),
           a.status === 'planned' ? h('button', {
@@ -303,6 +305,9 @@ export default {
   id: 'pt',
   name: 'Personal Training',
   order: 3,
+  icon: 'people',
+  color: 'indigo',
+  description: 'Termine, Orte, PT-Guthaben und Live-Logging im Training',
   requires: { unlock: 'pt' },
 
   async today(ctx) {
@@ -377,6 +382,6 @@ export default {
   },
 
   routes: [
-    { path: '/c/termine', role: 'coach', nav: { label: 'Termine', icon: '📅' }, render: (el) => renderCalendar(el) }
+    { path: '/c/termine', role: 'coach', nav: { label: 'Termine', icon: '' }, render: (el) => renderCalendar(el) }
   ]
 };

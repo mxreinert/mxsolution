@@ -1,5 +1,6 @@
 // M4 Körpergewicht
-import { h, fmtNum, fmtSigned, card } from '../../core/ui.js';
+import { h, fmtNum, fmtSigned, card, fcard } from '../../core/ui.js';
+import { moduleConfig } from '../../core/modcfg.js';
 import { chart } from '../../core/chart.js';
 import { kpi, kpiRow, numField } from '../../core/metric.js';
 import { points, rolling, weeklyChange, windowAvg, coverageText } from '../../core/metrics.js';
@@ -10,6 +11,13 @@ export default {
   id: 'weight',
   name: 'Körpergewicht',
   order: 10,
+  icon: 'scale',
+  color: 'teal',
+  description: 'Tägliches Gewicht mit 7-Tage-Schnitt und Wochenziel',
+  config: [
+    { key: 'weekly_change_kg', label: 'Ziel-Veränderung pro Woche', short: 'Ziel', type: 'number', store: 'target', unit: 'kg/Woche', step: 0.05, hint: 'z. B. 0,25 (Aufbau) oder −0,5 (Diät)' },
+    { key: 'morning_prompt', label: 'Morgens ans Wiegen erinnern (Heute-Karte)', type: 'toggle', store: 'config', default: true }
+  ],
 
   daily: [
     numField('weight_kg', 'Körpergewicht', 'kg', {
@@ -21,11 +29,10 @@ export default {
   ],
 
   async today(ctx) {
+    if (!moduleConfig(this, ctx.client, ctx.settings).morning_prompt) return null;
     const todays = ctx.daily.find((r) => r.day === today());
     if (todays?.weight_kg != null || new Date().getHours() >= 12) return null;
-    return h('a', { class: 'card card-link', href: '#/eintragen?nur=weight_kg' },
-      h('strong', null, '⚖️ Morgens wiegen'),
-      h('span', { class: 'muted' }, 'Nüchtern ist am genauesten – dauert 10 Sekunden.'));
+    return fcard({ icon: 'scale', color: 'teal', title: 'Morgens wiegen', sub: 'Nüchtern ist am genauesten – 10 Sekunden', href: '#/eintragen?nur=weight_kg' });
   },
 
   async analysis(ctx) {
@@ -53,7 +60,7 @@ export default {
         ],
         bands: ctx.bands, markers: ctx.markers || []
       }),
-      hints.map((x) => h('p', { class: 'hint' }, 'ℹ️ ', x.text)),
+      hints.map((x) => h('p', { class: 'hint' }, '', x.text)),
       h('p', { class: 'hint muted' }, 'Der 7-Tage-Schnitt zählt, nicht der Einzelwert. Schwankungen von 1–2 kg am Tag sind normal.')
     );
   },

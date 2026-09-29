@@ -1,4 +1,5 @@
 // Small DOM helpers. All text goes through textContent (no innerHTML with data).
+import { icon, tile } from './icons.js';
 
 // Screens pass arrays and conditional nulls to el.append(...) the same way as to h().
 // Make the native methods behave like h(): flatten arrays, skip null/undefined/false.
@@ -107,7 +108,31 @@ export function card(title, ...children) {
 
 export function empty(text) { return h('p', { class: 'empty muted' }, text); }
 
-export function loading() { return h('div', { class: 'loading', 'aria-busy': 'true' }, h('span', { class: 'spinner' }), 'Lädt …'); }
+export function loading() { return h('div', { class: 'loading', 'aria-busy': 'true' }, h('span', { class: 'spinner' })); }
+
+/** Skeleton while a screen loads (feels faster than a spinner) */
+export function skeleton(cards = 3) {
+  return h('div', { 'aria-busy': 'true' }, h('div', { class: 'skeleton sk-title' }),
+    Array.from({ length: cards }, () => h('div', { class: 'skeleton sk-card' })));
+}
+
+/**
+ * Feature card (Heute etc.): colored icon tile, title, subtitle, chevron or action button.
+ * fcard({ icon: 'scale', color: 'teal', title, sub, href, onClick, action: {label, onClick}, cls })
+ */
+export function fcard({ icon: ic, color = 'accent', title, sub, href, onClick, action, cls = '' }) {
+  const body = [
+    ic ? tile(ic, color, 40) : null,
+    h('div', { class: 'fc-body' }, h('div', { class: 'fc-title' }, title), sub ? h('div', { class: 'fc-sub' }, sub) : null),
+    action ? h('div', { class: 'fc-action' }, h('button', { type: 'button', onclick: (e) => { e.preventDefault(); e.stopPropagation(); action.onClick(e); } }, action.label))
+      : (href || onClick) ? h('span', { class: 'chev' }, icon('chevron', { size: 18 })) : null
+  ];
+  if (href) return h('a', { class: 'fcard ' + cls, href }, body);
+  if (onClick) return h('button', { type: 'button', class: 'fcard plain-btn ' + cls, onclick: onClick }, body);
+  return h('div', { class: 'fcard ' + cls }, body);
+}
+
+export { icon, tile };
 
 export function pageHead(title, sub, ...actions) {
   return h('header', { class: 'page-head' },
@@ -116,7 +141,7 @@ export function pageHead(title, sub, ...actions) {
 }
 
 export function backLink(href, label = 'Zurück') {
-  return h('a', { class: 'back', href }, '← ', label);
+  return h('a', { class: 'back', href }, icon('back', { size: 22, stroke: 2.2 }), label);
 }
 
 export function field(label, input, hint) {

@@ -19,11 +19,13 @@ export const app = {
 };
 
 export async function init() {
-  app.profile = await getProfile();
+  app.profile = await getProfile();          // already loaded by the guard -> no extra request
   app.role = app.profile?.role;
   if (app.role === 'client') {
-    app.client = await loadOwnClient();
-    app.settings = mergeSettings(await rpc('get_public_settings'));
+    // client row (incl. settings) and coach's public settings in parallel
+    const [client, pub] = await Promise.all([loadOwnClient(), rpc('get_public_settings').catch(() => ({}))]);
+    app.client = client;
+    app.settings = mergeSettings(pub);
   } else if (app.role === 'coach') {
     const rows = await q(from('coach_settings').select('settings').eq('coach_id', app.profile.id));
     app.settings = mergeSettings(rows[0]?.settings);
@@ -33,15 +35,17 @@ export async function init() {
 }
 
 async function loadOwnClient() {
-  const rows = await q(from('clients').select('*').eq('user_id', app.profile.id));
+  // one request: client row with its settings row embedded
+  const rows = await q(from('clients').select('*, client_settings(*)').eq('user_id', app.profile.id));
   const client = rows[0];
   if (!client) return null;
-  const s = await q(from('client_settings').select('*').eq('client_id', client.id));
-  if (!s.length) {
-    // first login: create settings row
-    try { await q(from('client_settings').insert({ client_id: client.id })); } catch (e) { /* ignore race */ }
+  const s = Array.isArray(client.client_settings) ? client.client_settings[0] : client.client_settings;
+  delete client.client_settings;
+  if (!s) {
+    // first login: create settings row (fire and forget)
+    q(from('client_settings').insert({ client_id: client.id })).catch(() => {});
   }
-  client._settings = s[0] || { client_id: client.id };
+  client._settings = s || { client_id: client.id };
   return client;
 }
 
@@ -52,11 +56,12 @@ export async function reloadOwnClient() {
 
 /** Coach: load one client (+ settings) */
 async function loadClient(id) {
-  const rows = await q(from('clients').select('*').eq('id', id));
-  if (!rows[0]) throw new Error('Kunde nicht gefunden');
-  const s = await q(from('client_settings').select('*').eq('client_id', id));
-  rows[0]._settings = s[0] || null;
-  return rows[0];
+  const rows = await q(from('clients').select('*, client_settings(*)').eq('id', id));
+  const c = rows[0];
+  if (!c) throw new Error('Kunde nicht gefunden');
+  c._settings = (Array.isArray(c.client_settings) ? c.client_settings[0] : c.client_settings) || null;
+  delete c.client_settings;
+  return c;
 }
 
 /** Pause intervals from the status log -> grey bands in charts */
@@ -79,9 +84,13 @@ function pauseBands(log) {
  */
 async function buildCtx(client, fromDay, toDay = today(), extra = {}) {
   const role = app.role;
-  const daily = await q(from('daily_entries').select('*').eq('client_id', client.id)
-    .gte('day', addDays(fromDay, -14)).lte('day', toDay).order('day'));
-  const log = await q(from('client_status_log').select('status, created_at').eq('client_id', client.id).order('created_at'));
+  const hasHevy = (client.unlocks || []).includes('hevy');
+  const [daily, log, hevy] = await Promise.all([
+    q(from('daily_entries').select('*').eq('client_id', client.id)
+      .gte('day', addDays(fromDay, -14)).lte('day', toDay).order('day')),
+    q(from('client_status_log').select('status, created_at').eq('client_id', client.id).order('created_at')),
+    hasHevy ? rpc('hevy_status', { cid: client.id }).catch(() => null) : null
+  ]);
   const ctx = {
     client, role, settings: app.settings, from: fromDay, to: toDay, daily,
     bands: pauseBands(log), markers: [], hints: [], hevyConnected: false,
@@ -89,9 +98,7 @@ async function buildCtx(client, fromDay, toDay = today(), extra = {}) {
     refresh: extra.refresh || (() => refresh())
   };
   const mods = activeModules(client, role);
-  if ((client.unlocks || []).includes('hevy')) {
-    try { ctx.hevyConnected = !!(await rpc('hevy_status', { cid: client.id }))?.connected; } catch (e) { /* ignore */ }
-  }
+  ctx.hevyConnected = !!hevy?.connected;
   await Promise.all(mods.filter((m) => m.annotations).map(async (m) => {
     try {
       const a = await m.annotations(ctx);

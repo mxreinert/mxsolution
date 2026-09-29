@@ -1,5 +1,5 @@
 // Profil: avatar, goal/concept, theme, devices, notifications, help, privacy, logout.
-import { h, card, select, input, field, toggle, toast, showError, modal, compressImage, confirmDialog, fmtNum, clear } from '../core/ui.js';
+import { h, card, select, input, field, toggle, toast, showError, modal, compressImage, confirmDialog, fmtNum, clear, icon } from '../core/ui.js';
 import { q, from, fileUrl, uploadFile, removeFiles, sb } from '../core/db.js';
 import { logout } from '../core/auth.js';
 import { GOALS } from '../core/goals.js';
@@ -18,10 +18,10 @@ export async function avatarEl(clientId, size = 72) {
   const img = h('img', { class: 'avatar', width: size, height: size, alt: '' });
   if (url) {
     img.src = url;
-    img.addEventListener('error', () => img.replaceWith(h('div', { class: 'avatar placeholder', style: { width: size + 'px', height: size + 'px' } }, '👤')));
+    img.addEventListener('error', () => img.replaceWith(h('div', { class: 'avatar placeholder', style: { width: size + 'px', height: size + 'px' } }, '')));
     return img;
   }
-  return h('div', { class: 'avatar placeholder', style: { width: size + 'px', height: size + 'px' } }, '👤');
+  return h('div', { class: 'avatar placeholder', style: { width: size + 'px', height: size + 'px' } }, '');
 }
 
 async function saveSettings(app, patch) {
@@ -99,9 +99,9 @@ export async function renderProfile(el, app) {
 
   const wa = app.settings.whatsapp;
   el.append(card('Hilfe & Datenschutz',
-    h('a', { class: 'list-row card-link', href: '#/hilfe' }, h('span', null, 'Hilfe & FAQ'), h('span', { class: 'chev' }, '›')),
-    h('a', { class: 'list-row card-link', href: '#/datenschutz' }, h('span', null, 'Datenschutz'), h('span', { class: 'chev' }, '›')),
-    wa ? h('a', { class: 'list-row card-link', href: `https://wa.me/${wa}`, target: '_blank', rel: 'noopener noreferrer' }, h('span', null, 'Max auf WhatsApp schreiben'), h('span', { class: 'chev' }, '›')) : null,
+    h('a', { class: 'list-row card-link', href: '#/hilfe' }, h('span', null, 'Hilfe & FAQ'), h('span', { class: 'chev' }, icon('chevron', { size: 17 }))),
+    h('a', { class: 'list-row card-link', href: '#/datenschutz' }, h('span', null, 'Datenschutz'), h('span', { class: 'chev' }, icon('chevron', { size: 17 }))),
+    wa ? h('a', { class: 'list-row card-link', href: `https://wa.me/${wa}`, target: '_blank', rel: 'noopener noreferrer' }, h('span', null, 'Max auf WhatsApp schreiben'), h('span', { class: 'chev' }, icon('chevron', { size: 17 }))) : null,
     h('p', { class: 'muted small' }, 'Export oder Löschung deiner Daten: bitte bei Max anfragen.')));
 
   el.append(h('button', { type: 'button', class: 'secondary', onclick: changePassword }, 'Passwort ändern'),
@@ -132,7 +132,7 @@ async function notificationsCard(app) {
   const reminders = structuredClone({ ...defaults, ...(s.reminders || {}) });
   const state = await pushState();
   const pushInfo = {
-    on: '✅ Push ist aktiv auf diesem Gerät.',
+    on: 'Push ist aktiv auf diesem Gerät.',
     off: 'Push ist aus.',
     denied: 'Push ist im Browser blockiert. In den Browser-/Handy-Einstellungen für diese Seite erlauben.',
     unsupported: 'Dieses Gerät/dieser Browser unterstützt keine Push-Benachrichtigungen. Du siehst Hinweise beim Öffnen der App.',

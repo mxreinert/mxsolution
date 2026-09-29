@@ -84,6 +84,9 @@ export default {
   id: 'progress',
   name: 'Fotos & Umfänge',
   order: 90,
+  icon: 'camera',
+  color: 'mint',
+  description: 'Umfänge und Fortschrittsfotos im Vergleich',
   requires: { unlock: 'photos' },
 
   async analysis(ctx) {

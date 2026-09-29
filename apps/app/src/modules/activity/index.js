@@ -7,6 +7,13 @@ export default {
   id: 'activity',
   name: 'Aktivität',
   order: 30,
+  icon: 'steps',
+  color: 'ok',
+  description: 'Schritte und aktive Kalorien von Uhr oder Handy',
+  config: [
+    { key: 'fields', label: 'Im Abend-Check abfragen', type: 'fields', store: 'config', default: ['steps', 'active_kcal'] },
+    { key: 'steps', label: 'Schrittziel pro Tag', short: 'Ziel', type: 'number', store: 'target', unit: 'Schritte', step: 500 }
+  ],
 
   daily: [
     numField('steps', 'Schritte', '', {

@@ -18,6 +18,9 @@ export default {
   id: 'ai',
   name: 'KI-Analyse',
   order: 96,
+  icon: 'sparkles',
+  color: 'purple',
+  description: 'KI-Auswertung der Daten – nur für dich',
   coachOnly: true,
   requires: { unlock: 'ai' },
 
@@ -30,7 +33,7 @@ export default {
     const out = h('div');
 
     const wrap = card('KI-Analyse',
-      !consent ? h('p', { class: 'warn-text' }, '⚠️ Keine dokumentierte Einwilligung zur KI-Übertragung (USA). Im Konzept unter „Einwilligungen“ eintragen.') : null,
+      !consent ? h('p', { class: 'warn-text' }, 'Keine dokumentierte Einwilligung zur KI-Übertragung (USA). Im Konzept unter „Einwilligungen“ eintragen.') : null,
       h('p', { class: 'muted small' }, 'Gesendet werden nur Zahlen (Tageswerte, Trainingsvolumen, Ziel). Kein Name, kein Benutzername. Kostet pro Analyse – Tageslimit auf dem Server.'),
       h('div', { class: 'grid2' }, field('Von', fromIn), field('Bis', toIn)),
       field('Frage', question),

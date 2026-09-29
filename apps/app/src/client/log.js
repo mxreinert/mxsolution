@@ -1,6 +1,7 @@
 // Abend-Check: one page, only active modules, < 2 minutes.
 // Also used for single values (e.g. ?nur=weight_kg in the morning) and up to 3 days back.
-import { h, clear, input, rating, segmented, textarea, toast, showError, fmtNum, parseNum } from '../core/ui.js';
+import { h, clear, input, rating, segmented, textarea, toast, showError, fmtNum, parseNum, tile, skeleton } from '../core/ui.js';
+import { activeFields } from '../core/modcfg.js';
 import { q, from } from '../core/db.js';
 import { today, addDays, fmtLong, relDay } from '../core/dates.js';
 
@@ -17,7 +18,7 @@ export async function renderLog(el, app, query) {
   body);
 
   const draw = async () => {
-    clear(body).append(h('p', { class: 'muted' }, 'Lädt …'));
+    clear(body).append(skeleton(2));
     const ctx = await app.buildCtx(client, addDays(day, -7), day, { day });
     const row = ctx.daily.find((r) => r.day === day) || {};
     const prevRows = ctx.daily.filter((r) => r.day < day).sort((a, b) => (a.day < b.day ? 1 : -1));
@@ -30,9 +31,9 @@ export async function renderLog(el, app, query) {
     clear(body).append(h('p', { class: 'day-label' }, fmtLong(day)));
 
     for (const m of mods) {
-      const fields = (m.daily || []).filter((f) => !only || f.key === only);
+      const fields = (only ? (m.daily || []) : activeFields(m, client, app.settings)).filter((f) => !only || f.key === only);
       if (!fields.length && (only || !m.evening)) continue;
-      const set = h('fieldset', { class: 'evening-section' }, h('legend', null, m.name));
+      const set = h('fieldset', { class: 'evening-section' }, h('legend', null, m.icon ? tile(m.icon, m.color, 28) : null, m.name));
       const groupKeys = m.trackGroup || null;
       const groupOff = groupKeys && groupKeys.every((k) => notTracked.has(k));
 
@@ -100,7 +101,7 @@ export async function renderLog(el, app, query) {
     let note = null;
     if (!only) {
       note = textarea({ value: row.note || '', maxlength: 1000, placeholder: 'Wie war der Tag? (optional)' });
-      body.append(h('fieldset', { class: 'evening-section' }, h('legend', null, 'Notiz'), note));
+      body.append(h('fieldset', { class: 'evening-section' }, h('legend', null, tile('message', 'gray', 28), 'Notiz'), note));
     }
     if (body.querySelectorAll('fieldset').length === 0) {
       body.append(h('p', { class: 'muted' }, 'Für dich sind noch keine Werte zum Eintragen aktiv. Max richtet das ein.'));

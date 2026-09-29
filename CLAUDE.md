@@ -94,6 +94,8 @@ Kein Build-Schritt, keine Tests bisher.
 - Lokaler Server Landing: `python -m http.server 5501 --directory apps/landing/public` (Konfiguration `landing`). Netlify Functions laufen lokal nicht.
 - Datenbank: SQL-Dateien in `supabase/migrations/` der Reihe nach im Supabase SQL-Editor ausführen, erst nach OK von Max. Einmalige Setups in `supabase/setup/`.
 - Supabase-JS liegt als Datei in `apps/app/src/vendor/` (Version im Dateinamen), kein CDN.
+- **Vor jedem Deploy der App:** `python apps/app/tools/update_assets.py` (neue Cache-Version für den Service Worker + Preload-Liste in `home.html`). Sonst sehen Nutzer ggf. die alte Version.
+- Datenbank-Tests vor neuen Migrationen: `supabase/tests/README.md` (PGlite, 48 RLS-Tests).
 
 ## Status
 
@@ -104,7 +106,8 @@ Kein Build-Schritt, keine Tests bisher.
 - [x] SQL in Supabase eingespielt (`supabase/setup/ALLES-IN-EINEM.local.sql`)
 - [ ] Lokal gegen echtes Supabase getestet mit Testzugängen (Kunde + Coach), Fehler behoben
 - [x] Netlify-Projekt `mxcoachapp` → https://app.mxreinert.de (Env-Variablen, Previews aus, Logs privat, CNAME bei IONOS)
-- [ ] Design nach docs/DESIGN.md umgesetzt
+- [x] Design im Apple-Stil (Systemschrift, iOS-Farben, Ringe, Icons, 4 Farbmodi), Modul-Einstellungen, Performance
+- [ ] Migration 008 in Supabase eingespielt, gebündelter Deploy
 - [ ] LAUNCH.md abgehakt, Testzugänge gelöscht
 - [ ] Pilot mit 2-3 Kunden
 

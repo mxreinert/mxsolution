@@ -1,5 +1,5 @@
 // Konzept: status, goal, modules, targets, unlocks, check-in day, consents.
-import { h, input, textarea, select, field, toggle, toast, showError, card, parseNum, confirmDialog } from '../core/ui.js';
+import { h, input, textarea, select, field, toggle, toast, showError, card, parseNum, confirmDialog, tile } from '../core/ui.js';
 import { q, from } from '../core/db.js';
 import { GOALS, GOAL_OPTIONS, STATUS } from '../core/goals.js';
 import { SELECTABLE, UNLOCKS } from '../core/modules.js';
@@ -65,9 +65,9 @@ export function renderConcept(el, client, onSaved) {
       client.return_requested_at ? h('p', { class: 'hint' }, 'Kunde meldet „wieder fit“. Wiedereinstieg: Status auf Aktiv/Reduziert setzen, ggf. Plan mit ~60 % Volumen.') : null),
     card('Ziel', field('Hauptziel', goal), h('div', { class: 'grid2' }, field('Start', goalStart), field('Ende', goalEnd)),
       field('Etappenziele', milestones), field('Konzept überarbeiten am', review, 'Alle 4–8 Wochen; der Kunde bekommt einen Hinweis.')),
-    card('Module', modBox, presetBtn),
-    card('Zielwerte', h('div', { class: 'grid2' }, TARGETS.map(([k, l]) => field(l, tIn[k])))),
-    card('Freischaltungen (Premium)', unlockBox, h('p', { class: 'muted small' }, 'Beim Freischalten bekommt der Kunde ein Pop-up.')),
+    h('a', { class: 'fcard', href: `#/c/kunde/${client.id}?tab=module` },
+      tile('grid', 'accent', 40),
+      h('div', { class: 'fc-body' }, h('div', { class: 'fc-title' }, 'Module, Zielwerte & Premium'), h('div', { class: 'fc-sub' }, 'Jetzt im Tab „Module“ – mit Einstellungen pro Modul'))),
     card('Check-in & Hinweise', h('div', { class: 'grid2' }, field('Check-in-Tag', checkinDay), field('Hinweis an dich nach X Tagen ohne App-Öffnen', inactivity))),
     card('Einwilligungen (Papier, Datum hier dokumentieren)',
       field('Geburtsdatum', birth),
@@ -77,21 +77,17 @@ export function renderConcept(el, client, onSaved) {
       Object.values(extra).map((x) => field('Zusatz: ' + x.l, x.el))),
     h('button', {
       type: 'button', class: 'sticky-save', onclick: async () => {
-        const targets = { ...t };
-        TARGETS.forEach(([k]) => { const v = parseNum(tIn[k].value); if (v == null) delete targets[k]; else targets[k] = v; });
         const extra_consents = Object.fromEntries(Object.entries(extra).filter(([, x]) => x.el.value).map(([k, x]) => [k, x.el.value]));
         const patch = {
           status: status.value, status_until: statusUntil.value || null,
           goal: goal.value || null, goal_start: goalStart.value || null, goal_end: goalEnd.value || null,
           milestones: milestones.value.trim() || null, plan_review_at: review.value || null,
-          modules: [...modules], unlocks: [...unlocks], targets,
+          modules: client.goal !== goal.value && goal.value && !(client.modules || []).length ? [...GOALS[goal.value].modules] : client.modules,
           checkin_weekday: Number(checkinDay.value), inactivity_days: parseNum(inactivity.value) || 3,
           birthdate: birth.value || null, anamnesis_consent_at: anamC.value || null, consent_at: consent.value || null,
           parent_consent_at: parentC.value || null, parent_name: parentName.value.trim() || null, extra_consents
         };
         if (patch.status !== client.status && !['paused_sick', 'paused_other'].includes(patch.status)) patch.return_requested_at = null;
-        if (modules.has('cycle') && !extra_consents.cycle) { toast('Zyklus-Modul nur mit dokumentierter Einwilligung.', 'bad'); return; }
-        if (unlocks.has('ai') && !extra_consents.ai) toast('Hinweis: KI freigeschaltet, aber Einwilligung fehlt – Analyse bleibt gesperrt.', 'warn');
         if (patch.goal && !patch.goal_start) patch.goal_start = today();
         try { await q(from('clients').update(patch).eq('id', client.id)); toast('Konzept gespeichert'); onSaved?.(); }
         catch (e) { showError(e); }

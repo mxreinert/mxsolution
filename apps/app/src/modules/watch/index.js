@@ -5,6 +5,12 @@ export default {
   id: 'watch',
   name: 'Uhr-Werte',
   order: 60,
+  icon: 'heart',
+  color: 'bad',
+  description: 'Ruhepuls und HRV von der Uhr',
+  config: [
+    { key: 'fields', label: 'Im Abend-Check abfragen', type: 'fields', store: 'config', default: ['resting_hr', 'hrv_ms'] }
+  ],
 
   daily: [
     numField('resting_hr', 'Ruhepuls', 'bpm', { min: 20, max: 250 }),

@@ -40,5 +40,6 @@ form.addEventListener('submit', async (e) => {
     submit.disabled = false;
     return;
   }
+  await getProfile({ fresh: true });   // flag was just cleared by the database trigger
   location.replace(await resolveRoute());
 });

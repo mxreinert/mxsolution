@@ -80,7 +80,7 @@ export function renderAnamnesis(el, client, onSaved) {
   const miss = missingRequired(client);
 
   if (!client.anamnesis_consent_at && !client.consent_at) {
-    el.append(h('div', { class: 'card warn-border' }, h('strong', null, '⚠️ Einwilligung zur Anamnese fehlt'),
+    el.append(h('div', { class: 'card warn-border' }, h('strong', null, 'Einwilligung zur Anamnese fehlt'),
       h('p', { class: 'muted small' }, 'Gesundheitsdaten erst speichern, wenn die Einwilligung vorliegt (Tab „Konzept“ → Einwilligungen).')));
   }
   if (miss.length) el.append(h('p', { class: 'warn-text' }, `${miss.length} Pflichtfeld(er) offen`));

@@ -12,6 +12,22 @@ const s = (tag, attrs = {}, ...kids) => {
   return el;
 };
 
+/** Smooth path through points (monotone cubic – no overshoot beyond the data) */
+function smooth(pts) {
+  const n = pts.length;
+  if (n < 3) return 'M' + pts.map((p) => p.join(',')).join(' L');
+  const dx = [], dy = [], m = [];
+  for (let i = 0; i < n - 1; i++) { dx[i] = pts[i + 1][0] - pts[i][0]; dy[i] = (pts[i + 1][1] - pts[i][1]) / (dx[i] || 1); }
+  m[0] = dy[0]; m[n - 1] = dy[n - 2];
+  for (let i = 1; i < n - 1; i++) m[i] = dy[i - 1] * dy[i] <= 0 ? 0 : (dy[i - 1] + dy[i]) / 2;
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 0; i < n - 1; i++) {
+    const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], h3 = dx[i] / 3;
+    d += ` C${x0 + h3},${y0 + m[i] * h3} ${x1 - h3},${y1 - m[i + 1] * h3} ${x1},${y1}`;
+  }
+  return d;
+}
+
 /**
  * chart({
  *   from, to,                         // 'YYYY-MM-DD'
@@ -54,11 +70,12 @@ export function chart(opts) {
     svg.append(s('rect', { x: padL, y: top, width: W - padL - padR, height: Math.max(1, bottom - top), class: 'band-target' }));
   }
 
+  const allInt = values.every((v) => Number.isInteger(Number(v)));
   // grid + y labels (3 lines)
   for (let i = 0; i <= 2; i++) {
     const v = min + ((max - min) * i) / 2;
     svg.append(s('line', { x1: padL, x2: W - padR, y1: y(v), y2: y(v), class: 'grid' }));
-    svg.append(s('text', { x: padL - 4, y: y(v) + 3, class: 'axis', 'text-anchor': 'end' }, document.createTextNode(fmtNum(v, max - min < 10 ? 1 : 0))));
+    svg.append(s('text', { x: padL - 4, y: y(v) + 3, class: 'axis', 'text-anchor': 'end' }, document.createTextNode(fmtNum(v, allInt || max - min >= 10 ? 0 : 1))));
   }
   // x labels: start, middle, end
   for (const d of [from, range(from, to)[Math.floor(days / 2)], to]) {
@@ -68,7 +85,12 @@ export function chart(opts) {
 
   // series
   const barSeries = series.filter((se) => se.type === 'bar');
-  const barW = Math.max(2, Math.min(18, ((W - padL - padR) / (days + 1)) * 0.7 / Math.max(1, barSeries.length)));
+  // bar width from the real spacing of the bars (daily vs weekly/monthly points)
+  const barDays = [...new Set(barSeries.flatMap((se) => se.points.map((p) => p.d)))].sort();
+  let step = days + 1;
+  if (barDays.length > 1) step = Math.max(1, Math.min(...barDays.slice(1).map((d, i) => diffDays(barDays[i], d))));
+  const slot = ((W - padL - padR) / (days + 1)) * step;
+  const barW = Math.max(3, Math.min(26, slot * 0.62 / Math.max(1, barSeries.length)));
   series.forEach((se) => {
     const pts = se.points.filter((p) => p.v !== null && p.v !== undefined && p.d >= from && p.d <= to)
       .sort((a, b) => (a.d < b.d ? -1 : 1));
@@ -77,7 +99,7 @@ export function chart(opts) {
       const bi = barSeries.indexOf(se);
       for (const p of pts) {
         const top = y(Math.max(0, p.v)), base = y(0);
-        svg.append(s('rect', { x: x(p.d) - (barW * barSeries.length) / 2 + bi * barW, y: top, width: barW - 1, height: Math.max(1, base - top), class: 'bar ' + cls, rx: 2 }));
+        svg.append(s('rect', { x: x(p.d) - (barW * barSeries.length) / 2 + bi * barW, y: top, width: Math.max(2, barW - 1.5), height: Math.max(1, base - top), class: 'bar ' + cls, rx: Math.min(4, barW / 3) }));
       }
       return;
     }
@@ -85,7 +107,16 @@ export function chart(opts) {
     const maxGap = se.maxGap ?? 1;
     let seg = [];
     const flush = () => {
-      if (seg.length > 1) svg.append(s('polyline', { points: seg.map((p) => `${x(p.d)},${y(p.v)}`).join(' '), class: 'line ' + cls + (se.dashed ? ' dashed' : '') }));
+      if (seg.length > 1) {
+        const xy = seg.map((p) => [x(p.d), y(p.v)]);
+        const d = smooth(xy);
+        // soft area under the main line (first non-dashed line series)
+        if (!se.dashed && se.area !== false && !svg.querySelector('.area')) {
+          const base = y(Math.max(min, Math.min(max, zero ? 0 : min)));
+          svg.append(s('path', { d: `${d} L${xy[xy.length - 1][0]},${base} L${xy[0][0]},${base} Z`, class: 'area ' + cls }));
+        }
+        svg.append(s('path', { d, class: 'line ' + cls + (se.dashed ? ' dashed' : '') }));
+      }
       seg = [];
     };
     if (se.type !== 'dots') {
@@ -95,7 +126,7 @@ export function chart(opts) {
       });
       flush();
     }
-    if (se.type === 'dots' || se.dots !== false) {
+    if (se.type === 'dots' || (se.dots !== false && pts.length <= 14)) {
       for (const p of pts) svg.append(s('circle', { cx: x(p.d), cy: y(p.v), r: se.type === 'dots' ? 2.6 : 1.8, class: 'pt ' + cls }));
     }
   });

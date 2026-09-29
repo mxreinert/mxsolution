@@ -18,7 +18,7 @@ async function panel(ctx) {
   return card('Hevy',
     st.connected
       ? h('div', null,
-        h('p', null, '✅ Verbunden', st.synced_at ? h('span', { class: 'muted' }, ` · zuletzt abgeglichen ${fmtDateTime(st.synced_at)}`) : null),
+        h('p', null, 'Verbunden', st.synced_at ? h('span', { class: 'muted' }, ` · zuletzt abgeglichen ${fmtDateTime(st.synced_at)}`) : null),
         h('p', { class: 'muted small' }, 'Trainings werden 1× täglich und beim Klick auf „Jetzt abgleichen“ übernommen. Der eigene Trainings-Logger ist ausgeblendet.'),
         h('div', { class: 'row-actions wrap' },
           h('button', { type: 'button', class: 'secondary', onclick: sync }, 'Jetzt abgleichen'),
@@ -44,6 +44,9 @@ export default {
   id: 'hevy',
   name: 'Hevy',
   order: 95,
+  icon: 'link',
+  color: 'gray',
+  description: 'Trainings automatisch aus Hevy übernehmen',
   requires: { unlock: 'hevy' },
   profile: panel,      // client: profile screen
   coach: panel         // coach: client detail

@@ -1,21 +1,17 @@
 // Auswertung: all active modules with the same range switch. Also used by the coach.
-import { h, clear, segmented, empty } from '../core/ui.js';
+import { h, clear, segmented, empty, skeleton } from '../core/ui.js';
 import { RANGES, rangeStart, today } from '../core/dates.js';
 
 /** Render module analyses for a client into `body`. Shared by client and coach views. */
 export async function renderAnalyses(body, app, client, { range = '28', onlyModule = null, role } = {}) {
-  clear(body).append(h('p', { class: 'muted' }, 'Lädt …'));
+  clear(body).append(skeleton(3));
   const fromDay = rangeStart(range, client.goal_start || client.first_contact);
   const ctx = await app.buildCtx(client, fromDay, today(), { refresh: () => renderAnalyses(body, app, client, { range, onlyModule, role }) });
   const mods = app.modules.filter((m) => m.analysis && app.isActive(m, client) && (!onlyModule || m.id === onlyModule));
-  clear(body);
-  if (!mods.length) { body.append(empty('Noch keine Auswertungen aktiv.')); return; }
-  for (const m of mods) {
-    try {
-      const node = await m.analysis(ctx);
-      if (node) body.append(node);
-    } catch (e) { console.warn('analysis', m.id, e); body.append(h('p', { class: 'error' }, `${m.name}: konnte nicht geladen werden.`)); }
-  }
+  if (!mods.length) { clear(body).append(empty('Noch keine Auswertungen aktiv.')); return; }
+  const nodes = await Promise.all(mods.map((m) => Promise.resolve().then(() => m.analysis(ctx))
+    .catch((e) => { console.warn('analysis', m.id, e); return h('p', { class: 'error' }, `${m.name}: konnte nicht geladen werden.`); })));
+  clear(body).append(nodes);
 }
 
 export async function renderAnalysis(el, app) {

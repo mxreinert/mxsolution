@@ -7,6 +7,12 @@ export default {
   id: 'mood',
   name: 'Motivation & Befinden',
   order: 50,
+  icon: 'smile',
+  color: 'pink',
+  description: 'Motivation und Energie als Frühwarnsystem',
+  config: [
+    { key: 'fields', label: 'Im Abend-Check abfragen', type: 'fields', store: 'config', default: ['motivation', 'energy'] }
+  ],
 
   daily: [
     ratingField('motivation', 'Motivation', ['sehr niedrig', 'niedrig', 'mittel', 'hoch', 'sehr hoch']),

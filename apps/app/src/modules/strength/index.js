@@ -1,5 +1,5 @@
 // M1 Krafttraining: plans, logger, progression, analysis.
-import { h, card, fmtNum, empty, select, showError, toast, clear, confirmDialog, modal, input, field, parseNum, badge } from '../../core/ui.js';
+import { h, card, fmtNum, empty, select, showError, toast, clear, confirmDialog, modal, input, field, parseNum, badge, fcard, icon } from '../../core/ui.js';
 import { chart, meter } from '../../core/chart.js';
 import { kpi, kpiRow } from '../../core/metric.js';
 import { e1rm } from '../../core/metrics.js';
@@ -53,7 +53,7 @@ async function workoutDetails(w, exMap) {
   });
   return h('div', null,
     h('p', { class: 'muted' }, [fmt(w.day), w.effort ? `Anstrengung ${w.effort}/10` : null, w.with_coach ? 'mit Max' : null, w.source === 'hevy' ? 'aus Hevy' : null].filter(Boolean).join(' · ')),
-    w.pain ? h('p', { class: 'bad-text' }, '⚠️ Beschwerden: ', w.pain_location || 'ohne Angabe') : null,
+    w.pain ? h('p', { class: 'bad-text' }, 'Beschwerden: ', w.pain_location || 'ohne Angabe') : null,
     w.note ? h('p', null, w.note) : null,
     [...byEx.entries()].map(([id, ss]) => h('div', { class: 'macro' },
       h('strong', null, exMap.get(id)?.name || id),
@@ -66,28 +66,30 @@ export default {
   id: 'strength',
   name: 'Krafttraining',
   order: 1,
+  icon: 'dumbbell',
+  color: 'accent',
+  description: 'Trainingspläne, Logger mit Progression, 1RM und Volumen pro Muskel',
 
   /** app start: push workouts that were logged offline */
   start() { syncOutbox().catch(() => {}); },
 
   async today(ctx) {
     if (hevyActive(ctx)) return null;
-    const plan = await activePlan(ctx.client.id);
-    const workouts = await recentWorkouts(ctx.client.id, addDays(today(), -30), 30);
+    const [plan, workouts] = await Promise.all([activePlan(ctx.client.id), recentWorkouts(ctx.client.id, addDays(today(), -30), 30)]);
     const drafts = openDrafts(ctx.client.id).filter((d) => !d.finished_at);
     if (drafts.length) {
-      return h('a', { class: 'card card-link accent-border', href: `#/training/kraft/${drafts[0].id}` },
-        h('strong', null, '🏋️ Training läuft: ', drafts[0].session_name), h('span', { class: 'muted' }, 'Weiter eintragen →'));
+      return fcard({ icon: 'dumbbell', color: 'accent', title: `Training läuft: ${drafts[0].session_name}`, sub: 'Weiter eintragen', href: `#/training/kraft/${drafts[0].id}`, cls: 'hl' });
     }
     if (workouts.some((w) => w.day === today())) {
-      return h('div', { class: 'card' }, h('strong', null, '✅ Heute schon trainiert'));
+      return fcard({ icon: 'check', color: 'ok', title: 'Heute schon trainiert', sub: 'Stark! Regeneration zählt auch.', href: '#/training' });
     }
     const next = nextSession(plan, workouts);
     if (!next) return null;
-    return h('div', { class: 'card' },
-      h('strong', null, '🏋️ Nächstes Training: ', next.name),
-      h('p', { class: 'muted small' }, `${next.exercises.length} Übung${next.exercises.length === 1 ? '' : 'en'}`),
-      h('button', { type: 'button', onclick: () => startWorkout(ctx, plan, next) }, 'Training starten'));
+    return fcard({
+      icon: 'dumbbell', color: 'accent', title: next.name,
+      sub: `Nächstes Training · ${next.exercises.length} Übung${next.exercises.length === 1 ? '' : 'en'}`,
+      action: { label: 'Starten', onClick: () => startWorkout(ctx, plan, next) }
+    });
   },
 
   async training(ctx) {
@@ -98,7 +100,7 @@ export default {
     const pending = pendingCount();
     if (pending) {
       wrap.append(h('div', { class: 'card warn-border' },
-        h('p', null, `⏳ ${pending} Training(s) noch nicht synchronisiert.`),
+        h('p', null, `${pending} Training(s) noch nicht synchronisiert.`),
         h('button', { type: 'button', class: 'secondary', onclick: async () => { const left = await syncOutbox(); toast(left ? 'Noch offline – später nochmal.' : 'Synchronisiert'); ctx.refresh(); } }, 'Jetzt synchronisieren')));
     }
     const drafts = openDrafts(ctx.client.id).filter((d) => !d.finished_at);
@@ -108,8 +110,7 @@ export default {
     }
     if (hevyActive(ctx)) return wrap;
 
-    const plan = await activePlan(ctx.client.id);
-    const workouts = await recentWorkouts(ctx.client.id, addDays(today(), -60), 60);
+    const [plan, workouts, exMapP] = await Promise.all([activePlan(ctx.client.id), recentWorkouts(ctx.client.id, addDays(today(), -60), 60), exerciseMap()]);
     const next = nextSession(plan, workouts);
 
     if (!plan) {
@@ -141,9 +142,9 @@ export default {
     const exMap = await exerciseMap();
     workouts.slice(0, 12).forEach((w) => hist.append(h('button', {
       type: 'button', class: 'list-row plain', onclick: async () => modal(w.session_name || 'Training', await workoutDetails(w, exMap))
-    }, h('div', null, h('strong', null, w.session_name || 'Training'), w.pain ? ' ⚠️' : '',
+    }, h('div', null, h('strong', null, w.session_name || 'Training'), w.pain ? ' ' : '',
       h('div', { class: 'muted small' }, [relDay(w.day), w.effort ? `Anstrengung ${w.effort}/10` : null, w.with_coach ? 'mit Max' : null].filter(Boolean).join(' · '))),
-    h('span', { class: 'chev' }, '›'))));
+    h('span', { class: 'chev' }, icon('chevron', { size: 17 })))));
     wrap.append(hist);
 
     // tested 1RM entry
@@ -258,7 +259,7 @@ export default {
     const appointmentId = ctx.query?.pt || null;
     if (appointmentId) {
       wrap.prepend(h('div', { class: 'card accent-border' },
-        h('strong', null, '👥 PT-Termin: Training live loggen'),
+        h('strong', null, 'PT-Termin: Training live loggen'),
         h('div', { class: 'row-actions wrap' },
           (plan?.sessions || []).map((s) => h('button', { type: 'button', onclick: () => startWorkout(ctx, plan, s, 'plan', { withCoach: true, appointmentId }) }, `${s.key}: ${s.name}`)),
           h('button', { type: 'button', class: 'secondary', onclick: () => startWorkout(ctx, plan, null, 'free', { withCoach: true, appointmentId }) }, 'Frei loggen'))));
@@ -271,9 +272,9 @@ export default {
     if (!workouts.length) hist.append(empty('Noch keine Trainings.'));
     workouts.slice(0, 15).forEach((w) => hist.append(h('button', {
       type: 'button', class: 'list-row plain', onclick: async () => modal(w.session_name || 'Training', await workoutDetails(w, exMap))
-    }, h('div', null, h('strong', null, w.session_name || 'Training'), w.pain ? ' ⚠️' : '', w.with_coach ? ' 👥' : '',
+    }, h('div', null, h('strong', null, w.session_name || 'Training'), w.pain ? ' ' : '', w.with_coach ? ' ' : '',
       h('div', { class: 'muted small' }, [relDay(w.day), w.effort ? `Anstrengung ${w.effort}/10` : null, w.kind === 'free' ? 'frei' : null].filter(Boolean).join(' · '))),
-    h('span', { class: 'chev' }, '›'))));
+    h('span', { class: 'chev' }, icon('chevron', { size: 17 })))));
     const frag = document.createDocumentFragment();
     frag.append(wrap, hist);
     return frag;
@@ -288,7 +289,7 @@ export default {
   routes: [
     { path: '/training/kraft/:wid', role: 'client', render: (el, p, qy, app) => renderLogger(el, { client: app.client, settings: app.settings, workoutId: p.wid, backHref: '#/training', role: 'client' }) },
     { path: '/c/kunde/:cid/training/:wid', role: 'coach', render: async (el, p, qy, app) => { const c = await app.loadClient(p.cid); return renderLogger(el, { client: c, settings: app.settings, workoutId: p.wid, backHref: `#/c/kunde/${p.cid}?tab=training`, role: 'coach' }); } },
-    { path: '/c/plaene', role: 'coach', nav: { label: 'Pläne', icon: '📋' }, render: (el) => renderPlanList(el) },
+    { path: '/c/plaene', role: 'coach', nav: { label: 'Pläne', icon: '' }, render: (el) => renderPlanList(el) },
     { path: '/c/plan/:id', role: 'coach', render: (el, p, qy) => renderPlanEditor(el, p, qy) }
   ]
 };

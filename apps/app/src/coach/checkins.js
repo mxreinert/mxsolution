@@ -38,7 +38,7 @@ export async function renderCheckins(el) {
     let qb = from('checkins').select('*, clients(id, first_name, last_name)').order('submitted_at', { ascending: false }).limit(60);
     if (filter === 'open') qb = qb.is('feedback', null);
     const list = await q(qb);
-    if (!list.length) { body.append(empty(filter === 'open' ? 'Keine offenen Check-ins 👍' : 'Noch keine Check-ins.')); return; }
+    if (!list.length) { body.append(empty(filter === 'open' ? 'Keine offenen Check-ins ' : 'Noch keine Check-ins.')); return; }
     for (const c of list) body.append(renderCheckinItem(c, c.clients, draw, { showName: true }));
   };
   const tabBar = h('div');

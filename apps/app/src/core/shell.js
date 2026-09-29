@@ -7,6 +7,7 @@ import { q, from } from './db.js';
 import { fmtDateTime } from './dates.js';
 import { registerServiceWorker } from './push.js';
 import { MODULES } from './modules.js';
+import { icon } from './icons.js';
 
 import * as clientScreens from '../client/screens.js';
 import * as coachScreens from '../coach/screens.js';
@@ -54,7 +55,7 @@ async function openNotifications() {
 async function popups() {
   const list = (await unreadNotifications()).filter((n) => ['unlock', 'plan'].includes(n.kind));
   if (!list.length) return;
-  await modal(list[0].kind === 'unlock' ? '🎉 Neu für dich' : '📋 Neuer Plan', h('div', null, list.map((n) => h('p', null, h('strong', null, n.title), n.body ? ': ' + n.body : ''))), [{ label: 'Super', value: true }]);
+  await modal(list[0].kind === 'unlock' ? 'Neu für dich' : 'Neuer Plan', h('div', null, list.map((n) => h('p', null, h('strong', null, n.title), n.body ? ': ' + n.body : ''))), [{ label: 'Super', value: true }]);
   await markRead(list.map((n) => n.id));
   updateBell();
 }
@@ -74,9 +75,22 @@ function buildNav(items) {
   const nav = $('nav');
   clear(nav);
   for (const it of items) {
-    nav.append(h('a', { href: '#' + it.path, dataset: { path: it.path } }, h('span', { class: 'nav-icon', 'aria-hidden': 'true' }, it.icon), h('span', null, it.label)));
+    nav.append(h('a', { href: '#' + it.path, dataset: { path: it.path } }, icon(it.icon, { size: 25 }), h('span', null, it.label)));
   }
   nav.hidden = false;
+}
+
+// iOS-style: large title scrolls away, small title appears in the top bar
+function watchTitle() {
+  const bar = $('topbar');
+  const title = $('nav-title');
+  const update = () => {
+    const h1 = document.querySelector('#outlet h1');
+    title.textContent = h1 ? h1.textContent : '';
+    bar.classList.toggle('scrolled', window.scrollY > (h1 ? h1.offsetTop + h1.offsetHeight - 40 : 10));
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  return update;
 }
 
 function highlightNav(path) {
@@ -105,7 +119,10 @@ async function main() {
     return;
   }
   $('topbar').hidden = false;
+  $('bell').prepend(icon('bell', { size: 24 }));
   $('bell').addEventListener('click', openNotifications);
+  const titleUpdate = watchTitle();
+  new MutationObserver(() => titleUpdate()).observe($('outlet'), { childList: true });
   const setOffline = () => { $('offline').hidden = navigator.onLine; };
   window.addEventListener('online', setOffline);
   window.addEventListener('offline', setOffline);
@@ -122,11 +139,11 @@ async function main() {
     clientScreens.register(route, app);
     registerModuleRoutes('client');
     buildNav([
-      { path: '/heute', label: 'Heute', icon: '🏠' },
-      { path: '/training', label: 'Training', icon: '🏋️' },
-      { path: '/eintragen', label: 'Eintragen', icon: '✍️' },
-      { path: '/auswertung', label: 'Auswertung', icon: '📈' },
-      { path: '/profil', label: 'Profil', icon: '👤' }
+      { path: '/heute', label: 'Heute', icon: 'home' },
+      { path: '/training', label: 'Training', icon: 'dumbbell' },
+      { path: '/eintragen', label: 'Eintragen', icon: 'pencil' },
+      { path: '/auswertung', label: 'Auswertung', icon: 'chart' },
+      { path: '/profil', label: 'Profil', icon: 'person' }
     ]);
     logOpen();
     for (const m of MODULES) { try { m.start?.(app); } catch (e) { /* ignore */ } }
@@ -140,11 +157,11 @@ async function main() {
     coachScreens.register(route, app);
     registerModuleRoutes('coach');
     buildNav([
-      { path: '/c', label: 'Übersicht', icon: '🏠' },
-      { path: '/c/kunden', label: 'Kunden', icon: '👥' },
-      { path: '/c/termine', label: 'Termine', icon: '📅' },
-      { path: '/c/checkins', label: 'Check-ins', icon: '✅' },
-      { path: '/c/mehr', label: 'Mehr', icon: '☰' }
+      { path: '/c', label: 'Übersicht', icon: 'home' },
+      { path: '/c/kunden', label: 'Kunden', icon: 'people' },
+      { path: '/c/termine', label: 'Termine', icon: 'calendar' },
+      { path: '/c/checkins', label: 'Check-ins', icon: 'checklist' },
+      { path: '/c/mehr', label: 'Mehr', icon: 'more' }
     ]);
     await start($('outlet'), { home: '/c', changed: (path) => { highlightNav(path); updateBell(); } });
   } else {

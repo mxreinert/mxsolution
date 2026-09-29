@@ -1,6 +1,6 @@
 // Coach: plan templates + editor. Templates: client_id = null.
 // Saving a client's plan creates a new version (history stays intact).
-import { h, clear, card, input, select, textarea, field, toast, showError, confirmDialog, empty, pageHead, backLink, parseNum, modal } from '../../core/ui.js';
+import { h, clear, card, input, select, textarea, field, toast, showError, confirmDialog, empty, pageHead, backLink, parseNum, modal, icon } from '../../core/ui.js';
 import { q, from } from '../../core/db.js';
 import { fmt } from '../../core/dates.js';
 import { exerciseMap } from './data.js';
@@ -16,7 +16,7 @@ export async function renderPlanList(el) {
     plans.length ? h('div', { class: 'list' }, plans.map((p) => h('a', { class: 'list-row card-link', href: '#/c/plan/' + p.id },
       h('div', null, h('strong', null, p.name),
         h('div', { class: 'muted small' }, `${p.sessions.length} Einheit${p.sessions.length === 1 ? '' : 'en'}${p.per_week ? ` · ${p.per_week}× pro Woche` : ''}`)),
-      h('span', { class: 'chev' }, '›')))) : empty('Noch keine Vorlagen. Lege z. B. „Ganzkörper 3×“, „PPL“ oder „OK/UK“ an.'));
+      h('span', { class: 'chev' }, icon('chevron', { size: 17 }))))) : empty('Noch keine Vorlagen. Lege z. B. „Ganzkörper 3×“, „PPL“ oder „OK/UK“ an.'));
 }
 
 /** Assign a template to a client (copy, previous active plan becomes inactive). */

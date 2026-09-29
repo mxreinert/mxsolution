@@ -11,6 +11,17 @@ export default {
   id: 'nutrition',
   name: 'Ernährung',
   order: 20,
+  icon: 'fork',
+  color: 'warn',
+  description: 'Kalorien und Makros aus Yazio & Co. mit Zielen',
+  config: [
+    { key: 'fields', label: 'Im Abend-Check abfragen', type: 'fields', store: 'config', default: ['kcal', 'protein_g', 'carbs_g', 'fat_g'] },
+    { key: 'kcal', label: 'Kalorien (Trainingstag)', short: 'Ziel', type: 'number', store: 'target', unit: 'kcal', step: 50 },
+    { key: 'kcal_rest', label: 'Kalorien (Ruhetag, optional)', short: 'Ruhetag', type: 'number', store: 'target', unit: 'kcal', step: 50 },
+    { key: 'protein_g', label: 'Protein', short: 'P', type: 'number', store: 'target', unit: 'g', step: 5 },
+    { key: 'carbs_g', label: 'Kohlenhydrate', short: 'KH', type: 'number', store: 'target', unit: 'g', step: 5 },
+    { key: 'fat_g', label: 'Fett', short: 'F', type: 'number', store: 'target', unit: 'g', step: 5 }
+  ],
 
   daily: [
     numField('kcal', 'Kalorien', 'kcal', {

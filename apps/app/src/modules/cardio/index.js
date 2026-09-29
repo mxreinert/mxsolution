@@ -1,5 +1,5 @@
 // M2 Cardio incl. KM Pacer (offline pace coach at /modules/cardio/pacer/).
-import { h, card, fmtNum, empty, select, input, field, modal, toast, showError, confirmDialog, parseNum, rating, textarea, uuid } from '../../core/ui.js';
+import { h, card, fmtNum, empty, select, input, field, modal, toast, showError, confirmDialog, parseNum, rating, textarea, uuid, fcard } from '../../core/ui.js';
 import { chart, meter } from '../../core/chart.js';
 import { kpi, kpiRow } from '../../core/metric.js';
 import { perWeek } from '../../core/metrics.js';
@@ -76,7 +76,7 @@ function sessionRow(ctx, s) {
   const editable = ctx.role === 'coach' || s.day >= addDays(today(), -3);
   return h('div', { class: 'list-row' },
     h('div', null,
-      h('strong', null, label(KINDS, s.kind), s.source === 'pacer' ? ' ⏱' : ''),
+      h('strong', null, label(KINDS, s.kind), s.source === 'pacer' ? ' ' : ''),
       h('div', { class: 'muted small' }, [relDay(s.day), s.duration_min ? `${fmtNum(s.duration_min)} min` : null, s.distance_km ? `${fmtNum(s.distance_km, 2)} km` : null,
         s.kind === 'run' ? paceText(s.duration_min, s.distance_km) : null, label(INTENSITIES, s.intensity), s.effort ? `Anstr. ${s.effort}/10` : null].filter(Boolean).join(' · '))),
     editable ? h('div', { class: 'row-actions' },
@@ -93,6 +93,12 @@ export default {
   id: 'cardio',
   name: 'Cardio',
   order: 2,
+  icon: 'run',
+  color: 'ok',
+  description: 'Laufen, Rad & Co. mit Wochenvorgabe, Pace-Verlauf und KM Pacer',
+  config: [
+    { key: 'cardio_min_week', label: 'Cardio-Ziel pro Woche', short: 'Ziel', type: 'number', store: 'target', unit: 'min', step: 5 }
+  ],
 
   async today(ctx) {
     const plan = ctx.client.targets?.cardio_week || [];
@@ -101,9 +107,11 @@ export default {
     if (!todays.length) return null;
     const done = await loadSessions(ctx.client.id, today());
     if (done.length) return null;
-    return h('a', { class: 'card card-link', href: '#/training' },
-      h('strong', null, '🏃 Heute Cardio: ', todays.map((p) => `${label(KINDS, p.kind)} ${p.duration_min ? p.duration_min + ' min' : ''} ${label(INTENSITIES, p.intensity)}`.trim()).join(', ')),
-      todays[0].note ? h('span', { class: 'muted' }, todays[0].note) : null);
+    return fcard({
+      icon: 'run', color: 'ok', title: 'Heute Cardio',
+      sub: todays.map((p) => `${label(KINDS, p.kind)} ${p.duration_min ? p.duration_min + ' min' : ''} ${label(INTENSITIES, p.intensity)}`.trim()).join(', ') + (todays[0].note ? ' · ' + todays[0].note : ''),
+      href: '#/training'
+    });
   },
 
   async training(ctx) {
@@ -112,7 +120,7 @@ export default {
     const pending = ctx.role === 'client' ? pacerOutbox() : [];
     if (pending.length) {
       wrap.append(h('div', { class: 'card accent-border' },
-        h('strong', null, `⏱ ${pending.length} Lauf/Läufe aus dem KM Pacer`),
+        h('strong', null, `${pending.length} Lauf/Läufe aus dem KM Pacer`),
         pending.map((run, i) => {
           const km = run.splits.reduce((s, sp) => s + sp.distanceKm, 0);
           const sec = run.splits.reduce((s, sp) => s + sp.durationSec, 0);
@@ -139,7 +147,7 @@ export default {
       h('p', { class: 'muted small' }, `Erledigt: ${week.length} Einheit(en), ${fmtNum(week.reduce((a, s) => a + Number(s.duration_min || 0), 0))} min`),
       h('div', { class: 'row-actions wrap' },
         h('button', { type: 'button', onclick: () => editSession(ctx, null) }, '+ Cardio eintragen'),
-        ctx.role === 'client' ? h('a', { class: 'button secondary', href: '/modules/cardio/pacer/index.html' }, '⏱ KM Pacer öffnen') : null),
+        ctx.role === 'client' ? h('a', { class: 'button secondary', href: '/modules/cardio/pacer/index.html' }, 'KM Pacer öffnen') : null),
       ctx.role === 'client' ? h('p', { class: 'muted small' }, 'Der KM Pacer läuft offline. Bildschirm während des Laufs anlassen, es wird keine GPS-Spur gespeichert.') : null));
 
     const recent = await loadSessions(ctx.client.id, addDays(today(), -30));

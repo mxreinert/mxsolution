@@ -74,6 +74,9 @@ export default {
   id: 'supplements',
   name: 'Supplemente',
   order: 70,
+  icon: 'pill',
+  color: 'purple',
+  description: 'Supplemente abhaken, Einnahmetreue, Kreatin-Hinweis',
 
   /** creatine start -> marker + water hint in weight chart */
   async annotations(ctx) {
@@ -108,7 +111,7 @@ export default {
     });
     rows.forEach((r) => { r.cb.addEventListener('change', () => { r.touched = true; }); r.amount.addEventListener('input', () => { r.touched = true; r.cb.checked = true; }); });
     return {
-      el: h('fieldset', { class: 'evening-section' }, h('legend', null, '💊 Supplemente'), rows.map((r) => r.el)),
+      el: h('fieldset', { class: 'evening-section' }, h('legend', null, 'Supplemente'), rows.map((r) => r.el)),
       async save(day) {
         const upserts = rows.filter((r) => r.touched).map((r) => ({
           client_id: ctx.client.id, supplement_id: r.s.id, day,
@@ -149,7 +152,7 @@ export default {
     if (!list.length) wrap.append(empty('Noch keine Supplemente.'));
     for (const s of list) {
       wrap.append(h('div', { class: 'list-row' },
-        h('div', null, h('strong', null, s.name), s.is_creatine ? ' 🧪' : '',
+        h('div', null, h('strong', null, s.name), s.is_creatine ? ' ' : '',
           h('div', { class: 'muted small' }, [s.dose != null ? `${fmtNum(s.dose, 2)} ${s.unit || ''}` : null, timingLabel(s.timing), `seit ${fmt(s.started_on)}`, s.ended_on ? `bis ${fmt(s.ended_on)}` : null, s.added_by_client ? 'vom Kunden' : null].filter(Boolean).join(' · '))),
         h('div', { class: 'row-actions' },
           h('button', { type: 'button', class: 'link-btn', onclick: () => editSupplement(ctx, s, ctx.refresh) }, 'Bearbeiten'),

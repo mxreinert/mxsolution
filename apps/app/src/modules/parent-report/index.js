@@ -50,6 +50,9 @@ export default {
   id: 'parent_report',
   name: 'Eltern-Bericht',
   order: 97,
+  icon: 'doc',
+  color: 'gray',
+  description: 'Bericht für Eltern Minderjähriger zum Drucken',
   coachOnly: true,
   always: true,   // available for every client in the dashboard (shown prominently for minors)
 

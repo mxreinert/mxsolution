@@ -101,9 +101,9 @@ Kein Build-Schritt, keine Tests bisher.
 - [x] Landingpage nach `apps/landing` umgezogen, Netlify umgestellt
 - [x] Gesamte App (Phase 1–3 aus PLAN.md) programmiert, lokal committet
 - [x] SQL gegen PGlite-Nachbau getestet (48 RLS-Tests grün, `supabase/tests/`), UI mit Mock-Daten durchgeklickt (Kunde + Coach)
-- [ ] SQL in Supabase eingespielt (`supabase/setup/ALLES-IN-EINEM.local.sql`, Max)
+- [x] SQL in Supabase eingespielt (`supabase/setup/ALLES-IN-EINEM.local.sql`)
 - [ ] Lokal gegen echtes Supabase getestet mit Testzugängen (Kunde + Coach), Fehler behoben
-- [ ] Netlify-Site für app.mxreinert.de + Umgebungsvariablen + DNS (docs/SETUP.md)
+- [x] Netlify-Projekt `mxcoachapp` → https://app.mxreinert.de (Env-Variablen, Previews aus, Logs privat, CNAME bei IONOS)
 - [ ] Design nach docs/DESIGN.md umgesetzt
 - [ ] LAUNCH.md abgehakt, Testzugänge gelöscht
 - [ ] Pilot mit 2-3 Kunden

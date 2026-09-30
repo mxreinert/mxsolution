@@ -64,7 +64,7 @@ export function renderConcept(el, client, onSaved) {
     card('Status', h('div', { class: 'grid2' }, field('Status', status), field('bis (optional)', statusUntil)),
       client.return_requested_at ? h('p', { class: 'hint' }, 'Kunde meldet „wieder fit“. Wiedereinstieg: Status auf Aktiv/Reduziert setzen, ggf. Plan mit ~60 % Volumen.') : null),
     card('Ziel', field('Hauptziel', goal), h('div', { class: 'grid2' }, field('Start', goalStart), field('Ende', goalEnd)),
-      field('Etappenziele', milestones), field('Konzept überarbeiten am', review, 'Alle 4–8 Wochen; der Kunde bekommt einen Hinweis.')),
+      field('Etappenziele', milestones), field('Konzept überarbeiten am', review, 'Erinnerung für dich: Ab 7 Tagen vorher steht beim Kunden unter „Übersicht“ ein Hinweis. Üblich: alle 4–8 Wochen.')),
     h('a', { class: 'fcard', href: `#/c/kunde/${client.id}?tab=module` },
       tile('grid', 'accent', 40),
       h('div', { class: 'fc-body' }, h('div', { class: 'fc-title' }, 'Module, Zielwerte & Premium'), h('div', { class: 'fc-sub' }, 'Jetzt im Tab „Module“ – mit Einstellungen pro Modul'))),

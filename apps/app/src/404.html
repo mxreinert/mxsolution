@@ -1,4 +1,42 @@
 <!doctype html>
-<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Nicht gefunden</title>
-<link rel="stylesheet" href="/core/theme.css"></head>
-<body><main class="page"><h1>Seite nicht gefunden</h1><p><a class="link" href="/">Zur Anmeldung</a></p></main></body></html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>Seite nicht gefunden – mxCoaching</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <script src="/core/theme.js"></script>
+  <link rel="stylesheet" href="/core/theme.css">
+  <style>
+    .nf { text-align: center; }
+    .nf-card { background: var(--surface); border-radius: 26px; padding: 26px 22px 22px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 18px 50px rgba(0,0,0,.08); }
+    .nf-lion { height: 170px; display: flex; justify-content: center; align-items: flex-end; margin-bottom: 6px; }
+    .nf-code { font-family: var(--font-round); font-size: 64px; font-weight: 800; line-height: 1; letter-spacing: -.02em; color: var(--accent); margin: 6px 0 4px; }
+    .nf h1 { font-size: 26px; margin: 0 0 8px; }
+    .nf p { color: var(--muted); margin: 0 auto 20px; max-width: 300px; }
+    .nf .button { display: flex; align-items: center; justify-content: center; min-height: 50px; border-radius: 14px; background: var(--accent); color: #fff; font-weight: 600; text-decoration: none; }
+    .nf .coach-link { margin-top: 18px; }
+    .mx-lion svg { overflow: visible; }
+    .mx-lion .ml-body { transform-box: fill-box; transform-origin: 50% 60%; animation: nf-bob 3s ease-in-out infinite; }
+    @keyframes nf-bob { 0%,100% { transform: translateY(0) rotate(-2deg) } 50% { transform: translateY(-6px) rotate(2deg) } }
+    .mx-lion .ml-eyes { transform-box: fill-box; transform-origin: center; animation: nf-blink 4s infinite; }
+    @keyframes nf-blink { 0%,92%,100% { transform: scaleY(1) } 96% { transform: scaleY(.15) } }
+    .mx-lion .ml-laugh, .mx-lion .ml-shine { display: none; }
+    @media (prefers-reduced-motion: reduce) { .mx-lion * { animation: none !important; } }
+  </style>
+</head>
+<body>
+  <main class="page auth-page nf">
+    <section class="nf-card">
+      <div class="nf-lion" id="lion"></div>
+      <div class="nf-code">404</div>
+      <h1>Hier ist nichts.</h1>
+      <p>Diese Seite gibt es nicht (mehr). Kein Problem – zurück zur Startseite und weiter geht’s.</p>
+      <a class="button" href="/">Zur Startseite</a>
+    </section>
+    <p class="center small coach-link"><a class="link" href="/coach.html">Coach Log In</a></p>
+  </main>
+  <script type="module" src="/core/pages/notfound.js"></script>
+</body>
+</html>

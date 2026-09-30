@@ -106,7 +106,7 @@ export async function renderProfile(el, app) {
     h('p', { class: 'muted small' }, 'Export oder Löschung deiner Daten: bitte bei Max anfragen.')));
 
   el.append(h('button', { type: 'button', class: 'secondary', onclick: changePassword }, 'Passwort ändern'),
-    h('button', { type: 'button', class: 'secondary', onclick: logout }, 'Abmelden'));
+    h('button', { type: 'button', class: 'secondary', onclick: () => logout() }, 'Abmelden'));
 }
 
 async function changePassword() {

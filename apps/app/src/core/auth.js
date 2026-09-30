@@ -36,7 +36,9 @@ export async function logout(target) {
   localStorage.removeItem(LOGIN_AT_KEY);
   profilePromise = null;
   await sb.auth.signOut();
-  location.replace(target || (wasCoach ? '/coach.html' : '/'));
+  // only a real path counts (a click handler may pass the event object by mistake)
+  const to = typeof target === 'string' && target.startsWith('/') ? target : (wasCoach ? '/coach.html' : '/');
+  location.replace(to);
 }
 
 function sessionExpired() {

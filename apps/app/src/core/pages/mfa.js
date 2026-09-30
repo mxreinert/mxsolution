@@ -1,7 +1,7 @@
 import { sb, guard, logout, resolveRoute } from '../auth.js';
 
 const $ = (id) => document.getElementById(id);
-$('logout').addEventListener('click', logout);
+$('logout').addEventListener('click', () => logout());
 
 let factorId = null;
 

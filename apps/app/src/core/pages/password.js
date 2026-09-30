@@ -12,7 +12,7 @@ const form = document.getElementById('pw-form');
 const errorEl = document.getElementById('error');
 const submit = document.getElementById('submit');
 
-document.getElementById('logout').addEventListener('click', logout);
+document.getElementById('logout').addEventListener('click', () => logout());
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();

@@ -19,7 +19,9 @@ async function accessToken() {
   return (await r.json()).access_token;
 }
 
-const KIND = { strength: 'Kraft', cardio: 'Cardio', technique: 'Technik', test: 'Test', other: 'Training' };
+// Online calls (kind 'call') get a Google Meet; the link lands in appointments.meet_url and the
+// client sees it in the app (no invitation mail).
+const KIND = { strength: 'Kraft', cardio: 'Cardio', technique: 'Technik', test: 'Test', call: 'Call', other: 'Training' };
 
 export default handler(async (req) => {
   const { profile: coach } = await requireCoach(req);
@@ -29,7 +31,7 @@ export default handler(async (req) => {
   if (!ids.length) return bad('Keine Termine');
   const cal = encodeURIComponent(process.env.GOOGLE_CALENDAR_ID || 'primary');
   const token = await accessToken();
-  const g = (path, method, payload) => fetch(`https://www.googleapis.com/calendar/v3/calendars/${cal}/events${path}`, {
+  const g = (path, method, payload) => fetch(`https://www.googleapis.com/calendar/v3/calendars/${cal}/events${path}${method === 'DELETE' ? '' : '?conferenceDataVersion=1'}`, {
     method, headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' }, body: payload ? JSON.stringify(payload) : undefined
   });
 
@@ -47,16 +49,23 @@ export default handler(async (req) => {
     const names = a.appointment_clients.map((x) => x.clients?.first_name).filter(Boolean).join(', ');
     const loc = locs.find((l) => l.id === a.location_id);
     const end = new Date(new Date(a.starts_at).getTime() + a.duration_min * 60000).toISOString();
+    const isCall = a.kind === 'call';
     const event = {
-      summary: `PT ${KIND[a.kind] || ''}: ${names}`.trim(),
+      summary: isCall ? `Online-Call: ${names}` : `PT ${KIND[a.kind] || ''}: ${names}`.trim(),
       location: loc ? [loc.name, loc.address].filter(Boolean).join(', ') : undefined,
       description: a.note || undefined,
       start: { dateTime: a.starts_at }, end: { dateTime: end }
     };
+    // Online call: create a Google Meet once (a link Max pasted himself stays as it is)
+    if (isCall && !a.meet_url) event.conferenceData = { createRequest: { requestId: a.id, conferenceSolutionKey: { type: 'hangoutsMeet' } } };
+    if (isCall && a.meet_url) event.location = a.meet_url;
     const res = a.gcal_event_id ? await g('/' + encodeURIComponent(a.gcal_event_id), 'PATCH', event) : await g('', 'POST', event);
     if (res.ok) {
       const ev = await res.json();
-      if (ev.id !== a.gcal_event_id) await db.update('appointments', `id=eq.${a.id}`, { gcal_event_id: ev.id });
+      const patch = {};
+      if (ev.id !== a.gcal_event_id) patch.gcal_event_id = ev.id;
+      if (isCall && !a.meet_url && /^https:\/\//.test(ev.hangoutLink || '')) patch.meet_url = ev.hangoutLink;
+      if (Object.keys(patch).length) await db.update('appointments', `id=eq.${a.id}`, patch);
       done += 1;
     } else console.error('gcal', res.status, (await res.text()).slice(0, 300));
   }

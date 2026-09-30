@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#000000">
+  <title>Coach Log In – mxCoaching</title>
+  <script src="/core/theme.js"></script>
+  <link rel="stylesheet" href="/core/theme.css">
+</head>
+<body class="coach-login">
+  <main class="page auth-page">
+    <div class="auth-logo coach" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+    <h1>Coach Log In</h1>
+    <p class="muted">Nur für Max. Anmeldung mit E-Mail, Passwort und Zwei-Faktor-Code.</p>
+
+    <form id="login-form" class="card" novalidate>
+      <label for="identifier">E-Mail</label>
+      <input id="identifier" name="identifier" type="email" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+
+      <label for="password">Passwort</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+      <button type="submit" id="submit">Anmelden</button>
+      <p class="error" id="error" role="alert"></p>
+    </form>
+
+    <p class="center small"><a class="link" href="/">Zurück zur Kunden-Anmeldung</a></p>
+  </main>
+
+  <script src="/vendor/supabase-2.117.2.js"></script>
+  <script type="module" src="/core/pages/coach-login.js"></script>
+</body>
+</html>

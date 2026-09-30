@@ -4,6 +4,7 @@ import { h, clear, input, rating, segmented, textarea, toast, showError, fmtNum,
 import { activeFields } from '../core/modcfg.js';
 import { q, from } from '../core/db.js';
 import { today, addDays, fmtLong, relDay } from '../core/dates.js';
+import { clientThresholds } from '../core/settings.js';
 
 export async function renderLog(el, app, query) {
   const client = app.client;
@@ -25,7 +26,7 @@ export async function renderLog(el, app, query) {
     const prevVal = (k) => prevRows.find((r) => r[k] != null)?.[k] ?? null;
     const notTracked = new Set(row.not_tracked || []);
     const values = {};
-    const thresholds = app.settings.thresholds;
+    const thresholds = clientThresholds(app.settings, client);
     const mods = app.modules.filter((m) => app.isActive(m, client) && (m.daily || m.evening));
 
     clear(body).append(h('p', { class: 'day-label' }, fmtLong(day)));

@@ -156,6 +156,35 @@ export async function runTests(db) {
   const m = (await db.query(`select public.run_daily_maintenance() as r`)).rows[0].r;
   ok('maintenance deletes old discarded lead', m.deleted_leads === 1, JSON.stringify(m));
 
+  // ---------- 009: coach avatar folder, public contact, calls ----------
+  await db.exec(`update public.coach_settings set settings = settings || '{"whatsapp":"352621969685"}' where coach_id = '${tcoach}'`);
+  await as(db, client, 'aal1', async () => {
+    let r = await tryQ(db, `insert into storage.objects (bucket_id, name) values ('client-files', $1)`, [`coach/${tcoach}/avatar.jpg`]);
+    ok('client cannot upload into coach folder', !!r.error);
+    r = await tryQ(db, `insert into storage.objects (bucket_id, name) values ('client-files', $1)`, [`${cid}/photos/x.jpg`]);
+    ok('client still uploads own photos (009 policies)', !r.error, r.error);
+  });
+  await as(db, tcoach, 'aal1', async () => {
+    let r = await tryQ(db, `insert into storage.objects (bucket_id, name) values ('client-files', $1)`, [`coach/${tcoach}/avatar.jpg`]);
+    ok('coach uploads own avatar', !r.error, r.error);
+    r = await tryQ(db, `insert into storage.objects (bucket_id, name) values ('client-files', $1)`, [`coach/${other}/avatar.jpg`]);
+    ok('coach cannot write other coach folder', !!r.error);
+    r = await tryQ(db, `insert into public.appointments (starts_at, kind, meet_url) values (now() + interval '1 day', 'call', 'https://meet.google.com/abc-defg-hij') returning id`);
+    ok('coach creates online call with meet link', !r.error, r.error);
+  });
+  await as(db, client, 'aal1', async () => {
+    const r = await tryQ(db, `select name from storage.objects where name like 'coach/%'`);
+    ok('client sees coach avatar', r.rows?.length === 1, JSON.stringify(r));
+    const c = await tryQ(db, `select public.my_coach() as c`);
+    ok('client reads own coach info', c.rows?.[0]?.c?.username === 'testcoach', JSON.stringify(c.rows));
+  });
+  await db.exec(`reset role; select set_config('request.jwt.claim.sub', '', false); set role anon;`);
+  const pc = await tryQ(db, `select public.public_contact() as c`);
+  ok('anon gets only public contact', !pc.error, pc.error);
+  const pc2 = await tryQ(db, `select * from public.coach_settings`);
+  ok('anon cannot read coach settings', !!pc2.error || pc2.rows.length === 0);
+  await db.exec('reset role;');
+
   // ---------- anon ----------
   await db.exec(`reset role; select set_config('request.jwt.claim.sub', '', false); set role anon;`);
   const an = await tryQ(db, `select * from public.clients`);

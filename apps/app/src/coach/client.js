@@ -13,6 +13,7 @@ import { renderAccount, takeOver } from './account.js';
 import { renderCheckinItem } from './checkins.js';
 import { renderModulesTab } from './modules-tab.js';
 import { refresh } from '../core/router.js';
+import { clientThresholds } from '../core/settings.js';
 
 export async function renderClient(el, app, params, query) {
   let client = await app.loadClient(params.id);
@@ -66,7 +67,10 @@ export async function renderClient(el, app, params, query) {
         frag.append(segmented(RANGES, range, (v) => { range = v; renderAnalyses(out, app, client, { range }); }), out);
         renderAnalyses(out, app, client, { range });
       } else if (tab === 'module') {
-        await renderModulesTab(frag, app, client, { open: openModule, query, reload });
+        await renderModulesTab(frag, app, client, {
+          open: openModule, query, reload,
+          onOpen: (id) => { openModule = id; history.replaceState(null, '', `#/c/kunde/${client.id}?tab=module${id ? '&open=' + id : ''}`); }
+        });
       } else if (tab === 'checkins') {
         const list = await q(from('checkins').select('*').eq('client_id', client.id).order('week_start', { ascending: false }).limit(20));
         if (!list.length) frag.append(empty('Noch keine Check-ins.'));
@@ -89,7 +93,7 @@ async function overview(frag, app, client, reload) {
   const entries = await q(from('daily_entries').select('*').eq('client_id', client.id).gte('day', addDays(today(), -30)).order('day'));
   const checkins = await q(from('checkins').select('*').eq('client_id', client.id).order('week_start', { ascending: false }).limit(4));
   const opens = await q(from('app_opens').select('opened_at').eq('client_id', client.id).gte('opened_at', new Date(Date.now() - 30 * 864e5).toISOString()).order('opened_at', { ascending: false }));
-  const a = ampel(client, entries.filter((e) => e.day >= addDays(today(), -14)), checkins, app.settings.thresholds);
+  const a = ampel(client, entries.filter((e) => e.day >= addDays(today(), -14)), checkins, clientThresholds(app.settings, client));
   const openDays = new Set(opens.map((o) => new Date(o.opened_at).toISOString().slice(0, 10)));
   const entryDays = new Set(entries.filter((e) => Object.entries(e).some(([k, v]) => !['client_id', 'day', 'updated_at', 'updated_by', 'not_tracked'].includes(k) && v != null)).map((e) => e.day));
   const hours = entries.filter((e) => e.updated_at).map((e) => new Date(e.updated_at).getHours()).sort((x, y) => x - y);

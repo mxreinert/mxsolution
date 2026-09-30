@@ -1,6 +1,6 @@
 // Heute-Screen: rings for today's targets + what needs attention. Everything loads in parallel.
 import { h, card, toast, showError, confirmDialog, fcard, skeleton, fmtNum, clear, tile } from '../core/ui.js';
-import { q, from, rpc } from '../core/db.js';
+import { q, from, rpc, fileUrl } from '../core/db.js';
 import { today, addDays, weekStart, weekday, fmtLong, WEEKDAYS, range } from '../core/dates.js';
 import { isPaused, PAUSE_REASONS } from '../core/goals.js';
 import { reloadOwnClient } from '../core/app.js';
@@ -81,6 +81,14 @@ export async function renderToday(el, app) {
       }, 'Gelesen'));
     c.classList.add('accent-border');
     out.push(c);
+    // coach photo + name instead of the icon (loads in the background)
+    rpc('my_coach').then(async (coach) => {
+      if (!coach?.id) return;
+      const url = await fileUrl(`coach/${coach.id}/avatar.jpg`);
+      const tileEl = c.querySelector('.tile');
+      if (url && tileEl) tileEl.replaceWith(h('img', { class: 'avatar', src: url, width: 40, height: 40, alt: '' }));
+      if (coach.name) c.querySelector('.fc-title').textContent = `Feedback von ${coach.name}`;
+    }).catch(() => {});
   }
 
   // messages from Max / appointment changes

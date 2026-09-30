@@ -1,5 +1,5 @@
 // Coach: all modules – usage, default settings, goal presets (Mehr → Module).
-import { h, clear, card, tile, icon, badge, toast, showError, pageHead, modal, skeleton } from '../core/ui.js';
+import { h, clear, tile, icon, toast, showError, pageHead, skeleton, scard, srow } from '../core/ui.js';
 import { q, from } from '../core/db.js';
 import { GOALS } from '../core/goals.js';
 import { goalModules } from '../core/modcfg.js';
@@ -13,52 +13,60 @@ async function saveSettings(app, patch) {
   app.settings = mergeSettings(settings);
 }
 
-async function editDefaults(app, m, onDone) {
-  const current = { ...Object.fromEntries((m.config || []).map((c) => [c.key, c.default])), ...(app.rawCoachSettings?.module_defaults?.[m.id] || {}) };
-  // targets (store: 'target') are per client – defaults only for options
-  const optionModule = { ...m, config: (m.config || []).filter((c) => c.store !== 'target') };
-  const form = configForm(optionModule, current);
-  await modal(m.name, h('div', null,
-    h('p', { class: 'muted small' }, 'Standard für alle Kunden. Einzelne Kunden kannst du im Tab „Module“ abweichend einstellen.'),
-    form), [
-    { label: 'Abbrechen', kind: 'secondary', value: false },
-    {
-      label: 'Speichern', onClick: async () => {
-        try {
-          const defaults = { ...(app.rawCoachSettings?.module_defaults || {}), [m.id]: form.values() };
-          await saveSettings(app, { module_defaults: defaults });
-          toast('Standard gespeichert'); onDone?.(); return true;
-        } catch (e) { showError(e); return undefined; }
-      }
-    }
-  ]);
-}
-
 export async function renderModulesPage(el, app) {
   const body = h('div', null, skeleton(3));
-  el.append(pageHead('Module', 'Was deine Kunden tracken – Standards und Ziel-Vorlagen'), body);
+  el.append(pageHead('Module', 'Standards für alle Kunden und Ziel-Vorlagen. Pro Kunde stellst du alles im Kunden-Tab „Module“ ein.'), body);
 
-  const draw = async () => {
-    const clients = await q(from('clients').select('id, status, modules, unlocks').in('status', ['active', 'maintenance', 'reduced', 'paused_sick', 'paused_other']));
-    const usage = (m) => clients.filter((c) => (m.requires?.unlock ? (c.unlocks || []).includes(m.requires.unlock) : (c.modules || []).includes(m.id))).length;
-    const mods = app.modules;
-    const tracking = mods.filter((m) => !m.always && !m.requires?.unlock);
-    const premium = mods.filter((m) => m.requires?.unlock);
-    const tools = mods.filter((m) => m.always);
+  const clients = await q(from('clients').select('id, status, modules, unlocks').in('status', ['active', 'maintenance', 'reduced', 'paused_sick', 'paused_other']));
+  const usage = (m) => clients.filter((c) => (m.requires?.unlock ? (c.unlocks || []).includes(m.requires.unlock) : (c.modules || []).includes(m.id))).length;
+  const mods = app.modules;
+  const tracking = mods.filter((m) => !m.always && !m.requires?.unlock);
+  const groups = [['Tracking', tracking], ['Premium', mods.filter((m) => m.requires?.unlock)], ['Werkzeuge für dich', mods.filter((m) => m.always)]];
+  const wide = () => matchMedia('(min-width: 900px)').matches;
+  let sel = wide() ? 'presets' : null;
 
-    const row = (m) => {
-      const n = usage(m);
-      const optionCount = (m.config || []).filter((c) => c.store !== 'target').length;
-      return h('div', { class: 'mod-row', role: 'button', tabindex: 0, onclick: () => (optionCount ? editDefaults(app, m, draw) : null) },
-        tile(m.icon || 'grid', m.color || 'accent', 32),
-        h('div', { class: 'mr-body' },
-          h('div', { class: 'mr-title' }, m.name),
-          h('div', { class: 'mr-sub' }, m.description || '')),
-        m.always ? badge('Werkzeug') : badge(`${n} Kunde${n === 1 ? '' : 'n'}`, n ? 'accent' : ''),
-        optionCount ? h('span', { class: 'mr-caret' }, icon('chevron', { size: 18 })) : null);
-    };
+  const nav = h('nav', { class: 'mods-nav', 'aria-label': 'Module' });
+  const detail = h('div', { class: 'mods-detail' });
+  const layout = h('div', { class: 'mods-layout' }, nav, detail);
+  const link = (id, name, ic, color, count) => h('a', { href: '#', class: sel === id ? 'on' : '', onclick: (e) => { e.preventDefault(); select(id); } },
+    tile(ic, color, 26), h('span', { class: 'mn-name' }, name), count != null ? h('span', { class: 'muted small' }, String(count)) : null);
+  const drawNav = () => clear(nav).append(link('presets', 'Ziel-Vorlagen', 'target', 'gray'),
+    groups.filter(([, l]) => l.length).map(([t, l]) => [h('div', { class: 'mn-group' }, t), l.map((m) => link(m.id, m.name, m.icon || 'grid', m.color || 'accent', m.always ? null : usage(m)))]));
+  const select = (id) => { sel = id; layout.classList.toggle('detail', !!id); drawNav(); drawDetail(); };
+  const back = () => h('button', { type: 'button', class: 'link-btn back-mods', onclick: () => select(null) }, icon('back', { size: 18 }), ' Alle Module');
 
-    // goal presets matrix
+  function drawDetail() {
+    clear(detail);
+    if (!sel) return;
+    if (sel === 'presets') { detail.append(back(), presetsPage()); return; }
+    const m = mods.find((x) => x.id === sel);
+    const n = usage(m);
+    const optionModule = { ...m, config: (m.config || []).filter((c) => c.store !== 'target') };
+    const current = { ...Object.fromEntries(optionModule.config.map((c) => [c.key, c.default])), ...(app.rawCoachSettings?.module_defaults?.[m.id] || {}) };
+    const form = configForm(optionModule, current);
+    detail.append(back(),
+      h('header', { class: 'mods-head' }, h('h2', null, tile(m.icon || 'grid', m.color || 'accent', 36), m.name), h('p', null, m.description || '')),
+      m.always ? h('div', { class: 'mod-banner neutral' }, icon('info', { size: 20 }), h('div', { class: 'mb-text' }, 'Werkzeug für dich – immer verfügbar'))
+        : h('div', { class: 'mod-banner ' + (n ? 'on' : 'neutral') }, icon(n ? 'check' : 'info', { size: 20 }),
+          h('div', { class: 'mb-text' }, n ? `${n} Kunde${n === 1 ? '' : 'n'} nutz${n === 1 ? 't' : 'en'} dieses Modul` : 'Noch bei keinem Kunden aktiv',
+            h('small', null, 'An- und ausschalten pro Kunde im Kunden-Tab „Module“.'))),
+      m.requires?.unlock ? h('div', { class: 'warn-box' }, h('span', { class: 'wb-icon' }, icon('warning', { size: 22 })),
+        h('div', null, h('strong', null, 'Premium'), h('p', null, 'Nur pro Kunde freischaltbar. Kostenpflichtige Dienste nur, wenn es im Paket enthalten ist.'))) : null,
+      optionModule.config.length
+        ? scard('Standard-Einstellungen', 'Gilt für alle Kunden, bei denen du nichts Eigenes eingestellt hast.', form,
+          srow(null, null, h('button', {
+            type: 'button', onclick: async () => {
+              try {
+                const defaults = { ...(app.rawCoachSettings?.module_defaults || {}), [m.id]: form.values() };
+                await saveSettings(app, { module_defaults: defaults });
+                toast('Standard gespeichert');
+              } catch (e) { showError(e); }
+            }
+          }, 'Speichern')))
+        : scard(null, null, srow('Keine Standard-Einstellungen', (m.config || []).length ? 'Ziele (z. B. Kalorien, Schritte) legst du pro Kunde fest.' : 'Dieses Modul hat keine Optionen.', null)));
+  }
+
+  function presetsPage() {
     const presets = structuredClone(app.rawCoachSettings?.goal_presets || {});
     const goals = Object.keys(GOALS);
     const current = (g) => new Set(presets[g] || goalModules(g, null));
@@ -67,9 +75,8 @@ export async function renderModulesPage(el, app) {
       h('tbody', null, tracking.map((m) => h('tr', null,
         h('td', null, m.name),
         goals.map((g) => {
-          const set = current(g);
           const cb = h('input', {
-            type: 'checkbox', checked: set.has(m.id), 'aria-label': `${m.name} bei ${GOALS[g].label}`,
+            type: 'checkbox', checked: current(g).has(m.id), 'aria-label': `${m.name} bei ${GOALS[g].label}`,
             onchange: () => {
               const s = current(g);
               cb.checked ? s.add(m.id) : s.delete(m.id);
@@ -78,19 +85,19 @@ export async function renderModulesPage(el, app) {
           });
           return h('td', null, cb);
         })))));
-
-    clear(body).append(
-      h('h4', null, 'Tracking'), h('div', { class: 'list' }, tracking.map(row)),
-      h('h4', null, 'Premium (pro Kunde freischaltbar)'), h('div', { class: 'list' }, premium.map(row)),
-      h('h4', null, 'Werkzeuge für dich'), h('div', { class: 'list' }, tools.map(row)),
-      card('Ziel-Vorlagen',
-        h('p', { class: 'muted small' }, 'Welche Module beim Wählen eines Ziels vorgeschlagen werden. Bestehende Kunden ändern sich dadurch nicht.'),
-        h('div', { class: 'scroll-x' }, matrix),
-        h('button', {
+    return h('div', null,
+      h('header', { class: 'mods-head' }, h('h2', null, tile('target', 'gray', 36), 'Ziel-Vorlagen'),
+        h('p', null, 'Welche Module beim Wählen eines Ziels vorgeschlagen werden. Bestehende Kunden ändern sich dadurch nicht.')),
+      scard(null, null, h('div', { class: 'scroll-x' }, matrix),
+        srow(null, null, h('button', {
           type: 'button', onclick: async () => {
             try { await saveSettings(app, { goal_presets: presets }); toast('Ziel-Vorlagen gespeichert'); } catch (e) { showError(e); }
           }
-        }, 'Vorlagen speichern')));
-  };
-  await draw();
+        }, 'Vorlagen speichern'))));
+  }
+
+  layout.classList.toggle('detail', !!sel);
+  drawNav();
+  drawDetail();
+  clear(body).append(layout);
 }

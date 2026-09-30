@@ -435,3 +435,73 @@ button.fcard.plain-btn { width: 100%; margin: 0 0 12px; text-align: left; font: 
 .fc-title { font-weight: 600; font-size: 17px; }
 .fc-sub { color: var(--muted); font-size: 15px; }
 @media (max-width: 600px) { .mod-panel { padding: 0 12px 14px; } }
+.brand-text b { font-weight: 800; color: var(--accent); }
+
+/* exercise picker */
+.picker-top { display: flex; flex-direction: column; gap: 8px; position: sticky; top: 0; background: var(--bg); padding-bottom: 6px; z-index: 1; }
+.picker-list { background: var(--surface); border-radius: var(--radius); padding: 0 14px; }
+.picker-row { flex-shrink: 0; min-height: 56px; justify-content: center; }
+.picker-row:last-child { border-bottom: 0; }
+.picker-row strong { font-weight: 500; font-size: 17px; line-height: 1.25; }
+.picker-row small { font-size: 13px; line-height: 1.3; }
+.picker-section { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .02em; margin: 14px 4px 6px; }
+
+/* ---------- settings rows (GalaxyBot-like module pages) ---------- */
+.scard { padding: 18px 18px 6px; margin-bottom: 14px; box-shadow: var(--shadow); }
+.scard .card-title { margin-bottom: 2px; }
+.scard-desc { margin: 0 0 6px; color: var(--muted); font-size: 14px; }
+.srow { padding: 14px 0; border-top: 0.5px solid var(--border); }
+.scard .card-title + .srow, .scard-desc + .srow, .srow:first-child { border-top: 0; }
+.srow-title { font-weight: 600; font-size: 16px; }
+.srow-desc { color: var(--muted); font-size: 14px; margin-top: 2px; line-height: 1.35; }
+.srow-control { margin-top: 10px; }
+.srow-control > button { margin-top: 0; }
+.srow.inline { display: flex; align-items: center; gap: 14px; }
+.srow.inline .srow-text { flex: 1; min-width: 0; }
+.srow.inline .srow-control { margin-top: 0; flex: none; }
+.srow .unit-input { display: flex; align-items: center; gap: 8px; }
+.srow .unit-input input { max-width: 160px; }
+.srow .unit-input span { color: var(--muted); font-size: 15px; }
+.srow .check-list { background: var(--surface-2); border-radius: var(--radius-sm); padding: 0 12px; }
+
+/* status banners */
+.mod-banner { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; margin-bottom: 12px; font-weight: 600; }
+.mod-banner .mb-text { flex: 1; min-width: 0; }
+.mod-banner .mb-text small { display: block; font-weight: 400; font-size: 14px; opacity: .85; margin-top: 2px; }
+.mod-banner button { width: auto; margin: 0; min-height: 36px; padding: 0 16px; border-radius: 99px; font-size: 15px; flex: none; }
+.mod-banner.off { background: var(--bad-soft); color: var(--bad); }
+.mod-banner.off button { background: var(--bad); color: #fff; }
+.mod-banner.on { background: var(--ok-soft); color: var(--ok); }
+.mod-banner.on button { background: transparent; color: var(--muted); font-weight: 500; }
+.mod-banner.neutral { background: var(--fill); color: var(--text-2); }
+.warn-box { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 16px; margin-bottom: 14px; background: var(--warn-soft); color: var(--text); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); }
+.warn-box .wb-icon { color: var(--warn); flex: none; margin-top: 1px; }
+.warn-box strong { display: block; color: var(--warn); }
+.warn-box p { margin: 2px 0 0; font-size: 14px; color: var(--text-2); }
+
+/* module master/detail */
+.mods-head { margin: 4px 0 14px; }
+.mods-head h2 { font-size: 28px; margin: 0 0 4px; display: flex; align-items: center; gap: 12px; }
+.mods-head p { margin: 0; color: var(--muted); }
+.mods-nav { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 6px; }
+.mods-nav .mn-group { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); padding: 12px 10px 4px; }
+.mods-nav a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 11px; color: var(--text); text-decoration: none; font-size: 15px; }
+.mods-nav a:hover { background: var(--fill); }
+.mods-nav a.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.mods-nav a .mn-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mods-nav a .mn-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fill-strong); flex: none; }
+.mods-nav a .mn-dot.ok { background: var(--ok); }
+.mods-nav a .mn-dot.warn { background: var(--warn); }
+.mods-detail .back-mods { display: none; }
+@media (max-width: 899px) {
+  .mods-layout.detail .mods-nav { display: none; }
+  .mods-layout:not(.detail) .mods-detail { display: none; }
+  .mods-detail .back-mods { display: inline-flex; }
+  .mods-overview:has(+ .mods-layout.detail) { display: none; }
+  .mods-nav a { padding: 11px 10px; font-size: 16px; }
+}
+@media (min-width: 900px) {
+  body.coach .page:has(.mods-layout) { max-width: 1120px; }
+  .mods-layout { display: grid; grid-template-columns: 250px 1fr; gap: 22px; align-items: start; }
+  .mods-nav { position: sticky; top: 70px; max-height: calc(100dvh - 90px); overflow-y: auto; }
+}

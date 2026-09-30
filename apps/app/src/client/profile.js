@@ -6,6 +6,7 @@ import { GOALS } from '../core/goals.js';
 import { WEEKDAYS, fmt } from '../core/dates.js';
 import { pushState, enablePush, disablePush } from '../core/push.js';
 import { reloadOwnClient } from '../core/app.js';
+import { clientReminders } from '../core/settings.js';
 
 export const THEMES = [['', 'Wie Handy-Einstellung'], ['light', 'Hell'], ['dark', 'Dunkel'], ['white-blue', 'Weiß-Blau'], ['black-blue', 'Schwarz-Blau']];
 const WATCHES = [['', '– keine –'], ['apple', 'Apple Watch'], ['garmin', 'Garmin'], ['fitbit', 'Fitbit'], ['samsung', 'Samsung'], ['polar', 'Polar'], ['whoop', 'Whoop'], ['phone', 'nur Handy'], ['other', 'andere']];
@@ -128,7 +129,7 @@ async function changePassword() {
 async function notificationsCard(app) {
   const c = app.client;
   const s = c._settings || {};
-  const defaults = app.settings.reminders;
+  const defaults = clientReminders(app.settings, c);
   const reminders = structuredClone({ ...defaults, ...(s.reminders || {}) });
   const state = await pushState();
   const pushInfo = {

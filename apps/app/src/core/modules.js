@@ -32,8 +32,10 @@ import hevy from '../modules/hevy/index.js';
 import ai from '../modules/ai/index.js';
 import parentReport from '../modules/parent-report/index.js';
 import billing from '../modules/billing/index.js';
+import { FEATURES } from './config.js';
 
 export const MODULES = [strength, cardio, pt, weight, nutrition, activity, sleep, mood, watch, supplements, cycle, progress, hevy, ai, parentReport, billing]
+  .filter((m) => FEATURES[m.id] !== false)          // switched-off features are invisible everywhere
   .sort((a, b) => (a.order ?? 50) - (b.order ?? 50));
 
 /** Modules Max can switch on/off per client in the concept (data modules) */
@@ -44,7 +46,7 @@ export const UNLOCKS = [
   ['pt', 'Personal Training'],
   ['photos', 'Fotos & Umfänge'],
   ['hevy', 'Hevy-Anbindung'],
-  ['ai', 'KI-Analyse'],
+  ...(FEATURES.ai === false ? [] : [['ai', 'KI-Analyse']]),
   ['free_training', 'Freies Training']
 ];
 

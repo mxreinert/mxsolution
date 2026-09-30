@@ -24,6 +24,8 @@ Vor neuen Migrationen immer die lokalen Tests laufen lassen: `supabase/tests/REA
 | 5 | `supabase/migrations/005_pt.sql` | Personal Training, Termine, PT-Guthaben |
 | 6 | `supabase/migrations/006_billing.sql` | Preise und Buchhaltung |
 | 7 | `supabase/migrations/007_integrations.sql` | Push, Hevy, KI, täglicher Wartungsjob |
+| 7a | `supabase/migrations/008_module_defaults.sql` | Modul-Standards (später nachgereicht) |
+| 7b | `supabase/migrations/009_coach_profile_meet.sql` | Coach-Profilbild, WhatsApp auf der Startseite, Online-Calls mit Meet-Link |
 | 8 | `supabase/seed/exercises.sql` | Deine 105 Übungen aus der Excel-Datei |
 | 9 | `supabase/setup/coach.sql` | Dein Coach-Konto (vorher Mailadresse in der Datei ersetzen!) |
 | 10 | `supabase/setup/test-accounts.local.sql` | Testzugänge mx67/mx68 (nur lokal, nicht auf GitHub) |
@@ -70,7 +72,7 @@ Erst wenn der lokale Test passt und du den Push freigegeben hast (2× fragen).
 | `VAPID_PUBLIC_KEY` | `BJpXlCmy…XS88` (steht in `apps/app/src/core/config.js`) | öffentlich |
 | `VAPID_PRIVATE_KEY` | aus der alten Bulk-Cockpit-Site kopieren | alte Netlify-Site → Environment variables. **Geheim!** |
 | `VAPID_SUBJECT` | `mailto:deine-mail` | |
-| `ANTHROPIC_API_KEY` | aus der alten Bulk-Cockpit-Site kopieren | **Geheim!** Ausgabenlimit in der Anthropic Console setzen |
+| `ANTHROPIC_API_KEY` | derzeit nicht nötig – KI ist aus Datenschutzgründen abgeschaltet | Nur zusammen mit `AI_ENABLED=true` und `FEATURES.ai = true` in `core/config.js` wirksam |
 | `AI_MODEL` | optional, Standard `claude-sonnet-5` | |
 | `AI_DAILY_LIMIT` | optional, Standard `20` | |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `GOOGLE_CALENDAR_ID` | optional, siehe Abschnitt 5 | |
@@ -90,9 +92,10 @@ Erst wenn der lokale Test passt und du den Push freigegeben hast (2× fragen).
 
 ---
 
-## 5. Optional: Google Kalender (PT-Termine)
+## 5. Optional: Google Kalender (PT-Termine + Google Meet)
 
 Nur dein Kalender wird verbunden, Kunden bekommen „Zum Kalender hinzufügen“ (.ics).
+Termine mit der Art **„Online-Call (Google Meet)“** bekommen automatisch einen Meet-Link. Er landet in deinem Kalender und der Kunde sieht ihn in der App („Meet beitreten“), es geht keine Einladungsmail raus. Ohne Google-Verbindung kannst du den Link auch selbst ins Termin-Feld einfügen.
 
 1. console.cloud.google.com → neues Projekt → **Google Calendar API** aktivieren.
 2. **OAuth consent screen:** Typ „External“, eigene Mail als Testnutzer, danach auf **„In production“** stellen (sonst läuft der Zugang nach 7 Tagen ab).

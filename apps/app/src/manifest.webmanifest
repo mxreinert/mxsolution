@@ -1,6 +1,6 @@
 {
-  "name": "mxreinert Coaching",
-  "short_name": "Coaching",
+  "name": "mxCoaching",
+  "short_name": "mxCoaching",
   "description": "Dein Coaching mit Max",
   "start_url": "/home.html#/heute",
   "scope": "/",

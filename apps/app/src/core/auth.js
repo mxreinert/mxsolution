@@ -31,10 +31,12 @@ export async function login(identifier, password) {
   return { error: null };
 }
 
-export async function logout() {
+export async function logout(target) {
+  const wasCoach = (await profilePromise?.catch(() => null))?.role === 'coach';
   localStorage.removeItem(LOGIN_AT_KEY);
+  profilePromise = null;
   await sb.auth.signOut();
-  location.replace('/');
+  location.replace(target || (wasCoach ? '/coach.html' : '/'));
 }
 
 function sessionExpired() {

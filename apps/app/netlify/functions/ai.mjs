@@ -62,6 +62,8 @@ async function buildSummary(client, from, to) {
 }
 
 export default handler(async (req) => {
+  // switched off until the privacy review is done – set AI_ENABLED=true in Netlify to turn it on again
+  if (process.env.AI_ENABLED !== 'true') return bad('KI-Analyse ist derzeit deaktiviert', 403);
   const { profile: coach } = await requireCoach(req);
   const body = await readJson(req);
   const client = await ownClient(coach.id, body.clientId);

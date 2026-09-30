@@ -44,3 +44,15 @@ export function mergeSettings(stored) {
     faq: Array.isArray(s.faq) && s.faq.length ? s.faq : DEFAULT_SETTINGS.faq
   };
 }
+
+/** Warning limits for one client: code defaults < old coach-wide values < client.targets.thresholds */
+export function clientThresholds(settings, client) {
+  return { ...DEFAULT_SETTINGS.thresholds, ...(settings?.thresholds || {}), ...(client?.targets?.thresholds || {}) };
+}
+
+/** Reminder defaults for one client (set by the coach); the client's own changes in client_settings win */
+export function clientReminders(settings, client) {
+  const base = { ...DEFAULT_SETTINGS.reminders, ...(settings?.reminders || {}) };
+  const own = client?.targets?.reminders || {};
+  return Object.fromEntries(Object.entries(base).map(([k, r]) => [k, { ...r, ...(own[k] || {}) }]));
+}

@@ -11,7 +11,10 @@ export const SESSION_MAX_DAYS = 7;
 
 // WhatsApp number for "Passwort vergessen?" etc., digits only incl. country code
 // (e.g. '352621123456'). Empty = link is hidden.
-export const WHATSAPP_NUMBER = '';
+export const WHATSAPP_NUMBER = '352621969685';   // fallback – the number from Coach → Einstellungen wins
+
+// Feature switches. KI-Analyse (Anthropic) is off for now (privacy review pending).
+export const FEATURES = { ai: false };
 
 // Public VAPID key for web push (same key pair as the old Bulk Cockpit).
 // The private key lives only in the Netlify env var VAPID_PRIVATE_KEY.

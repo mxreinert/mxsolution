@@ -18,9 +18,9 @@ export async function pickExercise({ suggest = [] } = {}) {
       if (!term && !muscle.value && suggest.length) {
         const sug = suggest.map((id) => all.find((e) => e.id === id)).filter(Boolean);
         if (sug.length) {
-          list.append(h('p', { class: 'muted small' }, 'Alternativen'));
+          list.append(h('p', { class: 'picker-section' }, 'Alternativen'));
           sug.forEach((e) => list.append(row(e)));
-          list.append(h('p', { class: 'muted small' }, 'Alle Übungen'));
+          list.append(h('p', { class: 'picker-section' }, 'Alle Übungen'));
         }
       }
       rows = rows.slice(0, 80);
@@ -34,6 +34,6 @@ export async function pickExercise({ suggest = [] } = {}) {
     muscle.addEventListener('change', render);
     render();
     setTimeout(() => search.focus(), 50);
-    return h('div', null, h('div', { class: 'grid2' }, search, muscle), list);
+    return h('div', null, h('div', { class: 'picker-top' }, search, muscle), list);
   });
 }

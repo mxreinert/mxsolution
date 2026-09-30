@@ -3,12 +3,20 @@ import { h, card, fmtNum, empty, input, select, field, modal, toast, showError, 
 import { q, from, rpc, api } from '../../core/db.js';
 import { today, addDays, fmtDateTime, fmt, fmtTime, weekStart, WD_SHORT, iso } from '../../core/dates.js';
 
-const KINDS = [['strength', 'Kraft'], ['cardio', 'Cardio'], ['technique', 'Technik'], ['test', 'Test'], ['other', 'Sonstiges']];
+const KINDS = [['strength', 'Kraft'], ['cardio', 'Cardio'], ['technique', 'Technik'], ['test', 'Test'], ['call', 'Online-Call (Google Meet)'], ['other', 'Sonstiges']];
 const ATT = {
   open: 'offen', confirmed: 'bestätigt', cancelled_client: 'abgesagt (Kunde)', cancelled_coach: 'abgesagt (Max)',
   cancelled_sick: 'abgesagt – Krankheit', no_show: 'nicht erschienen', attended: 'durchgeführt'
 };
-const kindLabel = (k) => KINDS.find(([v]) => v === k)?.[1] || k;
+const kindLabel = (k) => (k === 'call' ? 'Online-Call' : KINDS.find(([v]) => v === k)?.[1] || k);
+const safeUrl = (u) => (/^https:\/\/[^\s"'<>]+$/.test(u || '') ? u : null);
+
+/** "Meet beitreten" button (link comes from Google Calendar or was pasted by Max) */
+export function meetButton(a, small = false) {
+  const url = safeUrl(a.meet_url);
+  if (!url) return null;
+  return h('a', { class: 'button' + (small ? ' small' : ''), href: url, target: '_blank', rel: 'noopener noreferrer' }, icon('phone', { size: 16 }), 'Meet beitreten');
+}
 
 // ---------- helpers ----------
 export function mapLinks(address) {
@@ -31,7 +39,8 @@ export function downloadIcs(appt, loc) {
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//mxreinert//Coaching//DE', 'BEGIN:VEVENT',
     `UID:${appt.id}@mxreinert.de`, `DTSTAMP:${icsDate(new Date())}`,
     `DTSTART:${icsDate(appt.starts_at)}`, `DTEND:${icsDate(end)}`,
-    `SUMMARY:${icsEscape('Personal Training mit Max – ' + kindLabel(appt.kind))}`,
+    `SUMMARY:${icsEscape(appt.kind === 'call' ? 'Online-Call mit Max' : 'Personal Training mit Max – ' + kindLabel(appt.kind))}`,
+    safeUrl(appt.meet_url) ? `URL:${appt.meet_url}` : null,
     loc ? `LOCATION:${icsEscape([loc.name, loc.address].filter(Boolean).join(', '))}` : null,
     appt.note ? `DESCRIPTION:${icsEscape(appt.note)}` : null,
     'BEGIN:VALARM', 'TRIGGER:-PT2H', 'ACTION:DISPLAY', 'DESCRIPTION:Personal Training', 'END:VALARM',
@@ -61,15 +70,17 @@ function apptCard(ctx, a, locs) {
   const loc = locs.find((l) => l.id === a.location_id);
   const canRespond = ctx.role === 'client' && a.status === 'planned' && new Date(a.starts_at) > new Date() && ['open', 'confirmed'].includes(a.my_status);
   return h('div', { class: 'card' },
-    h('div', { class: 'row-main' }, tile('people', 'indigo', 40),
-      h('div', { style: { flex: '1' } }, h('div', { class: 'fc-title' }, 'Personal Training'), h('div', { class: 'muted' }, fmtDateTime(a.starts_at))),
+    h('div', { class: 'row-main' }, a.kind === 'call' ? tile('phone', 'teal', 40) : tile('people', 'indigo', 40),
+      h('div', { style: { flex: '1' } }, h('div', { class: 'fc-title' }, a.kind === 'call' ? 'Online-Call' : 'Personal Training'), h('div', { class: 'muted' }, fmtDateTime(a.starts_at))),
       badge(ATT[a.my_status] || a.status, a.my_status === 'confirmed' ? 'ok' : '')),
     h('p', { class: 'muted', style: { marginTop: '10px' } }, [kindLabel(a.kind), `${a.duration_min} min`, loc?.name].filter(Boolean).join(' · ')),
     loc?.address ? h('p', { class: 'small' }, loc.address) : null,
     loc?.hint ? h('p', { class: 'hint' }, loc.hint) : null,
     a.note ? h('p', { class: 'hint' }, a.note) : null,
     a.coach_note_visible && a.coach_note ? h('p', { class: 'hint' }, 'Notiz von Max: ', a.coach_note) : null,
+    a.kind === 'call' && !safeUrl(a.meet_url) ? h('p', { class: 'muted small' }, 'Der Meet-Link erscheint hier, sobald Max ihn angelegt hat.') : null,
     h('div', { class: 'row-actions wrap' },
+      meetButton(a),
       mapLinks(loc?.address),
       h('button', { type: 'button', class: 'link-btn', onclick: () => downloadIcs(a, loc) }, icon('calendar', { size: 18 }), 'Kalender'),
       canRespond && a.my_status !== 'confirmed' ? h('button', {
@@ -103,6 +114,11 @@ async function editAppointment(appt, { presetClient } = {}) {
   const loc = select([['', '– kein Ort –'], ...locs.map((l) => [l.id, l.name])], appt?.location_id || '');
   const kind = select(KINDS, appt?.kind || 'strength');
   const note = input({ value: appt?.note || '', maxlength: 1000, placeholder: 'z. B. Laufschuhe mitbringen' });
+  const meet = input({ type: 'url', value: appt?.meet_url || '', maxlength: 300, placeholder: 'https://meet.google.com/…', inputmode: 'url' });
+  const meetField = field('Meet-Link', meet, 'Leer lassen: Ist Google Kalender verbunden, wird automatisch ein Google Meet erstellt. Der Kunde sieht den Link in der App.');
+  const syncKind = () => { meetField.hidden = kind.value !== 'call'; };
+  kind.addEventListener('change', syncKind);
+  syncKind();
   const repeat = input({ type: 'number', value: 1, min: 1, max: 26, disabled: !!appt });
   const clientBox = h('div', { class: 'check-list' }, ptClients.map((c) => {
     const cb = h('input', { type: 'checkbox', checked: chosen.has(c.id), onchange: () => { cb.checked ? chosen.add(c.id) : chosen.delete(c.id); } });
@@ -125,6 +141,7 @@ async function editAppointment(appt, { presetClient } = {}) {
     h('div', { class: 'grid3' }, field('Datum', date), field('Uhrzeit', time), field('Dauer (min)', dur)),
     warn,
     h('div', { class: 'grid2' }, field('Ort', loc), field('Art', kind)),
+    meetField,
     field('Hinweis für Kunden', note),
     !appt ? field('Wöchentlich wiederholen (Anzahl Termine)', repeat) : null,
     field('Kunde(n)', clientBox)), [
@@ -134,8 +151,10 @@ async function editAppointment(appt, { presetClient } = {}) {
         if (!chosen.size) { toast('Bitte mindestens einen Kunden wählen.', 'bad'); return undefined; }
         const startsAt = new Date(`${date.value}T${time.value}`);
         if (Number.isNaN(startsAt.getTime())) { toast('Datum/Uhrzeit prüfen.', 'bad'); return undefined; }
+        const meetUrl = kind.value === 'call' ? meet.value.trim() || null : null;
+        if (meetUrl && !safeUrl(meetUrl)) { toast('Der Meet-Link muss mit https:// beginnen.', 'bad'); return undefined; }
         try {
-          const base = { duration_min: parseNum(dur.value) || 60, location_id: loc.value || null, kind: kind.value, note: note.value.trim() || null };
+          const base = { duration_min: parseNum(dur.value) || 60, location_id: loc.value || null, kind: kind.value, note: note.value.trim() || null, meet_url: meetUrl };
           const saved = [];
           if (appt) {
             const moved = new Date(appt.starts_at).getTime() !== startsAt.getTime();
@@ -253,6 +272,7 @@ async function renderCalendar(el) {
         h('p', { class: 'muted small' }, [kindLabel(a.kind), `${a.duration_min} min`, loc?.name, a.series_id ? 'Serie' : null].filter(Boolean).join(' · ')),
         a.note ? h('p', { class: 'hint' }, a.note) : null,
         h('div', { class: 'row-actions wrap' },
+          a.status === 'planned' ? meetButton(a, true) : null,
           a.status === 'planned' ? a.appointment_clients.map((x) => h('a', { class: 'link-btn', href: `#/c/kunde/${x.client_id}?tab=training&pt=${a.id}` }, `Loggen: ${byId.get(x.client_id)?.first_name}`)) : null,
           a.status === 'planned' ? h('button', { type: 'button', class: 'link-btn', onclick: () => closeAppointment(a, a.appointment_clients, byId, load) }, 'Abschließen') : null,
           h('button', { type: 'button', class: 'link-btn', onclick: async () => { if (await editAppointment(a)) load(); } }, 'Bearbeiten'),

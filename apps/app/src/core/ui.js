@@ -285,3 +285,22 @@ export function uuid() {
       return (c === 'x' ? r : (r & 3) | 8).toString(16);
     });
 }
+
+/** Settings row (title, muted description, control below – or right-aligned when inline, e.g. a switch) */
+export function srow(title, desc, control, inline = false) {
+  return h('div', { class: 'srow' + (inline ? ' inline' : '') },
+    title || desc ? h('div', { class: 'srow-text' }, title ? h('div', { class: 'srow-title' }, title) : null, desc ? h('div', { class: 'srow-desc' }, desc) : null) : null,
+    control ? h('div', { class: 'srow-control' }, control) : null);
+}
+
+/** Section card with setting rows */
+export function scard(title, desc, ...rows) {
+  return h('section', { class: 'card scard' }, title ? h('h3', { class: 'card-title' }, title) : null,
+    desc ? h('p', { class: 'scard-desc' }, desc) : null, rows);
+}
+
+/** Bare iOS switch */
+export function switchInput(checked, onChange, label) {
+  const cb = h('input', { type: 'checkbox', checked: !!checked, 'aria-label': label || '', onchange: () => onChange?.(cb.checked) });
+  return cb;
+}

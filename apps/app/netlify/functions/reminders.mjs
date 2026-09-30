@@ -58,7 +58,11 @@ export default scheduled('reminders', async () => {
     if (paused || muted || quiet) continue;
 
     const defaults = coachSettings.find((x) => x.coach_id === c.coach_id)?.settings?.reminders || {};
-    const rem = { weigh: { on: true, time: '07:00' }, evening: { on: true, time: '20:30' }, training: { on: true, time: '16:00' }, checkin: { on: true, time: '18:00' }, ...defaults, ...(s.reminders || {}) };
+    // code defaults < old coach-wide values < coach's per-client values (targets.reminders) < client's own
+    const rem = { weigh: { on: true, time: '07:00' }, evening: { on: true, time: '20:30' }, training: { on: true, time: '16:00' }, checkin: { on: true, time: '18:00' } };
+    for (const src of [defaults, c.targets?.reminders || {}, s.reminders || {}]) {
+      for (const [k, v] of Object.entries(src)) rem[k] = { ...(rem[k] || {}), ...(v || {}) };
+    }
     const entry = today.find((e) => e.client_id === c.id);
     const msgs = [];
     if (rem.weigh?.on && due(rem.weigh.time, now.hhmm) && entry?.weight_kg == null) msgs.push({ title: '⚖️ Morgens wiegen', body: 'Nüchtern ist am genauesten – 10 Sekunden.', url: '/home.html#/eintragen?nur=weight_kg', tag: 'weigh' });

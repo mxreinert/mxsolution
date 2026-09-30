@@ -5,6 +5,7 @@ import { today, fmtLong } from '../../core/dates.js';
 import { e1rm } from '../../core/metrics.js';
 import { exerciseMap, setsForExercises, lastTimeAndBest, saveDraft, loadDraft, dropDraft, queue, syncOutbox, pushWorkout } from './data.js';
 import { pickExercise } from './picker.js';
+import { clientThresholds } from '../../core/settings.js';
 
 const SET_TYPES = [['normal', 'Satz'], ['warmup', 'Aufw.'], ['drop', 'Drop'], ['superset', 'Super']];
 
@@ -68,7 +69,7 @@ export async function renderLogger(el, { client, settings, workoutId, backHref, 
     return;
   }
   const exMap = await exerciseMap();
-  const thresholds = settings.thresholds;
+  const thresholds = clientThresholds(settings, client);
   let history = new Map();
   const loadHistory = async () => {
     try {

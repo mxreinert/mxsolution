@@ -4,6 +4,7 @@ import { q, from } from '../core/db.js';
 import { today, addDays, fmtDateTime, relDay } from '../core/dates.js';
 import { ampel } from '../core/ampel.js';
 import { STATUS } from '../core/goals.js';
+import { clientThresholds } from '../core/settings.js';
 
 const KIND_ICON = {
   pain: ['warning', 'bad'], pause: ['pause', 'gray'], pause_long: ['pause', 'warn'], return: ['check', 'ok'],
@@ -19,7 +20,7 @@ export async function loadOverview(app) {
     q(from('checkins').select('id, client_id, week_start, feedback, submitted_at').in('client_id', ids).gte('week_start', addDays(today(), -28)))
   ]) : [[], []];
   const withAmpel = active.map((c) => ({
-    c, a: ampel(c, entries.filter((e) => e.client_id === c.id), checkins.filter((x) => x.client_id === c.id), app.settings.thresholds)
+    c, a: ampel(c, entries.filter((e) => e.client_id === c.id), checkins.filter((x) => x.client_id === c.id), clientThresholds(app.settings, c))
   }));
   return { clients, active, entries, checkins, withAmpel };
 }

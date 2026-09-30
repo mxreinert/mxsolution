@@ -1,66 +1,99 @@
-// Coach settings: change rules and texts without code and without deploy.
-import { h, card, input, textarea, field, toast, showError, pageHead, parseNum, toggle, clear } from '../core/ui.js';
-import { q, from } from '../core/db.js';
+// Coach settings: only about Max himself (profile, contact, texts, account).
+// Everything that concerns a client (reminders, warning limits, modules) is set per client.
+import { h, card, input, textarea, toast, showError, pageHead, parseNum, clear, compressImage, srow as row } from '../core/ui.js';
+import { tile } from '../core/icons.js';
+import { q, from, uploadFile, fileUrl, removeFiles } from '../core/db.js';
 import { logout } from '../core/auth.js';
 import { DEFAULT_SETTINGS, mergeSettings } from '../core/settings.js';
 
-const THRESHOLDS = [
-  ['weight_delta_kg', 'Warnung Gewicht: Abweichung zum letzten Eintrag (kg)'],
-  ['kcal_min', 'Warnung kcal unter'], ['kcal_max', 'Warnung kcal über'],
-  ['steps_max', 'Warnung Schritte über'], ['sleep_max_h', 'Warnung Schlaf über (h)'],
-  ['set_jump_pct', 'Warnung Satzgewicht: Abweichung zum letzten Mal (%)'],
-  ['ampel_yellow_days', 'Ampel gelb ab X Tagen ohne Eintrag'], ['ampel_red_days', 'Ampel rot ab X Tagen ohne Eintrag'],
-  ['mood_low_value', 'Motivation gilt als niedrig bis'], ['mood_low_days', '… an X Tagen in Folge → rot']
-];
+export const coachAvatarPath = (coachId) => `coach/${coachId}/avatar.jpg`;
+
+export async function coachAvatar(coachId, size = 72) {
+  const url = await fileUrl(coachAvatarPath(coachId));
+  if (url) {
+    const img = h('img', { class: 'avatar', width: size, height: size, alt: '', src: url });
+    img.addEventListener('error', () => img.replaceWith(h('div', { class: 'avatar placeholder', style: { width: size + 'px', height: size + 'px' } }, 'M')));
+    return img;
+  }
+  return h('div', { class: 'avatar placeholder', style: { width: size + 'px', height: size + 'px', fontWeight: '700', fontSize: size / 2.6 + 'px' } }, 'M');
+}
 
 export async function renderSettings(el, app) {
   const s = mergeSettings(app.rawCoachSettings);
-  const wa = input({ value: s.whatsapp || '', placeholder: 'z. B. 352621123456 (nur Ziffern, mit Ländervorwahl)', inputmode: 'numeric' });
-  const cancel = input({ type: 'number', min: 0, max: 168, value: s.cancel_hours });
-  const th = Object.fromEntries(THRESHOLDS.map(([k]) => [k, input({ type: 'number', step: 'any', value: s.thresholds[k] })]));
-  const reminders = structuredClone(s.reminders);
-  const remRows = Object.entries(reminders).map(([k, r]) => {
-    const t = input({ type: 'time', value: r.time, class: 'mini' });
-    t.addEventListener('change', () => { r.time = t.value; });
-    return h('div', { class: 'list-row' }, toggle(r.label || k, r.on !== false, (v) => { r.on = v; }), t);
+  const uid = app.profile.id;
+
+  // profile picture
+  const avWrap = h('div', { class: 'avatar-wrap' }, await coachAvatar(uid, 84));
+  const file = h('input', { type: 'file', accept: 'image/*', hidden: true });
+  file.addEventListener('change', async () => {
+    if (!file.files[0]) return;
+    try {
+      const blob = await compressImage(file.files[0], { maxSize: 320, quality: 0.75, square: true });
+      await uploadFile(coachAvatarPath(uid), blob);
+      clear(avWrap).append(await coachAvatar(uid, 84));
+      toast('Profilbild gespeichert');
+    } catch (e) { showError(e); }
   });
+
+  const name = input({ value: s.display_name || 'Max Reinert', maxlength: 60 });
+  const wa = input({ value: s.whatsapp || '', placeholder: 'z. B. +352 621 969 685', inputmode: 'tel' });
+  const cancel = input({ type: 'number', min: 0, max: 168, value: s.cancel_hours });
   const privacy = textarea({ value: s.privacy_text, rows: 6, maxlength: 5000 });
   const help = textarea({ value: s.help_text || '', rows: 3, maxlength: 3000 });
   const faq = structuredClone(s.faq);
   const faqBox = h('div');
   const drawFaq = () => clear(faqBox).append(...faq.map((f, i) => {
-    const qIn = input({ value: f.q, maxlength: 200 });
-    const aIn = textarea({ value: f.a, maxlength: 2000 });
+    const qIn = input({ value: f.q, maxlength: 200, placeholder: 'Frage' });
+    const aIn = textarea({ value: f.a, maxlength: 2000, placeholder: 'Antwort' });
     qIn.addEventListener('input', () => { f.q = qIn.value; });
     aIn.addEventListener('input', () => { f.a = aIn.value; });
     return h('div', { class: 'faq-edit' }, qIn, aIn, h('button', { type: 'button', class: 'link-btn danger', onclick: () => { faq.splice(i, 1); drawFaq(); } }, 'Frage entfernen'));
   }), h('button', { type: 'button', class: 'link-btn', onclick: () => { faq.push({ q: '', a: '' }); drawFaq(); } }, '+ Frage'));
   drawFaq();
 
-  el.append(pageHead('Einstellungen', 'Gilt sofort für alle Kunden – ohne Code, ohne Deploy.'),
-    card('Kontakt & Termine', field('WhatsApp-Nummer', wa), field('Absagefrist PT (Stunden)', cancel)),
-    card('Warngrenzen & Ampel', h('div', { class: 'grid2' }, THRESHOLDS.map(([k, l]) => field(l, th[k])))),
-    card('Standard-Erinnerungen', remRows, h('p', { class: 'muted small' }, 'Kunden können Zeiten selbst ändern oder einzelne abschalten.')),
-    card('Texte', field('Datenschutz-Hinweis (Onboarding)', privacy), field('Hilfetext (optional)', help)),
+  const save = async () => {
+    const settings = {
+      ...(app.rawCoachSettings || {}),
+      display_name: name.value.trim() || 'Max Reinert',
+      whatsapp: wa.value.replace(/[^0-9]/g, ''), cancel_hours: parseNum(cancel.value) ?? 24,
+      privacy_text: privacy.value.trim() || DEFAULT_SETTINGS.privacy_text,
+      help_text: help.value.trim(), faq: faq.filter((f) => f.q.trim() && f.a.trim())
+    };
+    try {
+      await q(from('coach_settings').upsert({ coach_id: uid, settings }, { onConflict: 'coach_id' }));
+      app.rawCoachSettings = settings;
+      app.settings = mergeSettings(settings);
+      toast('Gespeichert');
+    } catch (e) { showError(e); }
+  };
+
+  el.append(
+    pageHead('Einstellungen', 'Dein Profil und deine Angaben. Alles zu Kunden stellst du direkt beim Kunden ein.'),
+    card(null,
+      h('div', { class: 'profile-head', style: { display: 'flex', gap: '16px', alignItems: 'center' } }, avWrap,
+        h('div', null, h('div', { class: 'fc-title' }, s.display_name || 'Max Reinert'), h('div', { class: 'muted' }, 'Coach · @' + app.profile.username),
+          h('div', { class: 'row-actions' },
+            h('button', { type: 'button', class: 'link-btn', onclick: () => file.click() }, 'Bild ändern'),
+            h('button', {
+              type: 'button', class: 'link-btn danger', onclick: async () => {
+                try { await removeFiles([coachAvatarPath(uid)]); clear(avWrap).append(await coachAvatar('none', 84)); } catch (e) { showError(e); }
+              }
+            }, 'Entfernen')), file)),
+      h('p', { class: 'muted small' }, 'Deine Kunden sehen dein Profilbild z. B. beim Feedback.')),
+    h('section', { class: 'card scard' },
+      h('h3', { class: 'card-title' }, 'Profil & Kontakt'),
+      row('Anzeigename', 'So erscheinst du bei deinen Kunden.', name),
+      row('WhatsApp-Nummer', 'Erscheint auf der Startseite („Melde dich für ein Coaching“) und bei „Passwort vergessen?“.', wa),
+      row('Absagefrist Personal Training', 'Absagen später als X Stunden vor dem Termin gelten als kurzfristig.', h('div', { class: 'unit-input' }, cancel, h('span', null, 'Std.')))),
+    h('section', { class: 'card scard' },
+      h('h3', { class: 'card-title' }, 'Texte für Kunden'),
+      row('Datenschutz-Hinweis', 'Wird im Onboarding und unter Profil → Datenschutz angezeigt.', null), privacy,
+      row('Hilfetext', 'Optional, erscheint oben auf der Hilfe-Seite.', null), help),
     card('FAQ', faqBox),
-    h('button', {
-      type: 'button', class: 'sticky-save', onclick: async () => {
-        const thresholds = {};
-        THRESHOLDS.forEach(([k]) => { thresholds[k] = parseNum(th[k].value) ?? DEFAULT_SETTINGS.thresholds[k]; });
-        const settings = {
-          ...(app.rawCoachSettings || {}),
-          whatsapp: wa.value.replace(/[^0-9]/g, ''), cancel_hours: parseNum(cancel.value) ?? 24,
-          thresholds, reminders, privacy_text: privacy.value.trim() || DEFAULT_SETTINGS.privacy_text,
-          help_text: help.value.trim(), faq: faq.filter((f) => f.q.trim() && f.a.trim())
-        };
-        try {
-          await q(from('coach_settings').upsert({ coach_id: app.profile.id, settings }, { onConflict: 'coach_id' }));
-          app.rawCoachSettings = settings;
-          app.settings = mergeSettings(settings);
-          toast('Einstellungen gespeichert');
-        } catch (e) { showError(e); }
-      }
-    }, 'Speichern'),
-    card('Konto', h('p', { class: 'muted small' }, 'Zwei-Faktor-Login ist für dein Coach-Konto Pflicht.'),
-      h('button', { type: 'button', class: 'secondary', onclick: logout }, 'Abmelden')));
+    h('button', { type: 'button', class: 'sticky-save', onclick: save }, 'Speichern'),
+    h('section', { class: 'card scard' },
+      h('h3', { class: 'card-title' }, 'Konto'),
+      row('Zwei-Faktor-Login', 'Für dein Coach-Konto Pflicht.', h('span', { class: 'badge ok' }, 'aktiv')),
+      h('button', { type: 'button', class: 'secondary', onclick: () => logout('/coach.html') }, 'Abmelden')),
+    h('p', { class: 'center' }, tile('info', 'gray', 22), h('span', { class: 'muted small' }, ' Erinnerungen, Warngrenzen und Module: beim jeweiligen Kunden im Tab „Module“ → „Allgemein“.')));
 }

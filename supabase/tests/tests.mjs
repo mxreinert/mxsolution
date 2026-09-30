@@ -185,6 +185,30 @@ export async function runTests(db) {
   ok('anon cannot read coach settings', !!pc2.error || pc2.rows.length === 0);
   await db.exec('reset role;');
 
+  // ---------- 011: cardio types, period end, 5 days back ----------
+  await as(db, client, 'aal1', async () => {
+    let r = await tryQ(db, `insert into public.cycle_entries (client_id, start_date) values ($1, public.today_lu() - 3)`, [cid]);
+    ok('client adds period start', !r.error, r.error);
+    r = await tryQ(db, `update public.cycle_entries set end_date = public.today_lu() where client_id = $1 and start_date = public.today_lu() - 3`, [cid]);
+    ok('client sets period end', !r.error && r.affected === 1, r.error || r.affected);
+    r = await tryQ(db, `update public.cycle_entries set end_date = public.today_lu() + 20 where client_id = $1`, [cid]);
+    ok('period end > 14 days rejected', !!r.error);
+    r = await tryQ(db, `update public.cycle_entries set start_date = public.today_lu() - 1 where client_id = $1`, [cid]);
+    ok('client cannot move period start', !!r.error);
+    r = await tryQ(db, `insert into public.cardio_sessions (id, client_id, day, kind, duration_min) values (gen_random_uuid(), $1, public.today_lu(), 'hiit', 20)`, [cid]);
+    ok('client logs new cardio type hiit', !r.error, r.error);
+    r = await tryQ(db, `insert into public.cardio_sessions (id, client_id, day, kind, duration_min) values (gen_random_uuid(), $1, public.today_lu(), 'teleport', 20)`, [cid]);
+    ok('unknown cardio type rejected', !!r.error);
+    r = await tryQ(db, `insert into public.cardio_sessions (id, client_id, day, kind, duration_min) values (gen_random_uuid(), $1, public.today_lu() - 5, 'run', 20)`, [cid]);
+    ok('client logs 5 days back', !r.error, r.error);
+    r = await tryQ(db, `insert into public.cardio_sessions (id, client_id, day, kind, duration_min) values (gen_random_uuid(), $1, public.today_lu() - 6, 'run', 20)`, [cid]);
+    ok('client cannot log 6 days back', !!r.error);
+  });
+  await as(db, tcoach, 'aal1', async () => {
+    const r = await tryQ(db, `update public.cycle_entries set end_date = null where client_id = $1`, [cid]);
+    ok('coach cannot change period entries', !!r.error || r.affected === 0, r.error || r.affected);
+  });
+
   // ---------- anon ----------
   await db.exec(`reset role; select set_config('request.jwt.claim.sub', '', false); set role anon;`);
   const an = await tryQ(db, `select * from public.clients`);

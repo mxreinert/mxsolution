@@ -5,17 +5,36 @@ import { activeFields } from '../core/modcfg.js';
 import { q, from } from '../core/db.js';
 import { today, addDays, fmtLong, relDay } from '../core/dates.js';
 import { clientThresholds } from '../core/settings.js';
+import { BACK_DAYS } from '../core/config.js';
+import { icon } from '../core/icons.js';
 
 export async function renderLog(el, app, query) {
   const client = app.client;
-  const days = [0, 1, 2, 3].map((n) => addDays(today(), -n));
-  let day = days.includes(query.tag) ? query.tag : today();
+  const minDay = addDays(today(), -BACK_DAYS);
+  let day = query.tag && query.tag >= minDay && query.tag <= today() ? query.tag : today();
   const only = query.nur || null;
   const body = h('div');
 
+  // "Heute" + calendar button (a transparent date input on top opens the native picker, also on iOS)
+  const todayBtn = h('button', { type: 'button', class: 'day-today', onclick: () => { day = today(); dayInput.value = day; drawBar(); draw(); } }, 'Heute');
+  const dayText = h('span');
+  const dayInput = h('input', { type: 'date', class: 'day-pick-input', value: day, min: minDay, max: today(), 'aria-label': 'Anderen Tag wählen' });
+  dayInput.addEventListener('change', () => {
+    const v = dayInput.value;
+    if (!v || v < minDay || v > today()) { dayInput.value = day; return; }
+    day = v; drawBar(); draw();
+  });
+  const drawBar = () => {
+    todayBtn.classList.toggle('on', day === today());
+    dayText.textContent = day === today() ? 'Anderer Tag' : relDay(day);
+  };
+  drawBar();
+
   el.append(h('header', { class: 'page-head' }, h('div', null, h('h1', null, only ? 'Eintragen' : 'Abend-Check'),
     h('p', { class: 'muted' }, 'Leere Felder sind okay – lieber unvollständig als gar nicht.'))),
-  segmented(days.map((d) => [d, d === today() ? 'Heute' : relDay(d)]), day, (v) => { day = v; draw(); }),
+  h('div', { class: 'day-bar' }, todayBtn,
+    h('label', { class: 'day-pick' + '' }, icon('calendar', { size: 18 }), dayText, dayInput)),
+  h('p', { class: 'muted small day-hint' }, `Nachtragen geht bis zu ${BACK_DAYS} Tage zurück.`),
   body);
 
   const draw = async () => {

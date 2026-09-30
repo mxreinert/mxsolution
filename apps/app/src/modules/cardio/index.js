@@ -5,8 +5,27 @@ import { kpi, kpiRow } from '../../core/metric.js';
 import { perWeek } from '../../core/metrics.js';
 import { q, from } from '../../core/db.js';
 import { today, addDays, weekStart, relDay, fmt, WD_SHORT, weekday, range } from '../../core/dates.js';
+import { BACK_DAYS } from '../../core/config.js';
 
-const KINDS = [['run', 'Laufen'], ['bike', 'Rad'], ['swim', 'Schwimmen'], ['row', 'Rudern'], ['walk', 'Gehen/Wandern'], ['other', 'Sonstiges']];
+// Cardio types (must match the check constraint in migration 011). First group = "Häufigste".
+const COMMON = [['run', 'Laufen (draußen)'], ['treadmill', 'Laufband'], ['bike', 'Radfahren (draußen)'], ['bike_indoor', 'Indoor-Cycling / Ergometer'],
+  ['row', 'Ruderergometer'], ['walk', 'Spazieren / Gehen'], ['hike', 'Wandern'], ['swim', 'Schwimmen']];
+const MORE = [['jump_rope', 'Seilspringen'], ['hiit', 'HIIT-Training'], ['stairs', 'Treppensteigen / Stepper'], ['elliptical', 'Crosstrainer'],
+  ['incline_walk', 'Incline Walking (Laufband)'], ['circuit', 'Zirkeltraining'], ['crossfit', 'CrossFit / Functional'], ['class', 'Kurs (Spinning, Zumba, Aerobic …)'],
+  ['boxing', 'Boxen / Kampfsport'], ['football', 'Fußball'], ['basketball', 'Basketball'], ['tennis', 'Tennis / Padel'], ['badminton', 'Badminton / Squash'],
+  ['volleyball', 'Volleyball'], ['dance', 'Tanzen'], ['inline', 'Inline-Skaten'], ['ski', 'Ski / Snowboard'], ['xc_ski', 'Langlauf'],
+  ['paddle', 'SUP / Kajak'], ['climbing', 'Klettern / Bouldern'], ['mobility', 'Yoga / Mobility'], ['other', 'Sonstiges']];
+const KINDS = [...COMMON, ...MORE];
+// types where km and pace make sense
+const PACE_KINDS = new Set(['run', 'treadmill', 'walk', 'hike', 'incline_walk']);
+
+/** Select with the groups "Häufigste" and "Weitere" */
+function kindSelect(value, props = {}) {
+  const opt = ([v, l]) => h('option', { value: v, selected: v === value }, l);
+  return h('select', props,
+    h('optgroup', { label: 'Häufigste' }, COMMON.map(opt)),
+    h('optgroup', { label: 'Weitere' }, MORE.map(opt)));
+}
 const INTENSITIES = [['easy', 'locker'], ['tempo', 'Tempo'], ['interval', 'Intervall'], ['long', 'lang']];
 const label = (list, v) => list.find(([k]) => k === v)?.[1] || v || '';
 const PACER_OUTBOX = 'mx_pacer_outbox';
@@ -38,8 +57,8 @@ async function importPacerRun(ctx, run) {
 }
 
 async function editSession(ctx, s) {
-  const kind = select(KINDS, s?.kind || 'run');
-  const day = input({ type: 'date', value: s?.day || today(), max: today(), min: ctx.role === 'coach' ? undefined : addDays(today(), -3) });
+  const kind = kindSelect(s?.kind || 'run');
+  const day = input({ type: 'date', value: s?.day || today(), max: today(), min: ctx.role === 'coach' ? undefined : addDays(today(), -BACK_DAYS) });
   const dur = input({ type: 'number', step: '1', inputmode: 'numeric', value: s?.duration_min ?? '', placeholder: 'Minuten' });
   const dist = input({ type: 'number', step: '0.01', inputmode: 'decimal', value: s?.distance_km ?? '', placeholder: 'km (optional)' });
   const intensity = select([['', '–'], ...INTENSITIES], s?.intensity || '');
@@ -73,12 +92,12 @@ async function editSession(ctx, s) {
 }
 
 function sessionRow(ctx, s) {
-  const editable = ctx.role === 'coach' || s.day >= addDays(today(), -3);
+  const editable = ctx.role === 'coach' || s.day >= addDays(today(), -BACK_DAYS);
   return h('div', { class: 'list-row' },
     h('div', null,
       h('strong', null, label(KINDS, s.kind), s.source === 'pacer' ? ' ' : ''),
       h('div', { class: 'muted small' }, [relDay(s.day), s.duration_min ? `${fmtNum(s.duration_min)} min` : null, s.distance_km ? `${fmtNum(s.distance_km, 2)} km` : null,
-        s.kind === 'run' ? paceText(s.duration_min, s.distance_km) : null, label(INTENSITIES, s.intensity), s.effort ? `Anstr. ${s.effort}/10` : null].filter(Boolean).join(' · '))),
+        PACE_KINDS.has(s.kind) ? paceText(s.duration_min, s.distance_km) : null, label(INTENSITIES, s.intensity), s.effort ? `Anstr. ${s.effort}/10` : null].filter(Boolean).join(' · '))),
     editable ? h('div', { class: 'row-actions' },
       h('button', { type: 'button', class: 'link-btn', onclick: () => editSession(ctx, s) }, 'Bearbeiten'),
       h('button', {
@@ -135,7 +154,7 @@ export default {
               }, 'Übernehmen'),
               h('button', { type: 'button', class: 'link-btn danger', onclick: () => { const list = pacerOutbox(); list.splice(i, 1); setPacerOutbox(list); ctx.refresh(); } }, 'Verwerfen')));
         }),
-        h('p', { class: 'muted small' }, 'Läufe, die älter als 3 Tage sind, kann nur Max nachtragen.')));
+        h('p', { class: 'muted small' }, `Läufe, die älter als ${BACK_DAYS} Tage sind, kann nur Max nachtragen.`)));
     }
 
     const plan = ctx.client.targets?.cardio_week || [];
@@ -160,7 +179,7 @@ export default {
     const weeks = [...new Set(range(ctx.from, ctx.to).map(weekStart))];
     const min = perWeek(sessions, 'duration_min', 'sum');
     const km = perWeek(sessions, 'distance_km', 'sum');
-    const runs = sessions.filter((s) => s.kind === 'run' && s.duration_min && s.distance_km)
+    const runs = sessions.filter((s) => (s.kind === 'run' || s.kind === 'treadmill') && s.duration_min && s.distance_km)
       .map((s) => ({ d: s.day, v: (s.duration_min * 60) / s.distance_km / 60 }));
     const withInt = sessions.filter((s) => s.intensity);
     const easy = withInt.filter((s) => s.intensity === 'easy' || s.intensity === 'long').length;
@@ -185,7 +204,7 @@ export default {
     const render = () => {
       list.replaceChildren(...plan.map((p, i) => {
         const wd = select(WD_SHORT.map((d, j) => [j, d]), p.wd ?? 1, { class: 'mini' });
-        const kind = select(KINDS, p.kind || 'run', { class: 'mini' });
+        const kind = kindSelect(p.kind || 'run', { class: 'mini' });
         const dur = input({ type: 'number', value: p.duration_min ?? '', placeholder: 'min', class: 'mini' });
         const inten = select([['', '–'], ...INTENSITIES], p.intensity || '', { class: 'mini' });
         const note = input({ value: p.note || '', placeholder: 'Hinweis', maxlength: 120 });

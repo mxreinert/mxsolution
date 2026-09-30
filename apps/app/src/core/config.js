@@ -22,3 +22,6 @@ export const VAPID_PUBLIC_KEY = 'BJpXlCmyKTT8v0wP01soKWi9EcOc1uMnJalBsbffhjClHa5
 
 // Bump when shipping a new version so the service worker refreshes its cache.
 export const APP_VERSION = '0.1.0';
+
+// Clients may enter/edit data up to this many days back (must match public.client_day_ok in the database).
+export const BACK_DAYS = 5;

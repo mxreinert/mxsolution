@@ -8,6 +8,7 @@ import { today, addDays, weekStart, fmtShort, relDay, fmt, range } from '../../c
 import { exerciseMap, activePlan, recentWorkouts, setsForWorkouts, testedMaxes, openDrafts, pendingCount, syncOutbox } from './data.js';
 import { newWorkout, renderLogger } from './logger.js';
 import { renderPlanList, renderPlanEditor, assignTemplate, chooseTemplate } from './plans.js';
+import { BACK_DAYS } from '../../core/config.js';
 
 /** Which session is next: the one after the last logged plan session */
 function nextSession(plan, workouts) {
@@ -300,7 +301,7 @@ async function addTestedMax(ctx) {
   const opts = [...exMap.values()].filter((e) => e.tracking_type === 'weight_reps' && e.active).map((e) => [e.id, e.name]);
   const sel = select(opts, opts[0]?.[0]);
   const w = input({ type: 'number', step: '0.5', inputmode: 'decimal', placeholder: 'kg' });
-  const d = input({ type: 'date', value: today(), max: today(), min: addDays(today(), -3) });
+  const d = input({ type: 'date', value: today(), max: today(), min: addDays(today(), -BACK_DAYS) });
   await modal('Getestetes 1RM', h('div', null, field('Übung', sel), field('Gewicht (1 saubere Wiederholung)', w), field('Datum', d),
     h('p', { class: 'hint muted' }, 'Nur echte Tests eintragen. Der Wert hat Vorrang vor der Schätzung.')), [
     { label: 'Abbrechen', kind: 'secondary', value: false },

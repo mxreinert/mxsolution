@@ -4,6 +4,7 @@ import { chart, meter } from '../../core/chart.js';
 import { kpi, kpiRow, numField } from '../../core/metric.js';
 import { points, windowAvg, coverageText, has } from '../../core/metrics.js';
 import { addDays, today, range } from '../../core/dates.js';
+import { calculator } from './calc.js';
 
 const pct = (a, b) => (has(a) && b ? a / b : null);
 
@@ -77,6 +78,11 @@ export default {
         bands: ctx.bands
       }) : null
     );
+  },
+
+  /** coach: calorie and macro calculator (applies the result as targets) */
+  coach(ctx) {
+    return calculator(ctx);
   },
 
   summary(ctx, from, to) {

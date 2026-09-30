@@ -5,7 +5,7 @@
  * - Supabase/API requests are never cached.
  * - Push notifications.
  */
-const CACHE = 'mx-app-a7d1911372';
+const CACHE = 'mx-app-328a8f93f9';
 const PRECACHE = [
   '/client/analysis.js',
   '/client/checkin.js',
@@ -70,6 +70,7 @@ const PRECACHE = [
   '/modules/cycle/index.js',
   '/modules/hevy/index.js',
   '/modules/mood/index.js',
+  '/modules/nutrition/calc.js',
   '/modules/nutrition/index.js',
   '/modules/parent-report/index.js',
   '/modules/progress/index.js',

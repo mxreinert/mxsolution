@@ -5,6 +5,7 @@ import { today, addDays, weekStart, weekday, fmtLong, WEEKDAYS, range } from '..
 import { isPaused, PAUSE_REASONS } from '../core/goals.js';
 import { reloadOwnClient } from '../core/app.js';
 import { ringsCard } from '../core/rings.js';
+import { BACK_DAYS } from '../core/config.js';
 
 const SKIP = ['client_id', 'day', 'updated_at', 'updated_by', 'not_tracked'];
 const hasData = (r) => Object.entries(r).some(([k, v]) => !SKIP.includes(k) && v != null);
@@ -104,7 +105,7 @@ export async function renderToday(el, app) {
     const yesterday = addDays(today(), -1);
     const has = (d) => ctx.daily.some((r) => r.day === d && hasData(r));
     if (!has(yesterday) && client.goal_start && client.goal_start <= yesterday) {
-      out.push(fcard({ icon: 'clock', color: 'warn', title: 'Gestern fehlt noch', sub: 'Geht bis zu 3 Tage rückwirkend', href: `#/eintragen?tag=${yesterday}`, cls: 'warn' }));
+      out.push(fcard({ icon: 'clock', color: 'warn', title: 'Gestern fehlt noch', sub: `Geht bis zu ${BACK_DAYS} Tage rückwirkend`, href: `#/eintragen?tag=${yesterday}`, cls: 'warn' }));
     }
     out.push(has(today())
       ? fcard({ icon: 'check', color: 'ok', title: 'Heute eingetragen', sub: 'Tippen zum Ergänzen', href: '#/eintragen' })

@@ -5,12 +5,13 @@ import { chart } from '../../core/chart.js';
 import { q, from, fileUrl, uploadFile, removeFiles } from '../../core/db.js';
 import { today, addDays, fmt } from '../../core/dates.js';
 import { uuid } from '../../core/ui.js';
+import { BACK_DAYS } from '../../core/config.js';
 
 const MEASURES = [['waist_cm', 'Taille'], ['chest_cm', 'Brust'], ['hip_cm', 'Hüfte'], ['arm_cm', 'Arm'], ['thigh_cm', 'Oberschenkel']];
 const POSES = [['front', 'vorne'], ['side', 'seitlich'], ['back', 'hinten']];
 
 async function addMeasurements(ctx) {
-  const day = input({ type: 'date', value: today(), max: today(), min: ctx.role === 'coach' ? undefined : addDays(today(), -3) });
+  const day = input({ type: 'date', value: today(), max: today(), min: ctx.role === 'coach' ? undefined : addDays(today(), -BACK_DAYS) });
   const ins = Object.fromEntries(MEASURES.map(([k]) => [k, input({ type: 'number', step: '0.1', inputmode: 'decimal', placeholder: 'cm' })]));
   await modal('Umfänge eintragen', h('div', null, field('Datum', day),
     h('div', { class: 'grid2' }, MEASURES.map(([k, l]) => field(l, ins[k]))),

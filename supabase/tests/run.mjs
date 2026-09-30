@@ -45,7 +45,7 @@ async function runFile(label, sql) {
 await runFile('stub', STUB);
 const files = [
   ...fs.readdirSync(path.join(ROOT, 'supabase/migrations')).filter((f) => f.endsWith('.sql')).sort().map((f) => 'supabase/migrations/' + f),
-  'supabase/seed/exercises.sql', 'supabase/setup/test-accounts.local.sql'
+  'supabase/seed/exercises.sql', 'supabase/seed/exercises_extra.sql', 'supabase/setup/test-accounts.local.sql'
 ];
 for (const f of files) {
   const ok = await runFile(f, fs.readFileSync(path.join(ROOT, f), 'utf8'));

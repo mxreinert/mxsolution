@@ -95,12 +95,12 @@ export async function renderPlanEditor(el, params, query) {
             h('label', null, 'RIR', numIn(pe, 'rir', { min: 0, max: 10, step: '0.5' })),
             h('label', null, 'Pause s', numIn(pe, 'rest_s', { min: 0, max: 900, step: '15' })),
             h('label', null, 'Aufw.', numIn(pe, 'warmup_sets', { min: 0, max: 5 })),
-            h('label', null, 'Gruppe', grp)),
+            h('label', null, 'Supersatz', grp)),
           note);
       });
       sessionsEl.append(card(null,
-        h('div', { class: 'plan-ex-head' },
-          h('div', { class: 'grid2' }, h('span', { class: 'badge' }, s.key), sName),
+        h('div', { class: 'plan-session-head' },
+          h('span', { class: 'sess-key' }, s.key), sName,
           plan.sessions.length > 1 ? h('button', {
             type: 'button', class: 'link-btn danger', onclick: async () => {
               if (await confirmDialog(`Einheit „${s.name}“ entfernen?`)) { plan.sessions.splice(si, 1); renderSessions(); }

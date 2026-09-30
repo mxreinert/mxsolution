@@ -107,7 +107,7 @@ Kein Build-Schritt, keine Tests bisher.
 - [ ] Lokal gegen echtes Supabase getestet mit Testzugängen (Kunde + Coach), Fehler behoben
 - [x] Netlify-Projekt `mxcoachapp` → https://app.mxreinert.de (Env-Variablen, Previews aus, Logs privat, CNAME bei IONOS)
 - [x] Design im Apple-Stil (Systemschrift, iOS-Farben, Ringe, Icons, 4 Farbmodi), Modul-Einstellungen, Performance
-- [ ] Migration 008 in Supabase eingespielt, gebündelter Deploy
+- [x] Migrationen 008–010 in Supabase eingespielt, gebündelter Deploy (neue Startseite, Coach-Login, Module pro Kunde, Meet, Anderes Gym)
 - [ ] LAUNCH.md abgehakt, Testzugänge gelöscht
 - [ ] Pilot mit 2-3 Kunden
 

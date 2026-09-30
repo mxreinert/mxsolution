@@ -1,7 +1,8 @@
 // Defaults for everything Max can change in the dashboard settings (no code, no deploy).
+import { WHATSAPP_NUMBER } from './config.js';
 
 export const DEFAULT_SETTINGS = {
-  whatsapp: '',
+  whatsapp: WHATSAPP_NUMBER,
   cancel_hours: 24,
   thresholds: {
     weight_delta_kg: 3,      // warn if weight differs more than this from the previous entry
@@ -39,6 +40,7 @@ export function mergeSettings(stored) {
   return {
     ...DEFAULT_SETTINGS,
     ...s,
+    whatsapp: String(s.whatsapp || '').replace(/[^0-9]/g, '') || WHATSAPP_NUMBER,
     thresholds: { ...DEFAULT_SETTINGS.thresholds, ...(s.thresholds || {}) },
     reminders: { ...DEFAULT_SETTINGS.reminders, ...(s.reminders || {}) },
     faq: Array.isArray(s.faq) && s.faq.length ? s.faq : DEFAULT_SETTINGS.faq

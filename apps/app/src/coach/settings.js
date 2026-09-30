@@ -83,7 +83,7 @@ export async function renderSettings(el, app) {
     h('section', { class: 'card scard' },
       h('h3', { class: 'card-title' }, 'Profil & Kontakt'),
       row('Anzeigename', 'So erscheinst du bei deinen Kunden.', name),
-      row('WhatsApp-Nummer', 'Erscheint auf der Startseite („Melde dich für ein Coaching“) und bei „Passwort vergessen?“.', wa),
+      row('WhatsApp-Nummer', 'Gilt überall: Startseite („Melde dich für ein Coaching“), „Passwort vergessen?“, Hilfe und Profil deiner Kunden.', wa),
       row('Absagefrist Personal Training', 'Absagen später als X Stunden vor dem Termin gelten als kurzfristig.', h('div', { class: 'unit-input' }, cancel, h('span', null, 'Std.')))),
     h('section', { class: 'card scard' },
       h('h3', { class: 'card-title' }, 'Texte für Kunden'),

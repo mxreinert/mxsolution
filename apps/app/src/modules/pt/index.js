@@ -193,6 +193,27 @@ function syncCalendar(ids, action = 'upsert') {
   api('gcal', { action, ids }).catch((e) => { if (!/nicht eingerichtet|404/.test(e.message)) console.warn('gcal', e.message); });
 }
 
+/**
+ * Coach only: live Google Maps preview of an address (to check it's the right place).
+ * Clients never see an embedded map – they only get the address and a link to their maps app.
+ */
+function mapPreview(addressInput) {
+  const box = h('div', { class: 'map-preview', hidden: true });
+  let timer = null;
+  const update = () => {
+    const a = addressInput.value.trim();
+    if (a.length < 6) { box.hidden = true; box.replaceChildren(); return; }
+    const src = `https://www.google.com/maps?q=${encodeURIComponent(a)}&hl=de&z=16&output=embed`;
+    box.hidden = false;
+    box.replaceChildren(
+      h('iframe', { src, title: 'Kartenvorschau', loading: 'lazy', referrerpolicy: 'no-referrer' }),
+      h('a', { class: 'link-btn small', href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a)}`, target: '_blank', rel: 'noopener noreferrer' }, 'In Google Maps öffnen'));
+  };
+  addressInput.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(update, 700); });
+  update();
+  return box;
+}
+
 async function manageLocations() {
   const locs = await q(from('locations').select('*').order('name'));
   const name = input({ placeholder: 'Name, z. B. Studio XY', maxlength: 120 });
@@ -200,13 +221,15 @@ async function manageLocations() {
   const hint = input({ placeholder: 'Hinweis, z. B. Eingang hinten', maxlength: 500 });
   await modal('Orte', h('div', null,
     locs.length ? locs.map((l) => h('div', { class: 'list-row' },
-      h('div', null, h('strong', null, l.name, !l.active ? ' (inaktiv)' : ''), h('div', { class: 'muted small' }, [l.address, l.hint].filter(Boolean).join(' · '))),
+      h('div', null, h('strong', null, l.name, !l.active ? ' (inaktiv)' : ''), h('div', { class: 'muted small' }, [l.address, l.hint].filter(Boolean).join(' · ')),
+        l.address ? h('a', { class: 'link-btn small', href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.address)}`, target: '_blank', rel: 'noopener noreferrer' }, 'Auf Karte ansehen') : null),
       h('button', {
         type: 'button', class: 'link-btn', onclick: async () => {
           try { await q(from('locations').update({ active: !l.active }).eq('id', l.id)); toast(l.active ? 'Deaktiviert' : 'Aktiviert'); } catch (e) { showError(e); }
         }
       }, l.active ? 'Deaktivieren' : 'Aktivieren'))) : empty('Noch keine Orte.'),
-    h('h3', null, 'Neuer Ort'), name, address, hint), [
+    h('h3', null, 'Neuer Ort'), name, address, mapPreview(address), hint,
+    h('p', { class: 'muted small' }, 'Die Kartenvorschau siehst nur du. Kunden bekommen die Adresse und einen Knopf, der ihre Karten-App öffnet.')), [
     { label: 'Schließen', kind: 'secondary', value: false },
     {
       label: 'Ort speichern', onClick: async () => {

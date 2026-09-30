@@ -28,6 +28,7 @@ Vor neuen Migrationen immer die lokalen Tests laufen lassen: `supabase/tests/REA
 | 7b | `supabase/migrations/009_coach_profile_meet.sql` | Coach-Profilbild, WhatsApp auf der Startseite, Online-Calls mit Meet-Link |
 | 7c | `supabase/migrations/010_workout_other_gym.sql` | Häkchen „Anderes Gym“ im Trainings-Log |
 | 7d | `supabase/migrations/011_cardio_kinds_cycle_end.sql` | Mehr Cardio-Arten, Periodenende, 5 Tage rückwirkend |
+| 7e | `supabase/migrations/012_appointment_requests.sql` | Terminanfragen von Kunden |
 | 8b | `supabase/seed/exercises_extra.sql` | 87 zusätzliche Übungen (nach 8) |
 | 8 | `supabase/seed/exercises.sql` | Deine 105 Übungen aus der Excel-Datei |
 | 9 | `supabase/setup/coach.sql` | Dein Coach-Konto (vorher Mailadresse in der Datei ersetzen!) |

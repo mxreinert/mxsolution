@@ -12,7 +12,7 @@ const TABLES = [
   'client_settings', 'daily_entries', 'checkins', 'training_plans', 'workouts', 'workout_sets', 'tested_maxes',
   'cardio_sessions', 'supplements', 'supplement_logs', 'cycle_entries', 'measurements', 'progress_photos',
   'client_status_log', 'client_notes', 'pt_ledger', 'appointment_clients', 'client_packages', 'charges', 'payments',
-  'app_opens', 'app_opens_daily', 'ai_analyses'
+  'app_opens', 'app_opens_daily', 'ai_analyses', 'appointment_requests'
 ];
 // identity columns are regenerated on import
 const DROP_ID = new Set(['client_status_log', 'client_notes', 'pt_ledger', 'app_opens']);

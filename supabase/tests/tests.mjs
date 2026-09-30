@@ -229,6 +229,42 @@ export async function runTests(db) {
     ok('client inserts sets', !r.error, r.error);
   });
 
+  // ---------- 012: appointment requests ----------
+  let reqId = null;
+  await as(db, client, 'aal1', async () => {
+    let r = await tryQ(db, `insert into public.appointment_requests (client_id, kind, message) values ($1, 'call', 'Diese Woche abends, Di oder Do ab 18 Uhr') returning id`, [cid]);
+    ok('client sends appointment request', !r.error, r.error);
+    reqId = r.rows?.[0]?.id;
+    r = await tryQ(db, `insert into public.appointment_requests (client_id, kind, message, status) values ($1, 'pt', 'x', 'scheduled')`, [cid]);
+    ok('client cannot create an already scheduled request', !!r.error);
+    r = await tryQ(db, `insert into public.appointment_requests (client_id, kind, message) values ($1, 'pt', 'x')`, [other ? cid : cid]);
+    for (let i = 0; i < 4; i++) await tryQ(db, `insert into public.appointment_requests (client_id, kind, message) values ($1, 'pt', 'spam')`, [cid]);
+    r = await tryQ(db, `insert into public.appointment_requests (client_id, kind, message) values ($1, 'pt', 'sechste')`, [cid]);
+    ok('max 5 requests per day', !!r.error, r.error);
+    r = await tryQ(db, `update public.appointment_requests set coach_reply = 'hack' where id = $1`, [reqId]);
+    ok('client cannot write a coach reply', !!r.error || r.affected === 0, r.error || r.affected);
+    r = await tryQ(db, `select * from public.appointment_requests`);
+    ok('client sees own requests', r.rows?.length === 5, r.rows?.length);
+  });
+  await as(db, tcoach, 'aal1', async () => {
+    let r = await tryQ(db, `select * from public.notifications where kind = 'request'`);
+    ok('coach notified about request', r.rows?.length >= 1, JSON.stringify(r.rows?.length));
+    r = await tryQ(db, `update public.appointment_requests set status = 'declined', coach_reply = 'Donnerstag geht leider nicht', handled_at = now() where id = $1`, [reqId]);
+    ok('coach declines request with reply', !r.error && r.affected === 1, r.error || r.affected);
+  });
+  await as(db, client, 'aal1', async () => {
+    let r = await tryQ(db, `select * from public.notifications where title = 'Antwort auf deine Terminanfrage'`);
+    ok('client gets the reply', r.rows?.length === 1, JSON.stringify(r.rows?.length));
+    r = await tryQ(db, `update public.appointment_requests set status = 'cancelled' where status = 'open' and message = 'spam'`);
+    ok('client withdraws open requests', !r.error && r.affected >= 1, r.error || r.affected);
+    r = await tryQ(db, `update public.appointment_requests set status = 'open' where id = $1`, [reqId]);
+    ok('client cannot reopen a handled request', !!r.error || r.affected === 0, r.error || r.affected);
+  });
+  await as(db, other, 'aal1', async () => {
+    const r = await tryQ(db, `select * from public.appointment_requests`);
+    ok('other coach sees no requests', !r.error && r.rows.length === 0, r.error || r.rows?.length);
+  });
+
   // ---------- anon ----------
   await db.exec(`reset role; select set_config('request.jwt.claim.sub', '', false); set role anon;`);
   const an = await tryQ(db, `select * from public.clients`);

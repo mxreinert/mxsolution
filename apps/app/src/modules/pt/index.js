@@ -1,7 +1,7 @@
 // M12 Personal Training (unlock "pt"): appointments, locations, PT balance, reminders.
 import { h, card, fmtNum, empty, input, select, field, modal, toast, showError, confirmDialog, textarea, parseNum, badge, clear, pageHead, download, toggle, segmented, tile, icon } from '../../core/ui.js';
 import { q, from, rpc, api } from '../../core/db.js';
-import { today, addDays, fmtDateTime, fmt, fmtTime, weekStart, WD_SHORT, iso } from '../../core/dates.js';
+import { today, addDays, fmtDateTime, fmt, fmtTime, weekStart, WD_SHORT, iso, relDay } from '../../core/dates.js';
 
 const KINDS = [['strength', 'Kraft'], ['cardio', 'Cardio'], ['technique', 'Technik'], ['test', 'Test'], ['call', 'Online-Call (Google Meet)'], ['other', 'Sonstiges']];
 const ATT = {
@@ -99,7 +99,7 @@ function apptCard(ctx, a, locs) {
 }
 
 // ---------- coach: appointment editor ----------
-async function editAppointment(appt, { presetClient } = {}) {
+async function editAppointment(appt, { presetClient, presetKind, presetNote } = {}) {
   const clients = await q(from('clients').select('id, first_name, last_name, unlocks, status').not('user_id', 'is', null).order('first_name'));
   const ptClients = clients.filter((c) => !['ended', 'discarded'].includes(c.status));
   const locs = await loadLocations();
@@ -112,8 +112,8 @@ async function editAppointment(appt, { presetClient } = {}) {
   const time = input({ type: 'time', value: appt ? fmtTime(appt.starts_at) : '18:00', step: 300 });
   const dur = input({ type: 'number', value: appt?.duration_min || 60, min: 5, max: 600, step: 5 });
   const loc = select([['', '– kein Ort –'], ...locs.map((l) => [l.id, l.name])], appt?.location_id || '');
-  const kind = select(KINDS, appt?.kind || 'strength');
-  const note = input({ value: appt?.note || '', maxlength: 1000, placeholder: 'z. B. Laufschuhe mitbringen' });
+  const kind = select(KINDS, appt?.kind || presetKind || 'strength');
+  const note = input({ value: appt?.note || presetNote || '', maxlength: 1000, placeholder: 'z. B. Laufschuhe mitbringen' });
   const meet = input({ type: 'url', value: appt?.meet_url || '', maxlength: 300, placeholder: 'https://meet.google.com/…', inputmode: 'url' });
   const meetField = field('Meet-Link', meet, 'Leer lassen: Ist Google Kalender verbunden, wird automatisch ein Google Meet erstellt. Der Kunde sieht den Link in der App.');
   const syncKind = () => { meetField.hidden = kind.value !== 'call'; };
@@ -266,13 +266,51 @@ async function closeAppointment(a, attendees, clientsById, refresh) {
   ]);
 }
 
+const REQ_KIND = { pt: 'Personal Training', call: 'Online-Call', other: 'Termin' };
+
+/** Open appointment requests from clients (they write what they need and when they can) */
+async function requestsCard(reload) {
+  const reqs = await q(from('appointment_requests').select('*, clients(first_name, last_name)').eq('status', 'open').order('created_at'));
+  if (!reqs.length) return null;
+  const done = async (r, patch) => {
+    await q(from('appointment_requests').update({ ...patch, handled_at: new Date().toISOString() }).eq('id', r.id));
+    reload();
+  };
+  return card(`Terminanfragen (${reqs.length})`,
+    reqs.map((r) => h('div', { class: 'req-row' },
+      h('div', { class: 'req-head' }, h('strong', null, `${r.clients?.first_name || 'Kunde'} ${r.clients?.last_name || ''}`.trim()),
+        badge(REQ_KIND[r.kind] || 'Termin', r.kind === 'call' ? 'accent' : ''), h('small', { class: 'muted' }, relDay(iso(new Date(r.created_at))))),
+      h('p', { class: 'prewrap' }, r.message),
+      h('div', { class: 'row-actions wrap' },
+        h('button', {
+          type: 'button', class: 'small', onclick: async () => {
+            const saved = await editAppointment(null, { presetClient: r.client_id, presetKind: r.kind === 'call' ? 'call' : 'strength', presetNote: '' });
+            if (saved) { try { await done(r, { status: 'scheduled' }); toast('Anfrage erledigt'); } catch (e) { showError(e); } }
+          }
+        }, 'Termin anlegen'),
+        h('button', {
+          type: 'button', class: 'link-btn danger', onclick: async () => {
+            const reply = textarea({ maxlength: 1000, placeholder: 'z. B. Donnerstag geht leider nicht – wie wäre Samstag 10 Uhr?' });
+            const ok = await modal('Anfrage ablehnen', h('div', null, h('p', { class: 'muted small' }, 'Der Kunde bekommt deine Antwort als Nachricht in der App.'), reply), [
+              { label: 'Abbrechen', kind: 'secondary', value: false }, { label: 'Senden', value: true }]);
+            if (!ok) return;
+            try { await done(r, { status: 'declined', coach_reply: reply.value.trim() || null }); toast('Antwort gesendet'); } catch (e) { showError(e); }
+          }
+        }, 'Ablehnen / antworten'),
+        h('button', {
+          type: 'button', class: 'link-btn', onclick: async () => { try { await done(r, { status: 'scheduled' }); toast('Als erledigt markiert'); } catch (e) { showError(e); } }
+        }, 'Erledigt')))));
+}
+
 async function renderCalendar(el) {
   let view = sessionStorage.getItem('mx_cal_view') || 'week';
   let anchor = weekStart(today());
   const body = h('div');
+  const reqBox = h('div');
 
   const load = async () => {
     clear(body).append(h('p', { class: 'muted' }, 'Lädt …'));
+    requestsCard(load).then((c) => { clear(reqBox); if (c) reqBox.append(c); }).catch((e) => console.warn('requests', e));
     const fromD = view === 'week' ? anchor : today();
     const toD = view === 'week' ? addDays(anchor, 7) : addDays(today(), 60);
     const appts = await q(from('appointments').select('*, appointment_clients(client_id, status, late_cancel)')
@@ -339,6 +377,7 @@ async function renderCalendar(el) {
     pageHead('Termine', 'Personal Training',
       h('button', { type: 'button', onclick: async () => { if (await editAppointment(null)) load(); } }, '+ Termin'),
       h('button', { type: 'button', class: 'secondary', onclick: () => manageLocations().then(load) }, 'Orte')),
+    reqBox,
     segmented([['week', 'Woche'], ['list', 'Liste']], view, (v) => { view = v; sessionStorage.setItem('mx_cal_view', v); load(); }),
     body);
   await load();

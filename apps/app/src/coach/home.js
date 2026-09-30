@@ -8,7 +8,7 @@ import { clientThresholds } from '../core/settings.js';
 
 const KIND_ICON = {
   pain: ['warning', 'bad'], pause: ['pause', 'gray'], pause_long: ['pause', 'warn'], return: ['check', 'ok'],
-  inactive: ['clock', 'warn'], pt_low: ['people', 'indigo'], appointment: ['calendar', 'indigo'], checkin: ['checklist', 'purple']
+  inactive: ['clock', 'warn'], pt_low: ['people', 'indigo'], appointment: ['calendar', 'indigo'], checkin: ['checklist', 'purple'], request: ['calendar', 'accent']
 };
 
 export async function loadOverview(app) {
@@ -47,7 +47,7 @@ export async function renderCoachHome(el, app) {
   body.remove();
   const { clients, withAmpel, checkins } = data;
 
-  const important = notes.filter((n) => ['pain', 'pause', 'return', 'inactive', 'pt_low', 'pause_long', 'appointment'].includes(n.kind));
+  const important = notes.filter((n) => ['pain', 'pause', 'return', 'inactive', 'pt_low', 'pause_long', 'appointment', 'request'].includes(n.kind));
   if (important.length) {
     el.append(card('Wichtig', important.map((n) => h('a', {
       class: 'list-row card-link', href: n.link || '#/c',

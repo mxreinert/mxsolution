@@ -1,5 +1,5 @@
 // Profil: avatar, goal/concept, theme, devices, notifications, help, privacy, logout.
-import { h, card, select, input, field, toggle, toast, showError, modal, compressImage, confirmDialog, fmtNum, clear, icon } from '../core/ui.js';
+import { h, card, select, input, field, toggle, toast, showError, modal, compressImage, confirmDialog, fmtNum, clear, icon, textarea, badge } from '../core/ui.js';
 import { q, from, fileUrl, uploadFile, removeFiles, sb } from '../core/db.js';
 import { logout } from '../core/auth.js';
 import { GOALS } from '../core/goals.js';
@@ -98,6 +98,8 @@ export async function renderProfile(el, app) {
     try { el.append(await m.profile(ctx)); } catch (e) { console.warn('profile', m.id, e); }
   }
 
+  el.append(await requestCard(app));
+
   const wa = app.settings.whatsapp;
   el.append(card('Hilfe & Datenschutz',
     h('a', { class: 'list-row card-link', href: '#/hilfe' }, h('span', null, 'Hilfe & FAQ'), h('span', { class: 'chev' }, icon('chevron', { size: 17 }))),
@@ -107,6 +109,56 @@ export async function renderProfile(el, app) {
 
   el.append(h('button', { type: 'button', class: 'secondary', onclick: changePassword }, 'Passwort ändern'),
     h('button', { type: 'button', class: 'secondary', onclick: () => logout() }, 'Abmelden'));
+}
+
+const REQ_KINDS = [['pt', 'Personal Training'], ['call', 'Online-Call'], ['other', 'Sonstiges']];
+const REQ_STATUS = { open: ['offen', 'warn'], scheduled: ['eingeplant', 'ok'], declined: ['beantwortet', ''], cancelled: ['zurückgezogen', ''] };
+
+/** Client asks Max for an appointment (free text); Max gets a notification and creates it. */
+async function requestCard(app) {
+  const c = app.client;
+  const box = h('div');
+  const draw = async () => {
+    let reqs = [];
+    try { reqs = await q(from('appointment_requests').select('*').eq('client_id', c.id).order('created_at', { ascending: false }).limit(5)); } catch (e) { /* table missing before migration 012 */ }
+    clear(box).append(
+      reqs.map((r) => h('div', { class: 'req-row' },
+        h('div', { class: 'req-head' }, h('strong', null, REQ_KINDS.find(([k]) => k === r.kind)?.[1] || 'Termin'),
+          badge(...(REQ_STATUS[r.status] || [r.status, ''])), h('small', { class: 'muted' }, fmt(r.created_at.slice(0, 10)))),
+        h('p', { class: 'prewrap muted small' }, r.message),
+        r.coach_reply ? h('p', { class: 'hint' }, 'Max: ', r.coach_reply) : null,
+        r.status === 'open' ? h('button', {
+          type: 'button', class: 'link-btn danger', onclick: async () => {
+            try { await q(from('appointment_requests').update({ status: 'cancelled' }).eq('id', r.id)); toast('Anfrage zurückgezogen'); draw(); } catch (e) { showError(e); }
+          }
+        }, 'Zurückziehen') : null)),
+      h('button', {
+        type: 'button', onclick: async () => {
+          const kind = select(REQ_KINDS, 'pt');
+          const msg = textarea({ maxlength: 1000, rows: 4, placeholder: 'z. B. Beintraining mit Technik-Check. Ich kann Di und Do ab 18 Uhr oder Samstag vormittags.' });
+          const ok = await modal('Termin anfragen', h('div', null,
+            field('Worum geht es?', kind),
+            field('Was brauchst du und wann kannst du?', msg),
+            h('p', { class: 'muted small' }, 'Max bekommt eine Nachricht und trägt den Termin ein. Du siehst ihn dann unter „Heute“.')), [
+            { label: 'Abbrechen', kind: 'secondary', value: false },
+            {
+              label: 'Anfrage senden', onClick: async () => {
+                if (!msg.value.trim()) { toast('Bitte kurz schreiben, was du brauchst und wann du kannst.', 'bad'); return undefined; }
+                try {
+                  await q(from('appointment_requests').insert({ client_id: c.id, kind: kind.value, message: msg.value.trim() }));
+                  return true;
+                } catch (e) {
+                  toast(/row-level security/i.test(e.message || '') ? 'Heute schon 5 Anfragen gesendet – bitte morgen wieder oder Max direkt schreiben.' : 'Konnte nicht gesendet werden.', 'bad');
+                  return undefined;
+                }
+              }
+            }]);
+          if (ok) { toast('Anfrage gesendet – Max meldet sich'); draw(); }
+        }
+      }, 'Termin anfragen'));
+  };
+  await draw();
+  return card('Termin anfragen', h('p', { class: 'muted small' }, 'Personal Training, Online-Call oder etwas anderes – schreib einfach, was du brauchst und wann du kannst.'), box);
 }
 
 async function changePassword() {

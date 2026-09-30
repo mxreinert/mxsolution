@@ -40,7 +40,7 @@ export async function setsForWorkouts(ids) {
 
 export async function setsForExercises(clientId, exerciseIds, limit = 600) {
   if (!exerciseIds.length) return [];
-  return q(from('workout_sets').select('*, workouts!inner(day, id)').eq('client_id', clientId)
+  return q(from('workout_sets').select('*, workouts!inner(day, id, other_gym)').eq('client_id', clientId)
     .in('exercise_id', exerciseIds).order('created_at', { ascending: false }).limit(limit));
 }
 
@@ -48,11 +48,12 @@ export async function testedMaxes(clientId) {
   return q(from('tested_maxes').select('*').eq('client_id', clientId).order('day'));
 }
 
-/** Per exercise: sets of the most recent workout + best e1RM ever (for PRs) */
+/** Per exercise: sets of the most recent workout + best e1RM ever (for PRs).
+ *  Workouts in another gym are skipped – other machines/plates make the numbers incomparable. */
 export function lastTimeAndBest(sets, excludeWorkoutId) {
   const byEx = new Map();
   for (const s of sets) {
-    if (s.workout_id === excludeWorkoutId) continue;
+    if (s.workout_id === excludeWorkoutId || s.workouts?.other_gym) continue;
     const day = s.workouts?.day || s.day;
     let e = byEx.get(s.exercise_id);
     if (!e) { e = { lastDay: null, lastWorkout: null, last: [], best: 0, bestWeight: 0 }; byEx.set(s.exercise_id, e); }
@@ -98,7 +99,8 @@ export async function pushWorkout(w) {
     id: w.id, client_id: w.client_id, plan_id: w.plan_id || null, session_key: w.session_key || null,
     session_name: w.session_name || null, day: w.day, started_at: w.started_at, finished_at: w.finished_at || null,
     kind: w.kind || 'plan', effort: w.effort ?? null, pain: !!w.pain, pain_location: w.pain ? (w.pain_location || null) : null,
-    note: w.note || null, with_coach: !!w.with_coach, appointment_id: w.appointment_id || null
+    note: w.note || null, with_coach: !!w.with_coach, appointment_id: w.appointment_id || null,
+    other_gym: !!w.other_gym, gym_name: w.other_gym ? (w.gym_name || '').slice(0, 80) || null : null
   };
   await q(from('workouts').upsert(row, { onConflict: 'id' }));
   const sets = [];

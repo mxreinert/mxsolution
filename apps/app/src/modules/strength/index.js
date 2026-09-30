@@ -143,7 +143,7 @@ export default {
     workouts.slice(0, 12).forEach((w) => hist.append(h('button', {
       type: 'button', class: 'list-row plain', onclick: async () => modal(w.session_name || 'Training', await workoutDetails(w, exMap))
     }, h('div', null, h('strong', null, w.session_name || 'Training'), w.pain ? ' ' : '',
-      h('div', { class: 'muted small' }, [relDay(w.day), w.effort ? `Anstrengung ${w.effort}/10` : null, w.with_coach ? 'mit Max' : null].filter(Boolean).join(' · '))),
+      h('div', { class: 'muted small' }, [relDay(w.day), w.effort ? `Anstrengung ${w.effort}/10` : null, w.with_coach ? 'mit Max' : null, w.other_gym ? (w.gym_name ? `anderes Gym: ${w.gym_name}` : 'anderes Gym') : null].filter(Boolean).join(' · '))),
     h('span', { class: 'chev' }, icon('chevron', { size: 17 })))));
     wrap.append(hist);
 
@@ -158,6 +158,7 @@ export default {
     const exMap = await exerciseMap();
     const workouts = (await recentWorkouts(ctx.client.id, ctx.from, 500)).filter((w) => w.day <= ctx.to);
     const sets = await setsForWorkouts(workouts.map((w) => w.id));
+    const otherGym = new Set(workouts.filter((w) => w.other_gym).map((w) => w.id)); // not comparable -> left out of the 1RM chart
     const maxes = await testedMaxes(ctx.client.id);
     const plan = await activePlan(ctx.client.id);
     const dayOf = new Map(workouts.map((w) => [w.id, w.day]));
@@ -201,7 +202,7 @@ export default {
         const ex = exMap.get(id);
         const best = new Map();
         for (const s of sets) {
-          if (s.exercise_id !== id || s.set_type === 'warmup') continue;
+          if (s.exercise_id !== id || s.set_type === 'warmup' || otherGym.has(s.workout_id)) continue;
           const d = dayOf.get(s.workout_id);
           const v = ex?.tracking_type === 'weight_reps' || ex?.tracking_type === 'bodyweight_plus' ? e1rm(Number(s.weight_kg), s.reps)
             : ex?.tracking_type === 'time' ? s.seconds : ex?.tracking_type === 'distance' ? Number(s.distance_m) : s.reps;

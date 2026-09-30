@@ -26,6 +26,7 @@ Vor neuen Migrationen immer die lokalen Tests laufen lassen: `supabase/tests/REA
 | 7 | `supabase/migrations/007_integrations.sql` | Push, Hevy, KI, täglicher Wartungsjob |
 | 7a | `supabase/migrations/008_module_defaults.sql` | Modul-Standards (später nachgereicht) |
 | 7b | `supabase/migrations/009_coach_profile_meet.sql` | Coach-Profilbild, WhatsApp auf der Startseite, Online-Calls mit Meet-Link |
+| 7c | `supabase/migrations/010_workout_other_gym.sql` | Häkchen „Anderes Gym“ im Trainings-Log |
 | 8 | `supabase/seed/exercises.sql` | Deine 105 Übungen aus der Excel-Datei |
 | 9 | `supabase/setup/coach.sql` | Dein Coach-Konto (vorher Mailadresse in der Datei ersetzen!) |
 | 10 | `supabase/setup/test-accounts.local.sql` | Testzugänge mx67/mx68 (nur lokal, nicht auf GitHub) |

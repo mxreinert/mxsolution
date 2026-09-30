@@ -1,6 +1,6 @@
 // Workout logger (client, or coach during a PT session). Offline-first: every change is
 // kept in localStorage; on "Beenden" the workout is pushed (or queued if offline).
-import { h, clear, fmtNum, input, select, modal, confirmDialog, toast, showError, rating, textarea, field, parseNum, uuid, backLink } from '../../core/ui.js';
+import { h, clear, fmtNum, input, select, modal, confirmDialog, toast, showError, rating, textarea, field, parseNum, uuid, backLink, srow, switchInput } from '../../core/ui.js';
 import { today, fmtLong } from '../../core/dates.js';
 import { e1rm } from '../../core/metrics.js';
 import { exerciseMap, setsForExercises, lastTimeAndBest, saveDraft, loadDraft, dropDraft, queue, syncOutbox, pushWorkout } from './data.js';
@@ -17,9 +17,10 @@ function targetText(t) {
   return [t.sets ? `${t.sets} × ${reps || '?'}` : null, t.rir != null ? `RIR ${t.rir}` : null, t.rest_s ? `Pause ${fmtRest(t.rest_s)}` : null].filter(Boolean).join(' · ');
 }
 
-function lastText(last, ex) {
-  if (!last?.last?.length) return 'Letztes Mal: –';
-  return 'Letztes Mal: ' + last.last.filter((s) => s.set_type !== 'warmup').map((s) => {
+function lastText(last, ex, otherGym) {
+  const label = otherGym ? 'Letztes Mal im Stamm-Gym: ' : 'Letztes Mal: ';
+  if (!last?.last?.length) return label + '–';
+  return label + last.last.filter((s) => s.set_type !== 'warmup').map((s) => {
     if (ex?.tracking_type === 'time') return `${s.seconds}s`;
     if (ex?.tracking_type === 'distance') return `${fmtNum(s.distance_m)} m`;
     if (ex?.tracking_type === 'bodyweight_reps') return `${s.reps}`;
@@ -44,7 +45,7 @@ export function newWorkout({ client, plan, session, kind = 'plan', withCoach = f
     session_key: session?.key || null, session_name: session?.name || (kind === 'free' ? 'Freies Training' : 'Training'),
     day: today(), started_at: new Date().toISOString(), finished_at: null, kind,
     with_coach: withCoach, appointment_id: appointmentId,
-    effort: null, pain: false, pain_location: '', note: '',
+    effort: null, pain: false, pain_location: '', note: '', other_gym: false, gym_name: '',
     exercises: (session?.exercises || []).map((pe) => ({
       exercise_id: pe.exercise_id,
       target: { sets: pe.sets, rep_min: pe.rep_min, rep_max: pe.rep_max, rir: pe.rir, rest_s: pe.rest_s, note: pe.note, group: pe.group },
@@ -129,12 +130,12 @@ export async function renderLogger(el, { client, settings, workoutId, backHref, 
     const pr = h('span', { class: 'pr', hidden: true }, 'PR!');
     const check = () => {
       warn.textContent = '';
-      if (set.weight != null && lastSet?.weight_kg && tt === 'weight_reps') {
+      if (!w.other_gym && set.weight != null && lastSet?.weight_kg && tt === 'weight_reps') {
         const diff = Math.abs(set.weight - lastSet.weight_kg) / lastSet.weight_kg * 100;
         if (diff > thresholds.set_jump_pct) warn.textContent = `${fmtNum(diff)} % anders als letztes Mal – Tippfehler?`;
       }
       const est = e1rm(set.weight, set.reps);
-      pr.hidden = !(set.done && set.set_type !== 'warmup' && est && last?.best && est > last.best + 0.01);
+      pr.hidden = !(!w.other_gym && set.done && set.set_type !== 'warmup' && est && last?.best && est > last.best + 0.01);
     };
 
     const num = (key, props) => {
@@ -186,7 +187,7 @@ export async function renderLogger(el, { client, settings, workoutId, backHref, 
   const renderExercise = (exEntry, i) => {
     const ex = exMap.get(exEntry.exercise_id);
     const last = history.get(exEntry.exercise_id);
-    const hint = progressionHint(last, exEntry.target);
+    const hint = w.other_gym ? null : progressionHint(last, exEntry.target);
     const block = h('section', { class: 'card exercise-block' + (exEntry.target?.group ? ' superset' : '') },
       h('div', { class: 'ex-head' },
         h('div', null,
@@ -203,7 +204,7 @@ export async function renderLogger(el, { client, settings, workoutId, backHref, 
               persist(); await loadHistory(); render();
             }
           }, 'Tauschen'))),
-      h('p', { class: 'muted small' }, lastText(last, ex)),
+      h('p', { class: 'muted small' }, lastText(last, ex, w.other_gym)),
       hint ? h('p', { class: 'hint ok-text' }, '↑ ', hint) : null,
       exEntry.target?.note ? h('p', { class: 'hint' }, exEntry.target.note) : null,
       ex?.hint ? h('details', { class: 'small' }, h('summary', null, 'Technik-Hinweis'), h('p', null, ex.hint)) : null,
@@ -275,10 +276,19 @@ export async function renderLogger(el, { client, settings, workoutId, backHref, 
     location.hash = backHref;
   };
 
+  // "not my usual gym": other machines/plates -> no comparison with the usual numbers
+  const gymName = input({ value: w.gym_name || '', maxlength: 80, placeholder: 'Wo? z. B. FitX Berlin (optional)', hidden: !w.other_gym });
+  gymName.addEventListener('input', () => { w.gym_name = gymName.value; persist(); });
+  const gymCard = h('section', { class: 'card scard gym-card' },
+    srow('Anderes Gym', 'Nicht dein normales Gym (z. B. im Urlaub)? Dann zählen die Gewichte nicht für Vergleich, Rekorde und 1RM-Verlauf.',
+      switchInput(!!w.other_gym, (v) => { w.other_gym = v; gymName.hidden = !v; persist(); render(); }, 'Anderes Gym'), true),
+    gymName);
+
   el.append(
     backLink(backHref),
     h('header', { class: 'page-head' },
       h('div', null, h('h1', null, w.session_name), h('p', { class: 'muted' }, fmtLong(w.day), ' · ', elapsed, w.with_coach ? ' · mit Max' : '', role === 'coach' ? ` · ${client.first_name}` : ''))),
+    gymCard,
     list,
     h('button', {
       type: 'button', class: 'secondary', onclick: async () => {

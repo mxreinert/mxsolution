@@ -22,7 +22,8 @@ function todayRings(app, client, ctx) {
   if (act('sleep') && t.sleep_h && items.length < 3) items.push({ value: (e.sleep_h || 0) / t.sleep_h, color: 'indigo', label: 'Schlaf', text: `${fmtNum(e.sleep_h || 0, 1)} / ${fmtNum(t.sleep_h, 1)} h` });
   const days = range(weekStart(today()), today());
   const logged = days.filter((d) => ctx.daily.some((r) => r.day === d && hasData(r))).length;
-  items.push({ value: logged / days.length, color: 'accent', label: 'Diese Woche', text: `${logged}/${days.length} Tage` });
+  // goal = every day of the week (Mon–Sun), the ring fills day by day
+  items.push({ value: logged / 7, color: 'accent', label: 'Diese Woche', text: `${logged}/7 Tage` });
   return items.slice(0, 4);
 }
 

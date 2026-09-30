@@ -1,9 +1,9 @@
 // Workout logger (client, or coach during a PT session). Offline-first: every change is
 // kept in localStorage; on "Beenden" the workout is pushed (or queued if offline).
-import { h, clear, fmtNum, input, select, modal, confirmDialog, toast, showError, rating, textarea, field, parseNum, uuid, backLink, srow, switchInput, tile, icon } from '../../core/ui.js';
+import { h, clear, fmtNum, input, select, modal, confirmDialog, toast, showError, errorText, rating, textarea, field, parseNum, uuid, backLink, srow, switchInput, tile, icon } from '../../core/ui.js';
 import { today, fmtLong } from '../../core/dates.js';
 import { e1rm } from '../../core/metrics.js';
-import { exerciseMap, setsForExercises, lastTimeAndBest, saveDraft, loadDraft, dropDraft, queue, syncOutbox, pushWorkout } from './data.js';
+import { exerciseMap, setsForExercises, lastTimeAndBest, saveDraft, loadDraft, dropDraft, queue, syncOutbox, pushWorkout, isNetworkError, rememberSyncError } from './data.js';
 import { pickExercise } from './picker.js';
 import { clientThresholds } from '../../core/settings.js';
 
@@ -352,7 +352,13 @@ export async function renderLogger(el, { client, settings, workoutId, backHref, 
       await syncOutbox();
       toast(pain ? 'Gespeichert – Max wurde über die Beschwerden informiert.' : 'Training gespeichert ');
     } catch (e) {
-      toast('Offline gespeichert – wird synchronisiert, sobald du Netz hast.', 'warn');
+      if (isNetworkError(e)) toast('Offline gespeichert – wird synchronisiert, sobald du Netz hast.', 'warn');
+      else {
+        // server said no (not a connection problem): keep it on the phone and show why
+        console.error('workout save failed', e);
+        rememberSyncError(e);
+        toast('Nicht gespeichert: ' + errorText(e) + ' Das Training bleibt auf dem Handy. Schick Max einen Screenshot unter „Training“.', 'bad');
+      }
     }
     location.hash = backHref;
   };

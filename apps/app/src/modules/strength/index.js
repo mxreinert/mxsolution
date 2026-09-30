@@ -5,7 +5,7 @@ import { kpi, kpiRow } from '../../core/metric.js';
 import { e1rm } from '../../core/metrics.js';
 import { q, from } from '../../core/db.js';
 import { today, addDays, weekStart, fmtShort, relDay, fmt, range } from '../../core/dates.js';
-import { exerciseMap, activePlan, recentWorkouts, setsForWorkouts, testedMaxes, openDrafts, pendingCount, syncOutbox } from './data.js';
+import { exerciseMap, activePlan, recentWorkouts, setsForWorkouts, testedMaxes, openDrafts, pendingCount, syncOutbox, lastSyncError } from './data.js';
 import { newWorkout, renderLogger } from './logger.js';
 import { renderPlanList, renderPlanEditor, assignTemplate, chooseTemplate } from './plans.js';
 import { BACK_DAYS } from '../../core/config.js';
@@ -100,9 +100,17 @@ export default {
     }
     const pending = pendingCount();
     if (pending) {
+      const err = lastSyncError();
       wrap.append(h('div', { class: 'card warn-border' },
-        h('p', null, `${pending} Training(s) noch nicht synchronisiert.`),
-        h('button', { type: 'button', class: 'secondary', onclick: async () => { const left = await syncOutbox(); toast(left ? 'Noch offline – später nochmal.' : 'Synchronisiert'); ctx.refresh(); } }, 'Jetzt synchronisieren')));
+        h('p', null, `${pending} Training(s) noch nicht gespeichert.`),
+        err ? h('p', { class: 'muted small' }, 'Grund (bitte als Screenshot an Max): ', h('code', { class: 'sync-err' }, err.text)) : null,
+        h('button', {
+          type: 'button', class: 'secondary', onclick: async () => {
+            const left = await syncOutbox();
+            toast(!left ? 'Gespeichert' : lastSyncError() ? 'Server lehnt ab – Grund steht unten.' : 'Noch offline – später nochmal.', left ? 'warn' : 'ok');
+            ctx.refresh();
+          }
+        }, 'Jetzt speichern')));
     }
     const drafts = openDrafts(ctx.client.id).filter((d) => !d.finished_at);
     for (const d of drafts) {

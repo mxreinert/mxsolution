@@ -74,6 +74,19 @@ export function lastTimeAndBest(sets, excludeWorkoutId) {
 // ---------- offline draft + outbox ----------
 const DRAFT = (id) => 'mx_workout_' + id;
 const OUTBOX = 'mx_workout_outbox';
+const SYNC_ERROR = 'mx_workout_sync_error';
+
+/** Only real connection problems count as "offline" – server errors must be shown, not hidden. */
+export function isNetworkError(e) {
+  return !navigator.onLine || /Failed to fetch|NetworkError|Load failed|network error|timed? ?out/i.test(e?.message || '');
+}
+/** Technical text of the last server error while saving (for a screenshot to Max) */
+export function lastSyncError() { try { return JSON.parse(localStorage.getItem(SYNC_ERROR) || 'null'); } catch (e) { return null; } }
+export function rememberSyncError(e) {
+  const text = [e?.message, e?.code, e?.details, e?.hint].filter(Boolean).join(' · ').slice(0, 400);
+  localStorage.setItem(SYNC_ERROR, JSON.stringify({ text, at: new Date().toISOString() }));
+}
+const clearSyncError = () => localStorage.removeItem(SYNC_ERROR);
 
 export function saveDraft(w) { localStorage.setItem(DRAFT(w.id), JSON.stringify(w)); }
 export function loadDraft(id) { try { return JSON.parse(localStorage.getItem(DRAFT(id))); } catch (e) { return null; } }
@@ -132,10 +145,11 @@ export async function syncOutbox() {
       if (w.finished_at) dropDraft(id); else left.push(id);
     } catch (e) {
       left.push(id);
-      if (!/Failed to fetch|NetworkError/i.test(e.message || '')) console.error('sync failed', id, e);
+      if (!isNetworkError(e)) { console.error('sync failed', id, e); rememberSyncError(e); }
     }
   }
   localStorage.setItem(OUTBOX, JSON.stringify(left));
+  if (!left.length) clearSyncError();
   return left.length;
 }
 

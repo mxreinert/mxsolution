@@ -209,6 +209,26 @@ export async function runTests(db) {
     ok('coach cannot change period entries', !!r.error || r.affected === 0, r.error || r.affected);
   });
 
+  // ---------- workout save flow exactly like the app (pushWorkout) ----------
+  await as(db, client, 'aal1', async () => {
+    const wid = '11111111-2222-4333-8444-555555555555';
+    const cols = `id, client_id, plan_id, session_key, session_name, day, started_at, finished_at, kind, effort, pain, pain_location, note, with_coach, appointment_id, other_gym, gym_name`;
+    const vals = `$1, $2, null, 'A', 'Push', public.today_lu(), now() - interval '1 hour', now(), 'plan', 7, false, null, null, false, null, false, null`;
+    let r = await tryQ(db, `insert into public.workouts (${cols}) values (${vals})
+      on conflict (id) do update set finished_at = excluded.finished_at, effort = excluded.effort, other_gym = excluded.other_gym`, [wid, cid]);
+    ok('client upserts workout (new)', !r.error, r.error);
+    r = await tryQ(db, `insert into public.workouts (${cols}) values (${vals})
+      on conflict (id) do update set finished_at = excluded.finished_at, effort = excluded.effort, other_gym = excluded.other_gym`, [wid, cid]);
+    ok('client upserts workout (again, conflict path)', !r.error, r.error);
+    r = await tryQ(db, `delete from public.workout_sets where workout_id = $1`, [wid]);
+    ok('client clears sets of own workout', !r.error, r.error);
+    r = await tryQ(db, `insert into public.workout_sets (id, workout_id, client_id, exercise_id, pos, set_no, set_type, side, weight_kg, reps, seconds, distance_m, rir)
+      values (gen_random_uuid(), $1, $2, 'BRU_BD_LH', 0, 1, 'warmup', null, 40, 10, null, null, null),
+             (gen_random_uuid(), $1, $2, 'BRU_BD_LH', 0, 2, 'normal', null, 69, 9, null, null, 2),
+             (gen_random_uuid(), $1, $2, 'SCH_SH_KH', 1, 1, 'superset', null, 12.5, 12, null, null, 1.5)`, [wid, cid]);
+    ok('client inserts sets', !r.error, r.error);
+  });
+
   // ---------- anon ----------
   await db.exec(`reset role; select set_config('request.jwt.claim.sub', '', false); set role anon;`);
   const an = await tryQ(db, `select * from public.clients`);

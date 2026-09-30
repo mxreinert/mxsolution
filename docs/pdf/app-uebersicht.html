@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>mxCoaching – App-Übersicht</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 15mm 0 17mm; }
+  @page :first { margin-top: 0; }
+  :root { --navy: #111827; --blue: #2563eb; --blue-soft: #eef3fe; --line: #dbe3ef; --field: #f3f6fb; --ink: #1f2937; --muted: #6b7280; --ok: #15803d; --ok-soft: #e8f6ed; --amber: #b45309; --amber-soft: #fdf4e3; --violet: #6d28d9; --violet-soft: #f1ebfd; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: Lato, "Segoe UI", Arial, sans-serif; color: var(--ink); font-size: 9.6pt; line-height: 1.45; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .wrap { padding: 0 15mm; }
+
+  /* header band (first page) */
+  .band { background: var(--navy); color: #fff; padding: 9mm 15mm 7mm; border-bottom: 2.2mm solid var(--blue); }
+  .band .top { display: flex; justify-content: space-between; font-size: 8.6pt; letter-spacing: .02em; margin-bottom: 6mm; }
+  .band .top b { font-weight: 900; letter-spacing: .04em; }
+  .band .top span.tag { color: #60a5fa; font-weight: 700; margin-left: 8px; letter-spacing: .06em; }
+  .band h1 { font-size: 24pt; font-weight: 900; margin: 0 0 2mm; letter-spacing: -.01em; }
+  .band p { margin: 0; color: #cbd5e1; font-size: 10pt; }
+
+  /* small running header on later pages */
+  .runhead { display: flex; justify-content: space-between; font-size: 8pt; border-bottom: 1px solid var(--line); padding-bottom: 2mm; margin: 0 0 5mm; }
+  .runhead b { font-weight: 900; } .runhead span { color: var(--blue); margin-left: 6px; }
+  .page { break-before: page; }
+
+  .footer { position: fixed; bottom: -11mm; left: 15mm; right: 15mm; display: flex; justify-content: space-between; font-size: 7.6pt; color: var(--muted); }
+
+  .intro { background: var(--blue-soft); border-left: 3px solid var(--blue); border-radius: 4px; padding: 3.5mm 4.5mm; margin: 7mm 0 6mm; font-size: 9.6pt; }
+  .intro b { font-weight: 700; }
+
+  h2 { display: flex; align-items: center; gap: 3mm; font-size: 14pt; font-weight: 900; margin: 6mm 0 3mm; break-after: avoid; }
+  h2 .n { width: 7mm; height: 7mm; border-radius: 1.4mm; background: var(--blue); color: #fff; font-size: 10pt; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10.4pt; margin: 0 0 1mm; font-weight: 900; }
+  .lead { color: var(--muted); margin: -1mm 0 3mm; }
+  p { margin: 1.2mm 0; }
+
+  .facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+  .fact { background: var(--field); border: 1px solid var(--line); border-radius: 2mm; padding: 3mm; }
+  .fact .big { font-size: 17pt; font-weight: 900; color: var(--blue); line-height: 1.05; }
+  .fact .lbl { font-size: 8.2pt; color: var(--muted); margin-top: 1mm; }
+
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+  .card { border: 1px solid var(--line); border-radius: 2mm; padding: 3mm 3.5mm; break-inside: avoid; background: #fff; }
+  .card p { color: #374151; margin: 0; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 8.9pt; }
+  th { text-align: left; font-size: 7.8pt; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; padding: 1.8mm 2mm; border-bottom: 1.5px solid var(--navy); }
+  td { padding: 1.7mm 2mm; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr { break-inside: avoid; }
+  td.m { font-weight: 700; white-space: nowrap; }
+  td.m small { display: block; font-weight: 400; color: var(--muted); font-size: 7.6pt; }
+  .pill { display: inline-block; font-size: 7.4pt; font-weight: 700; padding: .5mm 2mm; border-radius: 99px; white-space: nowrap; }
+  .p-std { background: var(--ok-soft); color: var(--ok); }
+  .p-prem { background: var(--violet-soft); color: var(--violet); }
+  .p-tool { background: #e5e7eb; color: #374151; }
+  .p-cons { background: var(--amber-soft); color: var(--amber); }
+  .p-off { background: #fde8e8; color: #b91c1c; }
+
+  ul.check { list-style: none; margin: 0; padding: 0; }
+  ul.check li { position: relative; padding-left: 5mm; margin: 1.1mm 0; }
+  ul.check li::before { content: ""; position: absolute; left: 0; top: 1.2mm; width: 2.6mm; height: 2.6mm; border: 1.2px solid var(--blue); border-radius: .6mm; background: var(--blue-soft); }
+  .cols2 { columns: 2; column-gap: 7mm; }
+  .cols2 li { break-inside: avoid; }
+
+  .note { background: var(--amber-soft); border-left: 3px solid #f59e0b; border-radius: 4px; padding: 3mm 4mm; margin-top: 4mm; }
+  .summary { border: 1.5px solid var(--navy); border-radius: 2.5mm; padding: 4mm 5mm; margin-top: 3mm; break-inside: avoid; }
+  .summary h3 { font-size: 11pt; }
+  .kv { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; margin-top: 2mm; }
+  .kv div:nth-child(odd) { color: var(--muted); font-weight: 700; font-size: 8.6pt; }
+</style>
+</head>
+<body>
+
+
+<!-- ================= PAGE 1 ================= -->
+<header class="band">
+  <div class="top"><div><b>MAX REINERT</b><span class="tag">PERSONAL COACHING</span></div><div>@mx.sports10</div></div>
+  <h1>mxCoaching – die App</h1>
+  <p>Alle Module und Funktionen auf einen Blick · app.mxreinert.de</p>
+</header>
+
+<main class="wrap">
+  <div class="intro">
+    <b>Worum geht’s:</b> mxCoaching ist meine eigene Coaching-Plattform. Kunden tragen am Handy ihre Werte ein, loggen ihr Training
+    und geben wöchentlich einen Check-in ab. Ich sehe alles in einem Coach-Dashboard, passe Pläne und Ziele an und gebe Feedback.
+    <b>Jeder Kunde bekommt nur die Module, die zu seinem Ziel passen</b> – Muskelaufbau, Fettabbau, Laufen/Ausdauer, allgemeine Fitness oder Recomp.
+  </div>
+
+  <div class="facts">
+    <div class="fact"><div class="big">16</div><div class="lbl">Module, pro Kunde an- und abschaltbar</div></div>
+    <div class="fact"><div class="big">105</div><div class="lbl">Übungen in der eigenen Übungsdatenbank</div></div>
+    <div class="fact"><div class="big">&lt; 2 Min.</div><div class="lbl">täglicher Aufwand für Kunden (Abend-Check)</div></div>
+    <div class="fact"><div class="big">0 €</div><div class="lbl">laufende Server-Kosten (Free-Tier, EU-Server)</div></div>
+  </div>
+
+  <h2><span class="n">1</span>Für deine Kunden</h2>
+  <p class="lead">Läuft im Browser und lässt sich wie eine App auf den Homescreen legen (iPhone und Android). Kein App-Store nötig.</p>
+  <div class="cards">
+    <div class="card"><h3>Heute</h3><p>Ringe für Kalorien, Protein, Schritte und Wochenziel, dazu alles, was heute ansteht: Training, Termine, Feedback von Max.</p></div>
+    <div class="card"><h3>Abend-Check</h3><p>Einmal am Tag die Werte eintragen, nur die Felder, die für den Kunden aktiv sind. Hinweise bei möglichen Tippfehlern.</p></div>
+    <div class="card"><h3>Training</h3><p>Trainingsplan mit Logger: letzte Werte, Pausentimer, Rekorde, Hinweis „Gewicht erhöhen“. Funktioniert auch offline im Gym.</p></div>
+    <div class="card"><h3>Auswertung</h3><p>Verläufe für Gewicht (7-Tage-Schnitt), Kraft (1RM), Ernährung, Schlaf und mehr – von 7 Tagen bis zum gesamten Verlauf.</p></div>
+    <div class="card"><h3>Wöchentlicher Check-in</h3><p>Kurzer Rückblick auf die Woche mit Fragen; Max antwortet mit persönlichem Feedback direkt in der App.</p></div>
+    <div class="card"><h3>Profil &amp; Hilfe</h3><p>Erinnerungen per Push, Ruhezeiten, 4 Farbmodi, FAQ, Datenschutz-Infos und ein Knopf, um Max auf WhatsApp zu schreiben.</p></div>
+  </div>
+
+  <h2><span class="n">2</span>Start &amp; Anmeldung</h2>
+  <ul class="check">
+    <li><b>Startseite „Coaching einfach gemacht“</b> mit WhatsApp-Knopf für neue Interessenten.</li>
+    <li><b>Keine Selbstregistrierung:</b> Nur Max legt Kundenkonten an – mit Ziel, Geburtsdatum und Einwilligung (bei Minderjährigen der Eltern).</li>
+    <li>Login mit Benutzername und Startpasswort, beim ersten Login muss der Kunde ein eigenes Passwort setzen.</li>
+    <li>Eigener Coach-Login mit Zwei-Faktor-Schutz.</li>
+  </ul>
+</main>
+
+<!-- ================= PAGE 2 ================= -->
+<main class="wrap page">
+  <div class="runhead"><div><b>MAX REINERT</b><span>mxCoaching – App-Übersicht</span></div><div>@mx.sports10 · Stand September 2026</div></div>
+
+  <h2><span class="n">3</span>Die Module</h2>
+  <p class="lead">Jedes Modul ist ein eigener Bereich. Das Ziel eines Kunden schlägt passende Module vor; ich kann jedes einzeln an- und abschalten und pro Kunde einstellen.</p>
+  <p style="margin:0 0 3mm;font-size:8.2pt;color:var(--muted)">
+    <span class="pill p-std">Standard</span> je nach Ziel aktiv ·
+    <span class="pill p-prem">Premium</span> pro Kunde freischaltbar (z. B. im Paket) ·
+    <span class="pill p-cons">Einwilligung</span> nur mit dokumentierter Zustimmung ·
+    <span class="pill p-tool">Werkzeug</span> nur für Max
+  </p>
+  <table>
+    <thead><tr><th style="width:34mm">Modul</th><th>Was es kann</th><th style="width:25mm">Verfügbar</th></tr></thead>
+    <tbody>
+      <tr><td class="m">Krafttraining<small>M1</small></td><td>Trainingspläne mit Vorlagen, Logger mit Sätzen/Wdh./RIR, Pausentimer, Übung tauschen, Rekorde, 1RM-Verlauf, Volumen pro Muskel, „Anderes Gym“ für Training unterwegs.</td><td><span class="pill p-std">Standard</span></td></tr>
+      <tr><td class="m">Cardio<small>M2</small></td><td>Laufen, Rad &amp; Co. mit Wochenvorgabe, Pace-Verlauf und dem KM Pacer (Tempo-Coach, auch offline).</td><td><span class="pill p-std">Standard</span></td></tr>
+      <tr><td class="m">Ernährung<small>M3</small></td><td>Kalorien und Makros (aus Yazio &amp; Co. übertragen) mit Zielen für Trainings- und Ruhetage.</td><td><span class="pill p-std">Standard</span></td></tr>
+      <tr><td class="m">Körpergewicht<small>M4</small></td><td>Tägliches Gewicht mit 7-Tage-Schnitt, Wochenziel (z. B. +0,25 kg oder −0,5 kg) und Morgen-Erinnerung.</td><td><span class="pill p-std">Standard</span></td></tr>
+      <tr><td class="m">Aktivität<small>M5</small></td><td>Schritte und aktive Kalorien von Uhr oder Handy, mit Schrittziel.</td><td><span class="pill p-std">Standard</span></td></tr>
+      <tr><td class="m">Schlaf<small>M6</small></td><td>Schlafdauer und -qualität mit Schlafziel.</td><td><span class="pill p-std">Standard</span></td></tr>
+      <tr><td class="m">Motivation &amp; Befinden<small>M7</small></td><td>Motivation und Energie als Frühwarnsystem – niedrige Werte mehrere Tage in Folge landen bei mir.</td><td><span class="pill p-std">Standard</span></td></tr>
+      <tr><td class="m">Uhr-Werte<small>M8</small></td><td>Ruhepuls und HRV von der Smartwatch.</td><td><span class="pill p-std">Standard</span></td></tr>
+      <tr><td class="m">Supplemente<small>M17</small></td><td>Supplemente abhaken, Einnahmetreue, Kreatin-Hinweis.</td><td><span class="pill p-std">Standard</span></td></tr>
+      <tr><td class="m">Zyklus<small>M14</small></td><td>Nur Periodenbeginn – erklärt Gewichtsschwankungen.</td><td><span class="pill p-cons">Einwilligung</span></td></tr>
+      <tr><td class="m">Personal Training<small>M12</small></td><td>Termine, Orte mit Karte, Bestätigen/Absagen, PT-Guthaben und Blöcke, Live-Logging im Training, Online-Calls mit Google-Meet-Link.</td><td><span class="pill p-prem">Premium</span></td></tr>
+      <tr><td class="m">Fotos &amp; Umfänge<small>M11</small></td><td>Umfänge und Fortschrittsfotos im Vorher-Nachher-Vergleich.</td><td><span class="pill p-prem">Premium</span> <span class="pill p-cons">Einwilligung</span></td></tr>
+      <tr><td class="m">Hevy<small>M9</small></td><td>Trainings automatisch aus der Hevy-App übernehmen (Kunde braucht Hevy Pro).</td><td><span class="pill p-prem">Premium</span></td></tr>
+      <tr><td class="m">KI-Analyse<small>M10</small></td><td>KI-Auswertung der Daten, nur für Max. Aus Datenschutzgründen derzeit abgeschaltet.</td><td><span class="pill p-off">Aus</span></td></tr>
+      <tr><td class="m">Eltern-Bericht<small>M15</small></td><td>Druckbarer Fortschrittsbericht für Eltern minderjähriger Kunden.</td><td><span class="pill p-tool">Werkzeug</span></td></tr>
+      <tr><td class="m">Abrechnung<small>M16</small></td><td>Pakete, Forderungen, Zahlungen und Einnahmen-Übersicht (ohne Zahlungsabwicklung).</td><td><span class="pill p-tool">Werkzeug</span></td></tr>
+    </tbody>
+  </table>
+</main>
+
+<!-- ================= PAGE 3 ================= -->
+<main class="wrap page">
+  <div class="runhead"><div><b>MAX REINERT</b><span>mxCoaching – App-Übersicht</span></div><div>@mx.sports10 · Stand September 2026</div></div>
+
+  <h2><span class="n">4</span>Coach-Dashboard</h2>
+  <p class="lead">Alles, womit ich meine Kunden betreue – am Handy oder am PC.</p>
+  <ul class="check cols2">
+    <li><b>Übersicht</b> mit Ampel: wer braucht Aufmerksamkeit (keine Einträge, Schmerzen, niedrige Motivation)?</li>
+    <li><b>Kundenakte</b> mit Anamnese, Konzept, Notizen und Auswertungen.</li>
+    <li><b>Module pro Kunde:</b> an/aus, Ziele, Felder im Abend-Check, Erinnerungen, Warngrenzen.</li>
+    <li><b>Check-ins</b> lesen und Feedback schreiben.</li>
+    <li><b>Trainingspläne</b> erstellen, Vorlagen zuweisen, Deload-Wochen.</li>
+    <li><b>Termine</b> für Personal Training und Online-Calls, Sync mit Google Kalender.</li>
+    <li><b>Interessenten</b> erfassen und später als Kunden übernehmen.</li>
+    <li><b>Nachrichten</b> an Kunden (in der App und als Push).</li>
+    <li><b>Abrechnung:</b> Pakete, offene Beträge, Einnahmen.</li>
+    <li><b>Backup &amp; Export</b> aller Daten, Löschung auf Anfrage.</li>
+    <li><b>Übungsdatenbank</b> mit Alternativen, Technik-Hinweisen und Videos.</li>
+    <li><b>Einstellungen:</b> Profilbild, WhatsApp-Nummer, Texte und FAQ.</li>
+  </ul>
+
+  <h2><span class="n">5</span>Sicherheit &amp; Datenschutz</h2>
+  <ul class="check">
+    <li>Daten liegen auf Servern in der EU (Supabase, Frankfurt). Jeder Kunde sieht nur seine eigenen Daten.</li>
+    <li>Minderjährige nur mit Einwilligung der Eltern; sensible Bereiche (Fotos, Zyklus) nur mit extra Zustimmung.</li>
+    <li>Keine Werbung, kein Tracking, keine Weitergabe. KI-Auswertung bewusst ausgeschaltet.</li>
+    <li>Kunden können Export und Löschung ihrer Daten jederzeit anfragen.</li>
+  </ul>
+
+  <h2><span class="n">6</span>Zusammenfassung für die Preis-Analyse</h2>
+  <div class="summary">
+    <h3>mxCoaching in einem Absatz</h3>
+    <p>Eine eigene, datenschutzfreundliche Coaching-App statt WhatsApp und Excel: Kunden tracken täglich in unter 2 Minuten, trainieren
+    nach Plan mit Fortschrittsanzeige und bekommen wöchentlich persönliches Feedback. Der Coach sieht alle Kunden mit Ampel auf einen Blick.
+    Module passen sich dem Ziel an; Extras wie Personal Training, Fotos oder Hevy lassen sich pro Kunde freischalten.</p>
+    <div class="kv">
+      <div>Zielgruppen</div><div>Muskelaufbau, Fettabbau, Laufen/Ausdauer, allgemeine Fitness, Recomp – auch Jugendliche (mit Eltern-Einwilligung und Eltern-Bericht)</div>
+      <div>Betreuungsformen</div><div>Online-Coaching (App + Check-ins), Personal Training vor Ort, Online-Calls per Google Meet, Mischformen</div>
+      <div>Mögliche Upgrades</div><div>Premium-Module pro Kunde: Personal Training, Fotos &amp; Umfänge, Hevy-Anbindung</div>
+      <div>PT-Abrechnung</div><div>Guthaben-System mit Einzelstunden und Blöcken, Absagefrist einstellbar</div>
+      <div>Laufende Kosten</div><div>Server 0 € (Free-Tier); Domain und Entwicklungswerkzeug; Hevy Pro zahlt der Kunde selbst</div>
+      <div>Stand</div><div>Online unter app.mxreinert.de, Pilotphase mit 2–3 Kunden geplant</div>
+      <div>In Planung</div><div>Erfolge mit Animationen, eigenes Maskottchen, Wochenrückblick</div>
+    </div>
+  </div>
+  <div class="note"><b>Offen für den nächsten Schritt:</b> Preise und Pakete festlegen – z. B. Online-Coaching monatlich, Personal-Training-Blöcke und Premium-Extras.</div>
+</main>
+</body>
+</html>

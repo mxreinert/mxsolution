@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>mxCoachingGPT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 15mm 0 17mm; }
+  @page :first { margin-top: 0; }
+  :root { --navy: #111827; --blue: #2563eb; --blue-soft: #eef3fe; --line: #dbe3ef; --field: #f3f6fb; --ink: #1f2937; --muted: #6b7280; --ok: #15803d; --ok-soft: #e8f6ed; --amber: #b45309; --amber-soft: #fdf4e3; --violet: #6d28d9; --violet-soft: #f1ebfd; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: Lato, "Segoe UI", Arial, sans-serif; color: var(--ink); font-size: 9.6pt; line-height: 1.45; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .wrap { padding: 0 15mm; }
+
+  /* header band (first page) */
+  .band { background: var(--navy); color: #fff; padding: 9mm 15mm 7mm; border-bottom: 2.2mm solid var(--blue); }
+  .band .top { display: flex; justify-content: space-between; font-size: 8.6pt; letter-spacing: .02em; margin-bottom: 6mm; }
+  .band .top b { font-weight: 900; letter-spacing: .04em; }
+  .band .top span.tag { color: #60a5fa; font-weight: 700; margin-left: 8px; letter-spacing: .06em; }
+  .band h1 { font-size: 24pt; font-weight: 900; margin: 0 0 2mm; letter-spacing: -.01em; }
+  .band p { margin: 0; color: #cbd5e1; font-size: 10pt; }
+
+  /* small running header on later pages */
+  .runhead { display: flex; justify-content: space-between; font-size: 8pt; border-bottom: 1px solid var(--line); padding-bottom: 2mm; margin: 0 0 5mm; }
+  .runhead b { font-weight: 900; } .runhead span { color: var(--blue); margin-left: 6px; }
+  .page { break-before: page; }
+
+  .footer { position: fixed; bottom: -11mm; left: 15mm; right: 15mm; display: flex; justify-content: space-between; font-size: 7.6pt; color: var(--muted); }
+
+  .intro { background: var(--blue-soft); border-left: 3px solid var(--blue); border-radius: 4px; padding: 3.5mm 4.5mm; margin: 7mm 0 6mm; font-size: 9.6pt; }
+  .intro b { font-weight: 700; }
+
+  h2 { display: flex; align-items: center; gap: 3mm; font-size: 14pt; font-weight: 900; margin: 6mm 0 3mm; break-after: avoid; }
+  h2 .n { width: 7mm; height: 7mm; border-radius: 1.4mm; background: var(--blue); color: #fff; font-size: 10pt; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10.4pt; margin: 0 0 1mm; font-weight: 900; }
+  .lead { color: var(--muted); margin: -1mm 0 3mm; }
+  p { margin: 1.2mm 0; }
+
+  .facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+  .fact { background: var(--field); border: 1px solid var(--line); border-radius: 2mm; padding: 3mm; }
+  .fact .big { font-size: 17pt; font-weight: 900; color: var(--blue); line-height: 1.05; }
+  .fact .lbl { font-size: 8.2pt; color: var(--muted); margin-top: 1mm; }
+
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+  .card { border: 1px solid var(--line); border-radius: 2mm; padding: 3mm 3.5mm; break-inside: avoid; background: #fff; }
+  .card p { color: #374151; margin: 0; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 8.9pt; }
+  th { text-align: left; font-size: 7.8pt; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; padding: 1.8mm 2mm; border-bottom: 1.5px solid var(--navy); }
+  td { padding: 1.7mm 2mm; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr { break-inside: avoid; }
+  td.m { font-weight: 700; white-space: nowrap; }
+  td.m small { display: block; font-weight: 400; color: var(--muted); font-size: 7.6pt; }
+  .pill { display: inline-block; font-size: 7.4pt; font-weight: 700; padding: .5mm 2mm; border-radius: 99px; white-space: nowrap; }
+  .p-std { background: var(--ok-soft); color: var(--ok); }
+  .p-prem { background: var(--violet-soft); color: var(--violet); }
+  .p-tool { background: #e5e7eb; color: #374151; }
+  .p-cons { background: var(--amber-soft); color: var(--amber); }
+  .p-off { background: #fde8e8; color: #b91c1c; }
+
+  ul.check { list-style: none; margin: 0; padding: 0; }
+  ul.check li { position: relative; padding-left: 5mm; margin: 1.1mm 0; }
+  ul.check li::before { content: ""; position: absolute; left: 0; top: 1.2mm; width: 2.6mm; height: 2.6mm; border: 1.2px solid var(--blue); border-radius: .6mm; background: var(--blue-soft); }
+  .cols2 { columns: 2; column-gap: 7mm; }
+  .cols2 li { break-inside: avoid; }
+
+  .note { background: var(--amber-soft); border-left: 3px solid #f59e0b; border-radius: 4px; padding: 3mm 4mm; margin-top: 4mm; }
+  .summary { border: 1.5px solid var(--navy); border-radius: 2.5mm; padding: 4mm 5mm; margin-top: 3mm; break-inside: avoid; }
+  .summary h3 { font-size: 11pt; }
+  .kv { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; margin-top: 2mm; }
+  .kv div:nth-child(odd) { color: var(--muted); font-weight: 700; font-size: 8.6pt; }
+  .mascot { display: flex; align-items: center; gap: 6mm; margin-top: 8mm; padding: 5mm 6mm; border: 1px solid var(--line); border-radius: 3mm; background: var(--blue-soft); break-inside: avoid; }
+  .mascot .roar, .mascot .ml-laugh, .mascot .shine, .mascot .ml-shine { display: none; }
+  .mascot p { color: #374151; margin: 0; }
+  .mascot svg { flex: none; width: 34mm; height: 40mm; overflow: visible; }
+  .fill { border-bottom: 1px solid #9aa6b8; min-height: 5.5mm; }
+  .kv.form { grid-template-columns: 62mm 1fr; gap: 3mm 4mm; }
+  .kv.form div:nth-child(odd) { padding-top: 1.5mm; }
+  h3.sub { margin: 4mm 0 1.5mm; }
+  ol.steps { margin: 0; padding-left: 5mm; }
+  ol.steps li { margin: 1.4mm 0; }
+  table, .kv.form, .two, ol.steps, .ai { break-inside: avoid; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+  .ai { background: #0f172a; color: #e2e8f0; border-radius: 2.5mm; padding: 4mm 5mm; margin: 7mm 0 2mm; }
+  .ai b { color: #fff; } .ai ol { margin: 1.5mm 0 0; padding-left: 5mm; } .ai li { margin: 1mm 0; }
+</style>
+</head>
+<body>
+
+<header class="band">
+  <div class="top"><div><b>MAX REINERT</b><span class="tag">PERSONAL COACHING</span></div><div>@mx.sports10</div></div>
+  <h1>mxCoachingGPT</h1>
+  <p>Ausführliche Beschreibung meines Coaching-Angebots und meiner App – als Grundlage für die Preisgestaltung</p>
+</header>
+
+<main class="wrap">
+  <div class="ai">
+    <b>Hinweis an die KI, die dieses Dokument liest:</b> Ich bin Max Reinert, Fitness-Coach in Luxemburg. Ich möchte Preise und Pakete
+    für mein Coaching festlegen, <b>mit Schwerpunkt auf Fettabbau</b>. Alles, was mein Angebot und meine App können, steht in diesem Dokument.
+    Bitte hilf mir mit:
+    <ol>
+      <li>einem realistischen Preisrahmen für Luxemburg (Online-Coaching, Personal Training, Online-Calls),</li>
+      <li>einer klaren Paketstruktur (z. B. 2–3 Stufen) mit Fokus Fettabbau,</li>
+      <li>Laufzeiten, Kündigungsfristen, Einführungs-/Pilotpreisen und Rabatten (z. B. Schüler),</li>
+      <li>der Frage, wie viele Kunden ich mit meiner verfügbaren Zeit betreuen kann und was ich damit verdiene.</li>
+    </ol>
+    Frag mich nach fehlenden Angaben (Abschnitt 1), statt sie anzunehmen.
+  </div>
+
+  <h2><span class="n">1</span>Über mich (von Max auszufüllen)</h2>
+  <p class="lead">Diese Angaben stehen nicht in der App – bitte vor dem Teilen ergänzen oder der KI im Chat nennen.</p>
+  <div class="kv form">
+    <div>Alter</div><div class="fill"></div>
+    <div>Ausbildung, Lizenzen, Zertifikate</div><div class="fill"></div>
+    <div>Erfahrung als Coach (seit wann, wie viele Kunden)</div><div class="fill"></div>
+    <div>Eigene sportliche Erfolge / Transformation</div><div class="fill"></div>
+    <div>Erfolge von Kunden (Vorher-Nachher, kg, Zeit)</div><div class="fill"></div>
+    <div>Reichweite Instagram @mx.sports10</div><div class="fill"></div>
+    <div>Gym(s) / Orte für Personal Training</div><div class="fill"></div>
+    <div>Verfügbare Stunden pro Woche fürs Coaching</div><div class="fill"></div>
+    <div>Wunsch-Einkommen pro Monat</div><div class="fill"></div>
+    <div>Bisherige Preise (falls schon welche)</div><div class="fill"></div>
+    <div>Zielgruppe (Alter, Schüler, Berufstätige …)</div><div class="fill"></div>
+  </div>
+
+  <h2><span class="n">2</span>Das Angebot in Kürze</h2>
+  <p>Ich betreue Kunden über meine <b>eigene Coaching-App mxCoaching</b> (app.mxreinert.de) und, wenn gewünscht, <b>persönlich im Gym</b>
+  (Personal Training) oder per <b>Online-Call</b> (Google Meet). Kunden tragen täglich in unter 2 Minuten ihre Werte ein, trainieren nach
+  meinem Plan und geben jede Woche einen Check-in ab, auf den ich persönlich antworte. Ich sehe alle Kunden in einem Dashboard mit Ampel
+  und erkenne früh, wer Unterstützung braucht.</p>
+  <p><b>Ziele, die ich anbiete:</b> Fettabbau (Cut), Muskelaufbau (Bulk), Recomp/Halten, Laufen/Ausdauer, allgemeine Fitness.
+  Jugendliche nur mit Einwilligung der Eltern (dafür gibt es einen druckbaren Eltern-Bericht).</p>
+  <p><b>Was die App von WhatsApp + Excel unterscheidet:</b> alle Daten an einem Ort, automatische Auswertungen (7-Tage-Schnitt, Wochenveränderung,
+  Kraftverlauf), Erinnerungen per Push, Trainings-Logger mit Fortschritt, persönliche Rückmeldung in der App, Motivation durch Erfolge
+  und ein Löwen-Maskottchen. Datenschutz: Server in der EU, keine Werbung, kein Tracking.</p>
+
+  <h2><span class="n">3</span>Schwerpunkt Fettabbau – was ein Kunde bekommt</h2>
+  <p class="lead">Wählt ein Kunde das Ziel „Fettabbau“, schaltet die App diese Module automatisch ein. Ich kann alles pro Kunde anpassen.</p>
+  <table>
+    <thead><tr><th style="width:34mm">Bereich</th><th>Was der Kunde macht / sieht</th><th style="width:50mm">Was ich einstelle</th></tr></thead>
+    <tbody>
+      <tr><td class="m">Körpergewicht</td><td>Morgens wiegen (Erinnerung). App zeigt Tageswert und 7-Tage-Schnitt, Veränderung pro Woche. Hinweis: Tagesschwankungen von 1–2 kg sind normal.</td><td>Ziel-Tempo, z. B. −0,5 kg/Woche. Grüner Bereich bei Fettabbau: −0,2 bis −1,0 kg/Woche.</td></tr>
+      <tr><td class="m">Ernährung</td><td>Abends Kalorien, Protein, Kohlenhydrate, Fett eintragen (aus Yazio, MyFitnessPal o. ä. übernommen). Ringe zeigen den Stand.</td><td>Kalorienziel für Trainings- und Ruhetage, Makro-Ziele. Welche Felder abgefragt werden.</td></tr>
+      <tr><td class="m">Krafttraining</td><td>Trainingsplan im Logger: letzte Werte, Pausentimer, Rekorde, Hinweis „Gewicht erhöhen“. Funktioniert offline. Kraft soll in der Diät gehalten werden – das ist im Verlauf sichtbar.</td><td>Trainingsplan (Vorlagen), Sätze, Wiederholungen, RIR, Deload-Wochen.</td></tr>
+      <tr><td class="m">Cardio</td><td>Einheiten loggen, Wochenziel in Minuten, Tempo-Verlauf, KM Pacer beim Laufen.</td><td>Cardio-Minuten pro Woche, geplante Einheiten pro Wochentag.</td></tr>
+      <tr><td class="m">Aktivität</td><td>Tägliche Schritte (von Uhr/Handy abgelesen).</td><td>Schrittziel (z. B. 8.000–10.000).</td></tr>
+      <tr><td class="m">Schlaf</td><td>Dauer und Qualität.</td><td>Schlafziel.</td></tr>
+      <tr><td class="m">Motivation</td><td>Motivation und Energie (1–5) als Frühwarnsystem.</td><td>Warnung bei mehreren Tagen niedriger Motivation.</td></tr>
+      <tr><td class="m">Optional</td><td>Supplemente, Fotos &amp; Umfänge (Vorher-Nachher), Zyklus (erklärt Gewichtsschwankungen), Erfolge.</td><td>Pro Kunde an/aus bzw. freischalten.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">Ablauf einer Woche (Fettabbau)</h3>
+  <ol class="steps">
+    <li><b>Täglich (Kunde, ~2 Min.):</b> morgens wiegen, abends Kalorien/Makros, Schritte, Schlaf, Motivation eintragen. Push-Erinnerungen zu eigenen Zeiten.</li>
+    <li><b>2–5× pro Woche:</b> Training nach Plan loggen, Cardio loggen.</li>
+    <li><b>1× pro Woche (Kunde):</b> Check-in mit Bewertung der Woche, Hunger, Stress, Erholung, was schwierig war. Die App hängt automatisch eine Wochen-Zusammenfassung an (Gewichts-Schnitt, Veränderung, Kalorien-Schnitt, Trainings usw.).</li>
+    <li><b>1× pro Woche (ich):</b> Check-in lesen, Verläufe ansehen, persönliches Feedback schreiben, bei Bedarf Kalorien, Schritte oder Plan anpassen.</li>
+    <li><b>Laufend (ich):</b> Ampel im Dashboard – gelb/rot, wenn jemand 2–4 Tage nichts einträgt, den Check-in verpasst, niedrige Motivation hat oder Schmerzen im Training meldet.</li>
+  </ol>
+
+  <h3 class="sub">Was den Fettabbau messbar macht</h3>
+  <ul class="check">
+    <li>Gewichtsverlauf mit 7-Tage-Schnitt und kg/Woche – im Vergleich zum eingestellten Ziel-Tempo.</li>
+    <li>Kalorien-Schnitt, Protein-Treffer (Tage mit mindestens 90 % des Ziels), Schritte und Cardio pro Woche.</li>
+    <li>Kraftverlauf (geschätztes 1RM) – zeigt, ob Muskeln in der Diät erhalten bleiben.</li>
+    <li>Optional Umfänge und Fotos im Vorher-Nachher-Vergleich.</li>
+    <li>Status-Phasen: aktiv → „Erhaltung“ nach der Diät, „reduziert“, oder pausiert (krank/sonstiges) – die Phasen sind in allen Grafiken markiert.</li>
+  </ul>
+
+  <h2><span class="n">4</span>Kundenreise</h2>
+  <ol class="steps">
+    <li><b>Erster Kontakt:</b> über Instagram oder die Startseite der App (WhatsApp-Knopf „Melde dich für ein Coaching“).</li>
+    <li><b>Interessent:</b> Ich lege ihn im Dashboard an, er füllt meinen Fragebogen zum Trainingsstart aus (Gesundheit, Alltag, Ziele) – ich übertrage das in die Anamnese.</li>
+    <li><b>Konzept:</b> Ziel, Kalorien, Trainingsplan, Check-in-Tag festlegen.</li>
+    <li><b>Konto:</b> Ich erstelle das Konto (Benutzername + Startpasswort) mit Geburtsdatum und Einwilligung, bei Minderjährigen die der Eltern. Keine Selbstregistrierung.</li>
+    <li><b>Erster Login:</b> eigenes Passwort setzen, kurze Einführung, App auf den Homescreen legen, Push aktivieren.</li>
+    <li><b>Laufendes Coaching:</b> täglicher Abend-Check, Training, wöchentlicher Check-in mit Feedback.</li>
+    <li><b>Nach der Diät:</b> Wechsel auf „Erhaltung“ oder neues Ziel (z. B. Muskelaufbau). Pausen bei Krankheit möglich.</li>
+    <li><b>Ende:</b> Datenexport und Löschung auf Anfrage.</li>
+  </ol>
+
+  <h2><span class="n">5</span>Leistungen, die ich bepreisen kann</h2>
+  <div class="two">
+    <div class="card"><h3>Online-Coaching (App)</h3><p>Monatlich. App-Zugang, Plan, Ziele, wöchentlicher Check-in mit persönlichem Feedback, Anpassungen, Nachrichten.</p></div>
+    <div class="card"><h3>Personal Training</h3><p>Einzelstunde oder Block (z. B. 10er). Termine in der App, Kunde bestätigt/sagt ab, Absagefrist (Standard 24 h), Guthaben wird automatisch abgebucht.</p></div>
+    <div class="card"><h3>Online-Call</h3><p>Per Google Meet, Link erscheint in der App. Z. B. Erstgespräch, monatliches Strategie-Gespräch.</p></div>
+    <div class="card"><h3>Premium-Extras pro Kunde</h3><p>Personal Training, Fotos &amp; Umfänge, Hevy-Anbindung (Kunde braucht Hevy Pro), freies Training.</p></div>
+    <div class="card"><h3>Einmalig</h3><p>Z. B. Start-Paket: Anamnese, Konzept, Trainingsplan, Einrichtung der App.</p></div>
+    <div class="card"><h3>Jugendliche</h3><p>Mit Eltern-Einwilligung und optionalem Eltern-Bericht (Fortschritt, Training, Termine).</p></div>
+  </div>
+
+  <h2><span class="n">6</span>Abrechnung in der App</h2>
+  <ul class="check">
+    <li>Pakete mit Preis anlegen: <b>monatlich</b>, <b>einmalig</b> oder <b>PT-Block</b> (mit Anzahl Einheiten); ein Paket kann Premium-Extras automatisch freischalten.</li>
+    <li>Rabatt pro Kunde mit Notiz; Preisänderungen gelten nur für neue Buchungen (Bestandskunden behalten ihren Preis).</li>
+    <li>Monatliche Forderungen entstehen automatisch; Zahlungen trage ich ein (bar, Überweisung, sonstiges).</li>
+    <li>Übersicht: offene Beträge, Einnahmen pro Monat/Jahr, pro Kunde und pro Paket, CSV-Export.</li>
+    <li><b>Nicht möglich:</b> Online-Zahlung in der App, automatische Rechnungen, Mahnungen per Mail.</li>
+  </ul>
+
+  <h2><span class="n">7</span>Kosten und Grenzen</h2>
+  <ul class="check">
+    <li><b>Laufende Kosten der App:</b> Server 0 € (kostenlose Tarife von Supabase und Netlify), nur die Domain und mein Entwicklungswerkzeug.</li>
+    <li><b>Kosten für Kunden:</b> keine App-Gebühr; Hevy Pro nur, wenn der Kunde die Hevy-Anbindung will.</li>
+    <li>Web-App statt App Store (zum Homescreen hinzufügen); keine E-Mails, keine Videocalls in der App (dafür Google Meet).</li>
+    <li>Fotos sind begrenzt (Speicher 1 GB im kostenlosen Tarif) – eher ein Premium-Extra.</li>
+    <li>KI-Auswertung ist aus Datenschutzgründen abgeschaltet.</li>
+  </ul>
+
+  <h2><span class="n">8</span>Mein Zeitaufwand pro Kunde (von Max zu schätzen)</h2>
+  <p class="lead">Wichtig, damit die KI ausrechnen kann, wie viele Kunden realistisch sind.</p>
+  <div class="kv form">
+    <div>Start: Anamnese, Konzept, Plan, Konto (einmalig)</div><div class="fill"></div>
+    <div>Check-in lesen + Feedback (pro Woche)</div><div class="fill"></div>
+    <div>Anpassungen, Nachrichten, WhatsApp (pro Woche)</div><div class="fill"></div>
+    <div>Personal Training inkl. Anfahrt (pro Einheit)</div><div class="fill"></div>
+    <div>Online-Call (pro Termin)</div><div class="fill"></div>
+  </div>
+
+  <h2><span class="n">9</span>Fragen an die KI</h2>
+  <ol class="steps">
+    <li>Welche Preise sind in Luxemburg für Online-Coaching mit Fokus Fettabbau realistisch – für Einsteiger und mit meiner Erfahrung?</li>
+    <li>Wie sollten 2–3 Pakete aussehen (z. B. „Online“, „Online + monatlicher Call“, „Online + Personal Training“)? Was ist Standard, was Extra?</li>
+    <li>Was kosten Personal-Training-Einzelstunde und 10er-Block im Vergleich, und wie hoch sollte der Block-Rabatt sein?</li>
+    <li>Mindestlaufzeit (z. B. 3 Monate für eine Diät), Kündigungsfrist, Pausen bei Krankheit – was ist fair und üblich?</li>
+    <li>Pilotphase mit 2–3 Kunden: Rabatt gegen Feedback und Vorher-Nachher-Erlaubnis?</li>
+    <li>Rabatte für Schüler/Jugendliche? Wie mit Eltern als Zahlende umgehen?</li>
+    <li>Wie viele Kunden schaffe ich mit meiner Zeit, und welcher Monatsumsatz ergibt sich daraus?</li>
+    <li>Wie formuliere ich den Wert des Angebots (eigene App, persönliches Feedback) auf Instagram und der Landingpage?</li>
+    <li>Was muss ich rechtlich und steuerlich in Luxemburg beachten, bevor ich Geld nehme?</li>
+  </ol>
+
+  <div class="note" style="margin-top:6mm"><b>Stand:</b> September 2026 · App online unter app.mxreinert.de · Pilot mit 2–3 Kunden geplant.</div>
+</main>
+</body>
+</html>

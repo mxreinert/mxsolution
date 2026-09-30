@@ -32,9 +32,10 @@ import hevy from '../modules/hevy/index.js';
 import ai from '../modules/ai/index.js';
 import parentReport from '../modules/parent-report/index.js';
 import billing from '../modules/billing/index.js';
+import achievements from '../modules/achievements/index.js';
 import { FEATURES } from './config.js';
 
-export const MODULES = [strength, cardio, pt, weight, nutrition, activity, sleep, mood, watch, supplements, cycle, progress, hevy, ai, parentReport, billing]
+export const MODULES = [strength, cardio, pt, weight, nutrition, activity, sleep, mood, watch, supplements, cycle, progress, hevy, ai, parentReport, billing, achievements]
   .filter((m) => FEATURES[m.id] !== false)          // switched-off features are invisible everywhere
   .sort((a, b) => (a.order ?? 50) - (b.order ?? 50));
 

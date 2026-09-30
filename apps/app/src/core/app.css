@@ -507,3 +507,47 @@ button.fcard.plain-btn { width: 100%; margin: 0 0 12px; text-align: left; font: 
 }
 .gym-card { padding: 4px 16px; margin-bottom: 12px; }
 .gym-card input:not([type="checkbox"]) { margin-bottom: 12px; }
+
+/* ---------- M18 Erfolge: lion mascot + badges ---------- */
+.mx-lion { display: inline-flex; flex: none; }
+.mx-lion svg { overflow: visible; }
+.mx-lion .ml-body { transform-box: fill-box; transform-origin: 50% 60%; animation: ml-breathe 3.6s ease-in-out infinite; }
+@keyframes ml-breathe { 0%,100% { transform: scale(1) } 50% { transform: scale(1.018) } }
+.mx-lion .ml-eyes { transform-box: fill-box; transform-origin: center; animation: ml-blink 5s infinite; }
+@keyframes ml-blink { 0%,94%,100% { transform: scaleY(1) } 97% { transform: scaleY(.15) } }
+.mx-lion .ml-mane { transform-box: fill-box; transform-origin: 50% 70%; animation: ml-flicker 2.8s ease-in-out infinite; }
+@keyframes ml-flicker { 0%,100% { transform: scale(1) } 50% { transform: scale(1.025, 1.035) } }
+.mx-lion .ml-laugh, .mx-lion .ml-shine { display: none; }
+.mx-lion .ml-db { transform-box: fill-box; transform-origin: center; }
+.mx-lion.laugh .ml-laugh { display: inline; }
+.mx-lion.laugh .ml-calm { display: none; }
+.mx-lion.laugh .ml-eyes { animation: none; transform: scaleY(.55); }
+.mx-lion.laugh .ml-body { animation: ml-jump 1.1s cubic-bezier(.3,1.4,.5,1) 1; }
+@keyframes ml-jump { 0%,100% { transform: translateY(0) } 20% { transform: translateY(4px) scale(1.04,.95) } 45% { transform: translateY(-22px) scale(.97,1.04) } 70% { transform: translateY(0) scale(1.03,.97) } }
+.mx-lion.laugh .ml-db { animation: ml-lift 1.1s cubic-bezier(.3,1.4,.5,1) 1; }
+@keyframes ml-lift { 0%,100% { transform: translateY(0) } 40%,70% { transform: translateY(-16px) } }
+.ach-card { text-decoration: none; }
+.ach-card .mx-lion { margin: -6px 0; }
+.ach-hero { display: flex; align-items: center; gap: 18px; background: var(--surface); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow); }
+.ach-hero .mx-lion { cursor: pointer; }
+.ach-streak { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-weight: 600; }
+.ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+.ach { background: var(--surface); border-radius: 16px; padding: 14px 8px 12px; text-align: center; box-shadow: var(--shadow); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.card .ach { background: var(--surface-2); box-shadow: none; }
+.ach .tile { border-radius: 50%; }
+.ach:not(.on) .tile { opacity: .45; }
+.ach.on .tile { box-shadow: 0 6px 16px color-mix(in srgb, var(--warn) 40%, transparent); }
+.ach-title { font-weight: 700; font-size: 14px; line-height: 1.2; }
+.ach-desc { font-size: 12px; color: var(--muted); line-height: 1.25; }
+.ach-bar { width: 70%; height: 5px; border-radius: 3px; background: var(--fill-strong); overflow: hidden; }
+.ach-bar span { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.ach-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(0,0,0,.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: ach-fade .25s ease; }
+.ach-overlay.out { opacity: 0; transition: opacity .25s; }
+@keyframes ach-fade { from { opacity: 0 } }
+.ach-pop { position: relative; background: var(--surface); border-radius: 26px; padding: 22px 22px 18px; width: 100%; max-width: 340px; text-align: center; animation: ach-in .5s cubic-bezier(.3,1.5,.5,1); }
+@keyframes ach-in { from { transform: scale(.7); opacity: 0 } }
+.ach-pop h2 { margin: 2px 0 4px; font-size: 26px; }
+.ach-pop p { margin: 0 0 4px; }
+.ach-burst { position: absolute; inset: 0; pointer-events: none; }
+.ach-burst i { position: absolute; left: 50%; top: 35%; width: 8px; height: 12px; border-radius: 2px; opacity: 0; animation: ach-pop 1.4s cubic-bezier(.2,.7,.3,1) forwards; }
+@keyframes ach-pop { 0% { opacity: 1; transform: translate(0,0) rotate(0) } 100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(var(--r)) } }

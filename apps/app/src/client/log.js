@@ -1,5 +1,5 @@
-// Abend-Check: one page, only active modules, < 2 minutes.
-// Also used for single values (e.g. ?nur=weight_kg in the morning) and up to 3 days back.
+// Eintragen: Morgen-Check (weight, sleep, watch values) and Abend-Check (everything else) on one page.
+// ?teil=morgen | abend shows only one part, ?nur=<field> a single value, ?tag=<day> a past day (BACK_DAYS).
 import { h, clear, input, rating, segmented, textarea, toast, showError, fmtNum, parseNum, tile, skeleton } from '../core/ui.js';
 import { activeFields } from '../core/modcfg.js';
 import { q, from } from '../core/db.js';
@@ -8,11 +8,15 @@ import { clientThresholds } from '../core/settings.js';
 import { BACK_DAYS } from '../core/config.js';
 import { icon } from '../core/icons.js';
 
+// modules whose values belong to the morning (right after getting up)
+const MORNING = new Set(['weight', 'sleep', 'watch']);
+
 export async function renderLog(el, app, query) {
   const client = app.client;
   const minDay = addDays(today(), -BACK_DAYS);
   let day = query.tag && query.tag >= minDay && query.tag <= today() ? query.tag : today();
   const only = query.nur || null;
+  const part = ['morgen', 'abend'].includes(query.teil) ? query.teil : null;
   const body = h('div');
 
   // "Heute" + calendar button (a transparent date input on top opens the native picker, also on iOS)
@@ -30,7 +34,7 @@ export async function renderLog(el, app, query) {
   };
   drawBar();
 
-  el.append(h('header', { class: 'page-head' }, h('div', null, h('h1', null, only ? 'Eintragen' : 'Abend-Check'),
+  el.append(h('header', { class: 'page-head' }, h('div', null, h('h1', null, part === 'morgen' ? 'Morgen-Check' : part === 'abend' ? 'Abend-Check' : 'Eintragen'),
     h('p', { class: 'muted' }, 'Leere Felder sind okay – lieber unvollständig als gar nicht.'))),
   h('div', { class: 'day-bar' }, todayBtn,
     h('label', { class: 'day-pick' + '' }, icon('calendar', { size: 18 }), dayText, dayInput)),
@@ -49,8 +53,13 @@ export async function renderLog(el, app, query) {
     const mods = app.modules.filter((m) => app.isActive(m, client) && (m.daily || m.evening));
 
     clear(body).append(h('p', { class: 'day-label' }, fmtLong(day)));
+    const morningBox = h('div');
+    const eveningBox = h('div');
 
     for (const m of mods) {
+      const isMorning = MORNING.has(m.id);
+      if (part === 'morgen' && !isMorning) continue;
+      if (part === 'abend' && isMorning) continue;
       const fields = (only ? (m.daily || []) : activeFields(m, client, app.settings)).filter((f) => !only || f.key === only);
       if (!fields.length && (only || !m.evening)) continue;
       const set = h('fieldset', { class: 'evening-section' }, h('legend', null, m.icon ? tile(m.icon, m.color, 28) : null, m.name));
@@ -118,13 +127,22 @@ export async function renderLog(el, app, query) {
           if (sec) { set.append(...sec.el.childNodes.length && sec.el.tagName === 'FIELDSET' ? [...sec.el.childNodes].filter((n) => n.tagName !== 'LEGEND') : [sec.el]); set.saveHook = sec.save; }
         } catch (e) { console.warn('evening', m.id, e); }
       }
-      if (set.childNodes.length > 1) body.append(set);
+      if (set.childNodes.length > 1) (isMorning ? morningBox : eveningBox).append(set);
     }
 
     let note = null;
-    if (!only) {
+    if (!only && part !== 'morgen') {
       note = textarea({ value: row.note || '', maxlength: 1000, placeholder: 'Wie war der Tag? (optional)' });
-      body.append(h('fieldset', { class: 'evening-section' }, h('legend', null, tile('message', 'gray', 28), 'Notiz'), note));
+      eveningBox.append(h('fieldset', { class: 'evening-section' }, h('legend', null, tile('message', 'gray', 28), 'Notiz'), note));
+    }
+    const head = (emoji, title, sub) => h('div', { class: 'check-head' }, h('span', { class: 'check-emoji' }, emoji), h('div', null, h('h2', null, title), h('p', { class: 'muted small' }, sub)));
+    if (morningBox.childNodes.length) {
+      if (!only) body.append(head('☀️', 'Morgen-Check', 'Direkt nach dem Aufstehen: nüchtern wiegen, Schlaf und Uhr-Werte.'));
+      body.append(morningBox);
+    }
+    if (eveningBox.childNodes.length) {
+      if (!only) body.append(head('🌙', 'Abend-Check', 'Am Ende des Tages: Essen, Bewegung, Befinden.'));
+      body.append(eveningBox);
     }
     if (body.querySelectorAll('fieldset').length === 0) {
       body.append(h('p', { class: 'muted' }, 'Für dich sind noch keine Werte zum Eintragen aktiv. Max richtet das ein.'));

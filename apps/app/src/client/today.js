@@ -9,6 +9,9 @@ import { BACK_DAYS } from '../core/config.js';
 
 const SKIP = ['client_id', 'day', 'updated_at', 'updated_by', 'not_tracked'];
 const hasData = (r) => Object.entries(r).some(([k, v]) => !SKIP.includes(k) && v != null);
+// morning values (Morgen-Check) don't count as "evening check done"
+const MORNING_KEYS = ['weight_kg', 'sleep_h', 'sleep_quality', 'resting_hr', 'hrv_ms'];
+const hasEvening = (r) => Object.entries(r).some(([k, v]) => !SKIP.includes(k) && !MORNING_KEYS.includes(k) && v != null);
 
 /** Rings for today: only for active modules with a target, plus weekly consistency */
 function todayRings(app, client, ctx) {
@@ -108,9 +111,9 @@ export async function renderToday(el, app) {
     if (!has(yesterday) && client.goal_start && client.goal_start <= yesterday) {
       out.push(fcard({ icon: 'clock', color: 'warn', title: 'Gestern fehlt noch', sub: `Geht bis zu ${BACK_DAYS} Tage rückwirkend`, href: `#/eintragen?tag=${yesterday}`, cls: 'warn' }));
     }
-    out.push(has(today())
+    out.push(ctx.daily.some((r) => r.day === today() && hasEvening(r))
       ? fcard({ icon: 'check', color: 'ok', title: 'Heute eingetragen', sub: 'Tippen zum Ergänzen', href: '#/eintragen' })
-      : fcard({ icon: 'pencil', color: 'accent', title: 'Abend-Check', sub: hour >= 17 ? 'Jetzt eintragen – unter 2 Minuten' : 'Heute Abend eintragen', href: '#/eintragen', cls: hour >= 17 ? 'hl' : '' }));
+      : fcard({ icon: 'pencil', color: 'accent', title: 'Abend-Check', sub: hour >= 17 ? 'Jetzt eintragen – unter 2 Minuten' : 'Heute Abend eintragen', href: '#/eintragen?teil=abend', cls: hour >= 17 ? 'hl' : '' }));
 
     const dueOffset = (client.checkin_weekday + 6) % 7;
     if (!ci.length && (weekday(today()) + 6) % 7 >= dueOffset) {

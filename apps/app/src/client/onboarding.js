@@ -38,8 +38,8 @@ export async function renderOnboarding(el, app) {
     } else if (step === 3) {
       const watch = select([['', '– keine –'], ['apple', 'Apple Watch'], ['garmin', 'Garmin'], ['fitbit', 'Fitbit'], ['samsung', 'Samsung'], ['phone', 'nur Handy'], ['other', 'andere']], '');
       const food = select([['', '– keine –'], ['yazio', 'Yazio'], ['mfp', 'MyFitnessPal'], ['fddb', 'FDDB'], ['other', 'andere']], '');
-      box.append(h('h1', null, 'So funktioniert der Abend-Check'),
-        h('p', null, 'Einmal am Abend trägst du die Werte des Tages ein. Dauert unter 2 Minuten. Leere Felder sind okay.'),
+      box.append(h('h1', null, 'Morgens und abends kurz eintragen'),
+        h('p', null, 'Morgen-Check: direkt nach dem Aufstehen nüchtern wiegen und Schlaf eintragen (30 Sekunden). Abend-Check: Essen, Bewegung und Befinden des Tages (unter 2 Minuten). Leere Felder sind okay.'),
         field('Welche Uhr nutzt du?', watch), field('Welche Ernährungs-App?', food),
         h('button', { type: 'button', onclick: async () => { try { await save({ devices: { watch: watch.value || null, nutrition_app: food.value || null } }); next(); } catch (e) { showError(e); } } }, 'Weiter'));
     } else if (step === 4) {

@@ -32,7 +32,7 @@ export default {
     if (!moduleConfig(this, ctx.client, ctx.settings).morning_prompt) return null;
     const todays = ctx.daily.find((r) => r.day === today());
     if (todays?.weight_kg != null || new Date().getHours() >= 12) return null;
-    return fcard({ icon: 'scale', color: 'teal', title: 'Morgens wiegen', sub: 'Nüchtern ist am genauesten – 10 Sekunden', href: '#/eintragen?nur=weight_kg' });
+    return fcard({ icon: 'scale', color: 'teal', title: 'Morgen-Check', sub: 'Nüchtern wiegen und Schlaf eintragen – 30 Sekunden', href: '#/eintragen?teil=morgen', cls: 'hl' });
   },
 
   async analysis(ctx) {

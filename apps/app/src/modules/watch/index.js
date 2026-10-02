@@ -9,7 +9,7 @@ export default {
   color: 'bad',
   description: 'Ruhepuls und HRV von der Uhr',
   config: [
-    { key: 'fields', label: 'Im Abend-Check abfragen', type: 'fields', store: 'config', default: ['resting_hr', 'hrv_ms'] }
+    { key: 'fields', label: 'Im Morgen-Check abfragen', type: 'fields', store: 'config', default: ['resting_hr', 'hrv_ms'] }
   ],
 
   daily: [

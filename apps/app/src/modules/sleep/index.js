@@ -11,7 +11,7 @@ export default {
   color: 'indigo',
   description: 'Schlafdauer und -qualität',
   config: [
-    { key: 'fields', label: 'Im Abend-Check abfragen', type: 'fields', store: 'config', default: ['sleep_h', 'sleep_quality'] },
+    { key: 'fields', label: 'Im Morgen-Check abfragen', type: 'fields', store: 'config', default: ['sleep_h', 'sleep_quality'] },
     { key: 'sleep_h', label: 'Schlafziel', short: 'Ziel', type: 'number', store: 'target', unit: 'h', step: 0.5 }
   ],
 

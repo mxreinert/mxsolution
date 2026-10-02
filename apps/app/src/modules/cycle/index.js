@@ -85,7 +85,7 @@ export default {
     // only while a period is running: reminder to enter the end
     const st = cycleState(await loadStarts(ctx.client.id));
     if (!st?.running) return null;
-    return fcard({ icon: 'drop', color: 'pink', title: 'Zyklus', sub: `Periode · Tag ${st.cycleDay} – Ende im Abend-Check eintragen`, href: '#/eintragen' });
+    return fcard({ icon: 'drop', color: 'pink', title: 'Zyklus', sub: `Periode · Tag ${st.cycleDay} – Ende im Abend-Check eintragen`, href: '#/eintragen?teil=abend' });
   },
 
   async analysis(ctx) {

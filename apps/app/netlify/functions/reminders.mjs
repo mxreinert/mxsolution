@@ -65,8 +65,10 @@ export default scheduled('reminders', async () => {
     }
     const entry = today.find((e) => e.client_id === c.id);
     const msgs = [];
-    if (rem.weigh?.on && due(rem.weigh.time, now.hhmm) && entry?.weight_kg == null) msgs.push({ title: '⚖️ Morgens wiegen', body: 'Nüchtern ist am genauesten – 10 Sekunden.', url: '/home.html#/eintragen?nur=weight_kg', tag: 'weigh' });
-    if (rem.evening?.on && due(rem.evening.time, now.hhmm) && !entry) msgs.push({ title: '✍️ Abend-Check', body: 'Kurz die Werte von heute eintragen – unter 2 Minuten.', url: '/home.html#/eintragen', tag: 'evening' });
+    if (rem.weigh?.on && due(rem.weigh.time, now.hhmm) && entry?.weight_kg == null) msgs.push({ title: '☀️ Morgen-Check', body: 'Nüchtern wiegen und Schlaf eintragen – 30 Sekunden.', url: '/home.html#/eintragen?teil=morgen', tag: 'weigh' });
+    // evening values missing (a morning weigh-in alone does not count)
+    const eveningDone = entry && (entry.kcal != null || entry.steps != null || entry.motivation != null);
+    if (rem.evening?.on && due(rem.evening.time, now.hhmm) && !eveningDone) msgs.push({ title: '✍️ Abend-Check', body: 'Kurz die Werte von heute eintragen – unter 2 Minuten.', url: '/home.html#/eintragen?teil=abend', tag: 'evening' });
     const cardioToday = (c.targets?.cardio_week || []).filter((p) => Number(p.wd) === now.weekday);
     if (rem.training?.on && due(rem.training.time, now.hhmm) && cardioToday.length && !workoutsToday.some((w) => w.client_id === c.id)) {
       msgs.push({ title: '🏃 Heute steht Training an', body: cardioToday.map((p) => `${p.duration_min || ''} min ${p.kind}`).join(', '), url: '/home.html#/training', tag: 'training' });

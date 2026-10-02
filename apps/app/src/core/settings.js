@@ -17,7 +17,7 @@ export const DEFAULT_SETTINGS = {
     mood_low_days: 3         // ... on 3 days in a row -> red
   },
   reminders: {
-    weigh: { on: true, time: '07:00', label: 'Morgens wiegen' },
+    weigh: { on: true, time: '07:00', label: 'Morgen-Check (wiegen, Schlaf)' },
     evening: { on: true, time: '20:30', label: 'Abend-Check' },
     training: { on: true, time: '16:00', label: 'Trainingstag' },
     checkin: { on: true, time: '18:00', label: 'Check-in abgeben' }
@@ -29,7 +29,7 @@ export const DEFAULT_SETTINGS = {
   faq: [
     { q: 'Wie füge ich die App zum Homescreen hinzu?', a: 'iPhone: In Safari auf „Teilen“ tippen → „Zum Home-Bildschirm“. Android: In Chrome Menü (⋮) → „App installieren“ oder „Zum Startbildschirm hinzufügen“.' },
     { q: 'Wie aktiviere ich Push-Benachrichtigungen?', a: 'Im Profil unter „Benachrichtigungen“. Auf dem iPhone geht das nur, wenn die App zum Homescreen hinzugefügt wurde (iOS 16.4 oder neuer).' },
-    { q: 'Was ist der Abend-Check?', a: 'Einmal am Abend trägst du die Werte des Tages ein, dauert unter 2 Minuten. Leere Felder sind okay – lieber unvollständig als gar nicht.' },
+    { q: 'Was sind Morgen- und Abend-Check?', a: 'Morgens nach dem Aufstehen: nüchtern wiegen, Schlaf und Uhr-Werte (30 Sekunden). Abends: Essen, Bewegung und Befinden des Tages (unter 2 Minuten). Beides steht unter „Eintragen“. Leere Felder sind okay – lieber unvollständig als gar nicht.' },
     { q: 'Warum schwankt mein Gewicht?', a: 'Wasser, Salz, Kohlenhydrate, Verdauung, Zyklus und Kreatin verändern das Gewicht täglich um 1–2 kg. Deshalb zählt der 7-Tage-Schnitt, nicht der Einzelwert.' },
     { q: 'Was ist RIR?', a: '„Reps in Reserve“: wie viele Wiederholungen du noch geschafft hättest. RIR 2 = noch 2 saubere Wiederholungen möglich.' }
   ]

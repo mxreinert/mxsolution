@@ -651,3 +651,9 @@ button.fcard.plain-btn { width: 100%; margin: 0 0 12px; text-align: left; font: 
 .req-row p { margin: 6px 0; }
 
 .cycle-note { display: block; margin-top: 4px; color: var(--pink); font-size: 13px; font-weight: 500; }
+
+/* Eintragen: morning / evening part */
+.check-head { display: flex; align-items: center; gap: 12px; margin: 22px 2px 8px; }
+.check-head .check-emoji { font-size: 26px; line-height: 1; }
+.check-head h2 { font-size: 22px; margin: 0; }
+.check-head p { margin: 2px 0 0; }

@@ -649,3 +649,5 @@ button.fcard.plain-btn { width: 100%; margin: 0 0 12px; text-align: left; font: 
 .req-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .req-head small { margin-left: auto; }
 .req-row p { margin: 6px 0; }
+
+.cycle-note { display: block; margin-top: 4px; color: var(--pink); font-size: 13px; font-weight: 500; }

@@ -3,7 +3,7 @@
 import { h, clear, input, rating, segmented, textarea, toast, showError, fmtNum, parseNum, tile, skeleton } from '../core/ui.js';
 import { activeFields } from '../core/modcfg.js';
 import { q, from } from '../core/db.js';
-import { today, addDays, fmtLong, relDay } from '../core/dates.js';
+import { today, addDays, fmtLong, relDay, diffDays } from '../core/dates.js';
 import { clientThresholds } from '../core/settings.js';
 import { BACK_DAYS } from '../core/config.js';
 import { icon } from '../core/icons.js';
@@ -78,7 +78,10 @@ export async function renderLog(el, app, query) {
           });
         }
         label.htmlFor = control.id = 'e_' + f.key;
-        wrap.append(label, control, f.hint ? h('small', { class: 'muted' }, f.hint) : null, warn);
+        // weight on a period day: say that a jump is normal (bands come from the cycle module, if active)
+        const cycleBand = f.key === 'weight_kg' && (ctx.bands || []).find((bd) => bd.cls === 'cycle' && bd.from <= day && day <= bd.to);
+        wrap.append(label, control, f.hint ? h('small', { class: 'muted' }, f.hint) : null,
+          cycleBand ? h('small', { class: 'cycle-note' }, `Periode, Tag ${diffDays(cycleBand.from, day) + 1}: +1–2 kg durch Wasser sind normal und kein Fett.`) : null, warn);
 
         // "Nicht getrackt" per field (or once for the whole group)
         if (!groupKeys && f.type !== 'rating') {

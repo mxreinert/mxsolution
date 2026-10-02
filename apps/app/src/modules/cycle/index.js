@@ -23,15 +23,13 @@ function avgPeriod(starts) {
   return l.length ? l.reduce((a, b) => a + b, 0) / l.length : null;
 }
 
-/** Current state: running period, day of cycle, next expected start */
+/** Current state: running period and day of cycle. No prediction on purpose – this is a coaching app, not a period tracker. */
 function cycleState(starts, day = today()) {
   const past = starts.filter((s) => s.start_date <= day);
   const last = past[past.length - 1];
   if (!last) return null;
-  const len = Math.round(avgLength(starts) || 28);
   const running = !last.end_date && diffDays(last.start_date, day) <= 14 ? last : null;
-  const next = addDays(last.start_date, len);
-  return { last, running, len, cycleDay: diffDays(last.start_date, day) + 1, next, inDays: diffDays(day, next) };
+  return { last, running, cycleDay: diffDays(last.start_date, day) + 1 };
 }
 
 export default {
@@ -40,18 +38,18 @@ export default {
   order: 80,
   icon: 'drop',
   color: 'pink',
-  description: 'Periodenbeginn – erklärt Gewichtsschwankungen (nur mit Einwilligung)',
+  description: 'Periode (Beginn und Ende) – erklärt Gewichtsschwankungen (nur mit Einwilligung)',
   requires: { consent: 'cycle', clientSetting: 'cycle_enabled' },
 
-  /** shade the first 5 days of each cycle and the expected pre-menstrual days in charts */
+  /** shade the period days and the 5 days before each (already recorded) next period in charts – nothing in the future */
   async annotations(ctx) {
     const starts = await loadStarts(ctx.client.id);
-    const len = Math.round(avgLength(starts) || 28);
     const bands = [];
-    for (const s of starts) {
+    starts.forEach((s, i) => {
       bands.push({ from: s.start_date, to: s.end_date || addDays(s.start_date, 4), cls: 'cycle' });
-      bands.push({ from: addDays(s.start_date, len - 5), to: addDays(s.start_date, len - 1), cls: 'cycle-pre' });
-    }
+      const next = starts[i + 1];
+      if (next && diffDays(s.start_date, next.start_date) >= 18) bands.push({ from: addDays(next.start_date, -5), to: addDays(next.start_date, -1), cls: 'cycle-pre' });
+    });
     return { bands, hints: starts.length ? [{ for: 'weight', text: 'Hinterlegte Tage: Periode und Tage davor – hier sind Wassereinlagerungen von 1–2 kg typisch.' }] : [] };
   },
 
@@ -84,12 +82,10 @@ export default {
 
   async today(ctx) {
     if (ctx.role !== 'client') return null;
+    // only while a period is running: reminder to enter the end
     const st = cycleState(await loadStarts(ctx.client.id));
-    if (!st) return null;
-    const sub = st.running ? `Periode · Tag ${st.cycleDay} – Ende im Abend-Check eintragen`
-      : st.inDays > 1 ? `Zyklustag ${st.cycleDay} · nächste Periode in ca. ${st.inDays} Tagen`
-        : st.inDays >= -3 ? `Zyklustag ${st.cycleDay} · Periode ist ungefähr jetzt fällig` : `Zyklustag ${st.cycleDay}`;
-    return fcard({ icon: 'drop', color: 'pink', title: 'Zyklus', sub, href: '#/eintragen' });
+    if (!st?.running) return null;
+    return fcard({ icon: 'drop', color: 'pink', title: 'Zyklus', sub: `Periode · Tag ${st.cycleDay} – Ende im Abend-Check eintragen`, href: '#/eintragen' });
   },
 
   async analysis(ctx) {
@@ -104,11 +100,11 @@ export default {
         st ? h('tr', null, h('th', null, 'Zyklustag heute'), h('td', null, String(st.cycleDay))) : null,
         len ? h('tr', null, h('th', null, 'Ø Zykluslänge'), h('td', null, `${fmtNum(len)} Tage`)) : null,
         plen ? h('tr', null, h('th', null, 'Ø Periodenlänge'), h('td', null, `${fmtNum(plen, 1)} Tage`)) : null,
-        st ? h('tr', null, h('th', null, 'Nächste Periode (geschätzt)'), h('td', null, fmt(st.next))) : null)),
+        null)),
       starts.length > 1 ? h('div', { class: 'cycle-list' }, starts.slice(-6).reverse().map((s) => h('div', { class: 'list-row' },
         h('span', null, fmt(s.start_date), s.end_date ? ` – ${fmt(s.end_date)}` : ''),
         h('span', { class: 'muted small' }, s.end_date ? `${diffDays(s.start_date, s.end_date) + 1} Tage` : '')))) : null,
-      h('p', { class: 'hint muted' }, 'Gespeichert werden nur Beginn und Ende der Periode. Die Vorhersage ist ein Durchschnittswert, keine Verhütung. Die Gewichtsgrafik zeigt diese Tage hinterlegt.'));
+      h('p', { class: 'hint muted' }, 'Gespeichert werden nur Beginn und Ende der Periode – damit Gewichtsschwankungen erklärbar sind. Die Gewichtsgrafik zeigt diese Tage hinterlegt.'));
 
     if (ctx.role === 'client') {
       const d = input({ type: 'date', value: today(), max: today() });

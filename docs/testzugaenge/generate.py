@@ -59,6 +59,8 @@ tr { break-inside: avoid; }
 tr.pink td { background: var(--pink-soft); }
 tr.grey td { background: var(--grey); }
 tr.amber td { background: var(--amber-soft); }
+.sep { border-left: 1.5px solid var(--navy); }
+tr.grp th { border-bottom: 0; font-size: 7.6pt; color: var(--ink); }
 .note { color: var(--muted); font-size: 7.8pt; }
 ul.check { list-style: none; margin: 0; padding: 0; }
 ul.check li { position: relative; padding-left: 4.6mm; margin: .6mm 0; break-inside: avoid; }
@@ -103,7 +105,9 @@ def tester_html(p):
     name = p['first']
     day_rows = ''
     for d in p['days']:
-        cells = ''.join(f'<td class="c">{E(str(v))}</td>' for v in d[1:15])
+        # Morgen-Check: Gewicht, Schlaf, Qualität, Ruhepuls, HRV · Abend-Check: kcal, P, KH, F, Schritte, akt. kcal, Motivation, Energie, Supplemente
+        order = [1, 8, 9, 12, 13, 2, 3, 4, 5, 6, 7, 10, 11, 14]
+        cells = ''.join(f'<td class="c{" sep" if j == 5 else ""}">{E(str(d[i]))}</td>' for j, i in enumerate(order))
         day_rows += f'<tr class="{d[17]}"><td class="c"><b>{d[0]}</b></td>{cells}<td>{E(d[15])}</td><td>{E(d[16])}</td></tr>'
 
     workouts = ''
@@ -121,7 +125,8 @@ def tester_html(p):
     extras.append(f'<div class="mini"><h3>Termin anfragen</h3><p>{E(p["request"])}</p></div>')
     checks = ''.join('<ul class="check">' + ''.join(f'<li>{E(c)}</li>' for c in col) + '</ul>' for col in p['checks'])
     photo = ' Beim Fortschrittsfoto <b>keine Fotos von dir</b> (z. B. eine Wasserflasche fotografieren).' if p['measure'] else ''
-    weigh = '<li><b>Morgens:</b> Gewicht aus Seite 2 eintragen.</li>' if p['start_weight'] != '–' else ''
+    weigh = ('<li><b>Morgens (Morgen-Check):</b> direkt nach dem Aufstehen Gewicht, Schlaf und Uhr-Werte aus Seite 2 eintragen.</li>'
+             if p['start_weight'] != '–' else '<li><b>Morgens (Morgen-Check):</b> Schlaf aus Seite 2 eintragen.</li>')
     supp = f', Supplemente abhaken ({E(p["supp_legend"])})' if p.get('supp_legend') else ''
     ci = ''.join(f'<tr><td class="c"><b>{c[0]}</b></td><td>{E(c[1])}</td><td>{E(c[2])}</td><td>{E(c[3])}</td><td>{E(c[4])}</td></tr><tr><td></td><td colspan="4" class="note">Schwierig: {E(c[5])}</td></tr>' for c in p['checkins'])
 
@@ -147,7 +152,7 @@ def tester_html(p):
   <h2><span class="n">2</span>So gehst du jeden Tag vor (3–5 Minuten)</h2>
   <ul class="check">
     {weigh}
-    <li><b>Abends:</b> Abend-Check („Eintragen“) mit allen Werten der Zeile des Tages{supp}.</li>
+    <li><b>Abends (Abend-Check):</b> den Rest der Zeile – Essen, Schritte, Befinden{supp}. Beides findest du unter „Eintragen“.</li>
     <li><b>Krafttraining:</b> genau die Sätze von Seite 3 eintragen. „W“ = Aufwärmsatz (Satznummer antippen → Aufwärmsatz), 🏅 = da sollte ein Rekord erscheinen. RIR: den Wert aus dem Plan nehmen (steht grau im Feld), beim letzten Satz 1 weniger.</li>
     <li><b>Cardio:</b> unter Training → Cardio eintragen, Art aus der Liste wählen.</li>
     <li><b>Spalte „Besonderes“</b> beachten – dort stehen die Test-Aufgaben des Tages.</li>
@@ -164,9 +169,10 @@ def tester_html(p):
   <h2><span class="n">4</span>Tageswerte – eine Zeile pro Tag</h2>
   <p class="lead">{E(p["legend"])}</p>
   <table>
-    <thead><tr><th class="c">Tag</th><th class="c">Gewicht kg</th><th class="c">kcal</th><th class="c">Protein g</th><th class="c">KH g</th><th class="c">Fett g</th>
-      <th class="c">Schritte</th><th class="c">Aktive kcal</th><th class="c">Schlaf h</th><th class="c">Schlaf­qualität</th><th class="c">Moti­vation</th><th class="c">Energie</th>
-      <th class="c">Ruhe­puls</th><th class="c">HRV ms</th><th class="c">Supple­mente</th><th>Training / Cardio</th><th>Besonderes</th></tr></thead>
+    <thead><tr class="grp"><th></th><th colspan="5" class="c">☀️ Morgen-Check</th><th colspan="9" class="c sep">🌙 Abend-Check</th><th colspan="2"></th></tr>
+      <tr><th class="c">Tag</th><th class="c">Gewicht kg</th><th class="c">Schlaf h</th><th class="c">Schlaf­qualität</th><th class="c">Ruhe­puls</th><th class="c">HRV ms</th>
+      <th class="c sep">kcal</th><th class="c">Protein g</th><th class="c">KH g</th><th class="c">Fett g</th><th class="c">Schritte</th><th class="c">Aktive kcal</th>
+      <th class="c">Moti­vation</th><th class="c">Energie</th><th class="c">Supple­mente</th><th>Training / Cardio</th><th>Besonderes</th></tr></thead>
     <tbody>{day_rows}</tbody>
   </table>
 </main>

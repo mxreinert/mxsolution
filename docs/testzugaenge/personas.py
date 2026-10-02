@@ -29,7 +29,7 @@ LENA = {
         (10, '72,5', 1680, 136, 152, 57, '8.100', 430, '7,0', 4, 4, 4, 61, 49, 'K D W', 'Kraft A (anderes Gym)', 'Periode endet', 'pink'),
         (11, '71,9', 2300, 105, 260, 82, '21.500', 1150, '8,0', 5, 5, 4, 60, 53, 'K D', 'Wandern 120 min · 9,0 km · lang', '', ''),
         (12, '72,8', 1720, 132, 162, 58, '7.300', 380, '6,5', 3, 4, 3, 62, 46, 'K D', '–', '+0,9 kg nach dem Wandertag · erst an Tag 13 nachtragen', 'grey'),
-        (13, '71,6', 1750, 134, 166, 59, '7.900', 410, '7,0', 4, 4, 4, 61, 50, 'K D W', 'Kraft B + Laufen 3 km mit KM Pacer', '', ''),
+        (13, '71,6', 1750, 134, 166, 59, '7.900', 410, '7,0', 4, 4, 4, 61, 50, 'K D W', 'Kraft B + Laufen 20 min · 3,0 km · locker', '', ''),
         (14, '71,4', 1690, 130, 158, 58, '8.600', 440, '7,5', 4, 5, 4, 60, 52, 'K D', '–', 'Ende: Umfänge + Foto · Check-in 2', ''),
     ],
     'train_lead': 'Supersatz: erst Seitheben, dann direkt Trizeps, dann Pause.',
@@ -215,19 +215,19 @@ TOM = {
     'facts': 'Lehrer · läuft 3× pro Woche · Garmin-Uhr (Schritte, aktive kcal, Schlaf, Ruhepuls, HRV) · trackt sein Essen nicht · '
              'Magnesium · rechte Achillessehne empfindlich · 2× pro Woche Kräftigung',
     'supp_legend': 'M = Magnesium',
-    'legend': 'Läufe immer mit Dauer, Distanz, Intensität, Ø Puls und Anstrengung eintragen · Läufe mit „KM Pacer“ direkt mit dem KM Pacer laufen · '
+    'legend': 'Läufe immer mit Dauer, Distanz, Intensität, Ø Puls und Anstrengung eintragen – die Pace rechnet die App aus · '
               'gelb = Tippfehler-Test · grau = erst am nächsten Tag über 📅 nachtragen (Cardio mit dem richtigen Datum!) · – = nicht aktiv.',
     'days': [
         (1, '79,0', '–', '–', '–', '–', '9.800', 620, '7,5', 4, 5, 4, 54, 68, 'M', 'Laufen 40 min · 7,2 km · locker · Puls 141 · Anstr. 4', 'Start', ''),
         (2, '79,5', '–', '–', '–', '–', '6.200', 310, '7,0', 4, 4, 4, 55, 64, 'M', 'Kraft A (Läufer-Stabi)', '', ''),
-        (3, '78,7', '–', '–', '–', '–', '12.400', 780, '6,5', 3, 4, 3, 57, 58, 'M', 'Intervall mit KM Pacer: 6 × 1 km · 50 min · 9,0 km · Puls 158 · Anstr. 8', 'KM Pacer benutzen', ''),
+        (3, '78,7', '–', '–', '–', '–', '12.400', 780, '6,5', 3, 4, 3, 57, 58, 'M', 'Intervall 6 × 1 km · 50 min · 9,0 km · Puls 158 · Anstr. 8', 'Intensität „Intervall“ wählen', ''),
         (4, '79,1', '–', '–', '–', '–', '7.100', 350, '8,0', 5, 4, 4, 55, 66, 'M', '–', 'Ruhetag', ''),
         (5, '78,6', '–', '–', '–', '–', '119.000 → 11.900', 700, '7,5', 4, 5, 4, 54, 69, 'M', 'Laufen 45 min · 8,0 km · locker · Puls 139 · Anstr. 4', 'Tippfehler bei Schritten', 'amber'),
         (6, '79,8', '–', '–', '–', '–', '5.900', 300, '5,5', 2, 3, 2, 59, 52, '–', '–', 'Grillabend, wenig Schlaf, HRV runter · Supplemente vergessen', ''),
         (7, '79,3', '–', '–', '–', '–', '16.800', 1050, '7,5', 4, 4, 4, 56, 61, 'M', 'Langer Lauf 75 min · 12,5 km · lang · Puls 145 · Anstr. 6', 'Check-in 1', ''),
         (8, '78,9', '–', '–', '–', '–', '6.400', 320, '8,0', 5, 4, 4, 54, 70, 'M', '–', 'Termin anfragen', ''),
         (9, '79,4', '–', '–', '–', '–', '7.000', 340, '7,0', 4, 4, 4, 55, 66, 'M', 'Kraft B (Läufer-Stabi)', '', ''),
-        (10, '78,5', '–', '–', '–', '–', '13.100', 820, '7,5', 4, 5, 5, 53, 72, 'M', 'Intervall mit KM Pacer: 5 × 1,2 km · 52 min · 9,5 km · Puls 160 · Anstr. 8', 'schnellste Pace bisher', ''),
+        (10, '78,5', '–', '–', '–', '–', '13.100', 820, '7,5', 4, 5, 5, 53, 72, 'M', 'Intervall 5 × 1,2 km · 52 min · 9,5 km · Puls 160 · Anstr. 8', 'schnellste Pace bisher', ''),
         (11, '78,9', '–', '–', '–', '–', '8.200', 410, '7,0', 4, 4, 4, 55, 66, 'M', 'Seilspringen 15 min · HIIT 15 min', 'erst an Tag 12 über 📅 nachtragen', 'grey'),
         (12, '78,8', '–', '–', '–', '–', '6.800', 330, '7,0', 4, 4, 4, 55, 67, 'M', 'Crosstrainer 30 min · locker', 'Art aus „Weitere“ wählen', ''),
         (13, '79,2', '–', '–', '–', '–', '5.500', 260, '8,5', 5, 4, 4, 54, 71, 'M', '–', 'Ruhetag', ''),
@@ -259,7 +259,7 @@ TOM = {
     'checks': [
         ['Login, eigenes Passwort, Einführung', 'Homescreen + Push erlauben', 'Abend-Check fragt keine Ernährung ab', 'Uhr-Werte: Ruhepuls + HRV eintragen',
          'Tippfehler bei Schritten (Tag 5)', 'Nachtragen über 📅 (Tag 12)', 'Ringe: Schritte + Woche'],
-        ['KM Pacer: Intervall-Lauf (Tag 3, 10)', 'Lauf aus dem KM Pacer erscheint unter Cardio', 'Cardio-Arten aus „Häufigste“ und „Weitere“', 'Pace-Verlauf in der Auswertung',
+        ['Intervall-Läufe mit Puls + Anstrengung (Tag 3, 10)', 'Pace (min/km) wird automatisch angezeigt', 'Cardio-Arten aus „Häufigste“ und „Weitere“', 'Pace-Verlauf in der Auswertung',
          'Wochenziel 180 min Cardio', 'Kräftigung: Zeit-Übungen (Sekunden)', 'Schmerzen melden (Tag 9)'],
         ['Auswertung Schlaf, Ruhepuls, HRV', 'Gewicht ohne Ziel-Tempo', 'Löwe bei Erfolgen', 'Check-in, Antwort von Max', 'Terminanfrage, Antwort sehen',
          'Push-Erinnerung zur eingestellten Zeit', 'Abmelden und wieder anmelden'],

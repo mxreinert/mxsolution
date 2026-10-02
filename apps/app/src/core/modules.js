@@ -16,6 +16,7 @@
 //   profile(ctx)         -> card in the client's profile
 //   summary(ctx, from, to) -> [{label, value}] for weekly summary / reports
 //   routes: [{ path, role, nav?, render(el, params, query, app) }]
+//   coachSettings(app)   -> card on Coach → Einstellungen (saves on its own)
 import strength from '../modules/strength/index.js';
 import cardio from '../modules/cardio/index.js';
 import pt from '../modules/pt/index.js';

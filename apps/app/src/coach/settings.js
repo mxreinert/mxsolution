@@ -67,6 +67,12 @@ export async function renderSettings(el, app) {
     } catch (e) { showError(e); }
   };
 
+  // extra cards from modules (e.g. Hevy exercise mapping); each saves on its own
+  const moduleCards = h('div');
+  for (const m of app.modules.filter((x) => x.coachSettings)) {
+    try { moduleCards.append(await m.coachSettings(app)); } catch (e) { console.warn('coachSettings', m.id, e); }
+  }
+
   el.append(
     pageHead('Einstellungen', 'Dein Profil und deine Angaben. Alles zu Kunden stellst du direkt beim Kunden ein.'),
     card(null,
@@ -91,6 +97,7 @@ export async function renderSettings(el, app) {
       row('Hilfetext', 'Optional, erscheint oben auf der Hilfe-Seite.', null), help),
     card('FAQ', faqBox),
     h('button', { type: 'button', class: 'sticky-save', onclick: save }, 'Speichern'),
+    moduleCards,
     h('section', { class: 'card scard' },
       h('h3', { class: 'card-title' }, 'Konto'),
       row('Zwei-Faktor-Login', 'Für dein Coach-Konto Pflicht.', h('span', { class: 'badge ok' }, 'aktiv')),

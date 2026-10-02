@@ -23,11 +23,44 @@ async function hevyFetch(key, path) {
   return r.json();
 }
 
+// Hevy equipment (in brackets after the name, German or English) -> our equipment names
+const EQUIP = {
+  langhantel: 'langhantel', barbell: 'langhantel', kurzhantel: 'kurzhantel', dumbbell: 'kurzhantel', maschine: 'maschine', machine: 'maschine',
+  kabel: 'kabel', cable: 'kabel', kabelzug: 'kabel', korpergewicht: 'korpergewicht', bodyweight: 'korpergewicht', multipresse: 'multipresse',
+  smithmachine: 'multipresse', szstange: 'szstange', ezbar: 'szstange', kettlebell: 'kettlebell', plateloaded: 'maschine'
+};
+
+/**
+ * Builds a matcher: Hevy title -> exercise id.
+ * Order: coach's manual mapping, exact name (brackets ignored), name + equipment from the brackets,
+ * unique name/base without equipment, unique name that starts with the Hevy title ("Butterfly" -> "Butterfly Maschine").
+ */
+export function makeMatcher(exercises, manual = {}) {
+  const exact = new Map();
+  for (const e of exercises) { exact.set(norm(e.name), e.id); if (e.base && !exact.has(norm(e.base))) exact.set(norm(e.base), e.id); }
+  return (title) => {
+    const t = norm(title);
+    if (manual[t]?.exercise_id) return manual[t].exercise_id;
+    if (exact.has(t)) return exact.get(t);
+    const m = String(title || '').match(/^(.*?)\s*\(([^)]*)\)\s*$/);
+    const core = norm(m ? m[1] : title);
+    const equip = m ? EQUIP[norm(m[2])] : null;
+    const sameName = exercises.filter((e) => norm(e.name) === core || norm(e.base) === core);
+    const withEquip = equip ? sameName.filter((e) => norm(e.equipment) === equip) : [];
+    if (withEquip.length) return withEquip[0].id;
+    if (sameName.length === 1) return sameName[0].id;
+    const starts = exercises.filter((e) => norm(e.name).startsWith(core) && (!equip || norm(e.equipment) === equip));
+    if (core.length >= 5 && starts.length === 1) return starts[0].id;
+    return null;
+  };
+}
+
 /** Import workouts newer than `since` (max 5 pages à 10). Returns number imported. */
 export async function syncClient(clientId, key, since) {
-  const exercises = await db.select('exercises', 'select=id,name,base');
-  const byName = new Map();
-  for (const e of exercises) { byName.set(norm(e.name), e.id); if (e.base && !byName.has(norm(e.base))) byName.set(norm(e.base), e.id); }
+  const exercises = await db.select('exercises', 'select=id,name,base,equipment');
+  const coach = (await db.select('clients', `id=eq.${clientId}&select=coach_id`))[0];
+  const cs = coach ? (await db.select('coach_settings', `coach_id=eq.${coach.coach_id}&select=settings`))[0] : null;
+  const match = makeMatcher(exercises, cs?.settings?.hevy_map || {});
 
   let imported = 0;
   for (let page = 1; page <= 5; page++) {
@@ -44,7 +77,7 @@ export async function syncClient(clientId, key, since) {
       const unmatched = new Set();
       const sets = [];
       (w.exercises || []).forEach((ex, pos) => {
-        const exId = byName.get(norm(ex.title));
+        const exId = match(ex.title);
         if (!exId) { unmatched.add(ex.title); return; }
         let n = 0;
         for (const s of ex.sets || []) {
@@ -92,9 +125,11 @@ export default handler(async (req) => {
   if (body.action === 'sync') {
     const sec = (await db.select('integration_secrets', `client_id=eq.${client.id}&select=hevy_key_enc,hevy_synced_at`))[0];
     if (!sec?.hevy_key_enc) return bad('Hevy ist nicht verbunden');
-    // simple rate limit: at most once per 5 minutes
-    if (sec.hevy_synced_at && Date.now() - new Date(sec.hevy_synced_at) < 5 * 60e3) return json({ imported: 0, note: 'gerade erst abgeglichen' });
-    const since = sec.hevy_synced_at ? new Date(new Date(sec.hevy_synced_at) - 7 * 864e5).toISOString().slice(0, 10) : null;
+    // full = re-import the last 50 workouts (after new exercise mappings); rate limit: normal 5 min, full 1 min
+    const full = body.full === true;
+    const wait = full ? 60e3 : 5 * 60e3;
+    if (sec.hevy_synced_at && Date.now() - new Date(sec.hevy_synced_at) < wait) return json({ imported: 0, note: 'gerade erst abgeglichen' });
+    const since = full || !sec.hevy_synced_at ? null : new Date(new Date(sec.hevy_synced_at) - 7 * 864e5).toISOString().slice(0, 10);
     const imported = await syncClient(client.id, decrypt(sec.hevy_key_enc), since);
     return json({ imported });
   }

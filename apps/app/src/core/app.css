@@ -657,3 +657,8 @@ button.fcard.plain-btn { width: 100%; margin: 0 0 12px; text-align: left; font: 
 .check-head .check-emoji { font-size: 26px; line-height: 1; }
 .check-head h2 { font-size: 22px; margin: 0; }
 .check-head p { margin: 2px 0 0; }
+
+/* weekday chips (training days) */
+.wd-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.wd-chip { width: 44px; min-height: 40px; margin: 0; padding: 0; border-radius: 12px; background: var(--fill); color: var(--text); font-weight: 600; font-size: 15px; }
+.wd-chip.on { background: var(--accent); color: #fff; }

@@ -60,6 +60,7 @@ export function configSummary(m, client, settings) {
       parts.push(`${label}${num(v, c.step)}${c.unit ? ' ' + c.unit : ''}`);
     }
     if (c.type === 'fields' && Array.isArray(v) && m.daily && v.length < m.daily.length) parts.push(`${v.length}/${m.daily.length} Felder`);
+    if (c.type === 'weekdays' && Array.isArray(v) && v.length) parts.push([1, 2, 3, 4, 5, 6, 0].filter((d) => v.map(Number).includes(d)).map((d) => ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'][d]).join(' · '));
   }
   return parts.join(' · ');
 }

@@ -74,6 +74,11 @@ export default {
   /** app start: push workouts that were logged offline */
   start() { syncOutbox().catch(() => {}); },
 
+  config: [
+    { key: 'training_days', label: 'Trainingstage', type: 'weekdays', store: 'target',
+      desc: 'An diesen Tagen kommt die Erinnerung „Trainingstag“, solange noch kein Training geloggt ist.' }
+  ],
+
   async today(ctx) {
     if (hevyActive(ctx)) return null;
     const [plan, workouts] = await Promise.all([activePlan(ctx.client.id), recentWorkouts(ctx.client.id, addDays(today(), -30), 30)]);

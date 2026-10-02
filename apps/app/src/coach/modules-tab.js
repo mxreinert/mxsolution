@@ -33,7 +33,7 @@ const THRESHOLDS = [
 const REMINDER_DESC = {
   weigh: 'Morgens, wenn noch kein Gewicht eingetragen ist.',
   evening: 'Abends, wenn der Abend-Check noch fehlt.',
-  training: 'An Tagen mit geplantem Cardio, wenn noch nichts geloggt ist.',
+  training: 'An den Trainingstagen (Krafttraining → Trainingstage) und an geplanten Cardio-Tagen, wenn noch nichts geloggt ist.',
   checkin: 'Am Check-in-Tag, wenn der Check-in noch fehlt.'
 };
 

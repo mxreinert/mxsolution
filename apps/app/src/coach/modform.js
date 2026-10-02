@@ -27,6 +27,22 @@ export function configForm(m, values) {
       const sel = select(c.options, state[c.key] ?? c.default);
       sel.addEventListener('change', () => { state[c.key] = sel.value; });
       rows.push(srow(c.label, desc, sel));
+    } else if (c.type === 'weekdays') {
+      // chips Mo–So, value = array of JS weekdays (0 = Sunday)
+      const chosen = new Set(Array.isArray(state[c.key]) ? state[c.key].map(Number) : []);
+      const names = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+      const chips = [1, 2, 3, 4, 5, 6, 0].map((wd) => {
+        const b = h('button', {
+          type: 'button', class: 'wd-chip' + (chosen.has(wd) ? ' on' : ''), 'aria-pressed': String(chosen.has(wd)),
+          onclick: () => {
+            chosen.has(wd) ? chosen.delete(wd) : chosen.add(wd);
+            b.classList.toggle('on', chosen.has(wd)); b.setAttribute('aria-pressed', String(chosen.has(wd)));
+            state[c.key] = [...chosen].sort();
+          }
+        }, names[wd]);
+        return b;
+      });
+      rows.push(srow(c.label, desc, h('div', { class: 'wd-chips' }, chips)));
     } else if (c.type === 'fields') {
       const chosen = new Set(Array.isArray(state[c.key]) ? state[c.key] : (m.daily || []).map((f) => f.key));
       rows.push(srow(c.label, desc, h('div', { class: 'check-list' }, (m.daily || []).map((f) => toggle(f.label, chosen.has(f.key), (v) => {

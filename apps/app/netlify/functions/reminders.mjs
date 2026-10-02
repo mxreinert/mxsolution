@@ -70,8 +70,10 @@ export default scheduled('reminders', async () => {
     const eveningDone = entry && (entry.kcal != null || entry.steps != null || entry.motivation != null);
     if (rem.evening?.on && due(rem.evening.time, now.hhmm) && !eveningDone) msgs.push({ title: '✍️ Abend-Check', body: 'Kurz die Werte von heute eintragen – unter 2 Minuten.', url: '/home.html#/eintragen?teil=abend', tag: 'evening' });
     const cardioToday = (c.targets?.cardio_week || []).filter((p) => Number(p.wd) === now.weekday);
-    if (rem.training?.on && due(rem.training.time, now.hhmm) && cardioToday.length && !workoutsToday.some((w) => w.client_id === c.id)) {
-      msgs.push({ title: '🏃 Heute steht Training an', body: cardioToday.map((p) => `${p.duration_min || ''} min ${p.kind}`).join(', '), url: '/home.html#/training', tag: 'training' });
+    const strengthToday = (c.targets?.training_days || []).map(Number).includes(now.weekday);
+    if (rem.training?.on && due(rem.training.time, now.hhmm) && (strengthToday || cardioToday.length) && !workoutsToday.some((w) => w.client_id === c.id)) {
+      const what = [strengthToday ? 'Krafttraining' : null, ...cardioToday.map((p) => `${p.duration_min || ''} min ${p.kind}`.trim())].filter(Boolean).join(', ');
+      msgs.push({ title: '💪 Heute ist Trainingstag', body: what, url: '/home.html#/training', tag: 'training' });
     }
     if (rem.checkin?.on && due(rem.checkin.time, now.hhmm) && now.weekday === c.checkin_weekday && !checkins.some((x) => x.client_id === c.id)) {
       msgs.push({ title: '📋 Check-in', body: 'Dein wöchentlicher Check-in ist fällig.', url: '/home.html#/checkin', tag: 'checkin' });
